@@ -1,0 +1,16 @@
+<use name="boost"/>
+<use name="rootrflx"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/FWLite"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/PythonParameterSet"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/FWLite"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="MagneticField/ParametrizedEngine"/>
+<use name="RecoVertex/KalmanVertexFit"/>
+<export>
+  <lib   name="1"/>
+</export>

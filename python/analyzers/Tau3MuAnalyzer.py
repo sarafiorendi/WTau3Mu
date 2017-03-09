@@ -1,3 +1,4 @@
+import ROOT
 from itertools import product, combinations
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer   import Analyzer
@@ -68,21 +69,24 @@ class Tau3MuAnalyzer(Analyzer):
         muons = [mu for mu in muons if 
                  (mu.isSoftMuon(mu.associatedVertex) or mu.isLooseMuon()) and
                  mu.pt()>1. and
-                 abs(mu.eta())<2.1]            
+                 abs(mu.eta())<2.1]         
         return muons
 
     def buildElectrons(self, electrons, event):
         '''
         Used for veto
         '''
-        map(Electron, electrons)
+        electrons = map(Electron, electrons)
         for ele in electrons:
             ele.associatedVertex = event.vertices[0]
+#         if len(electrons):
+#             import pdb ; pdb.set_trace()
         electrons = [ele for ele in electrons if
                      ele.pt()>10 and
                      abs(ele.eta())<2.5 and
+                     # ele.mvaIDRun2('Spring16', 'Veto') and # why?
+                     ele.mvaIDRun2('NonTrigSpring15MiniAOD', 'POG90') and
                      self.testVertex(ele) and
-                     ele.mvaIDRun2('POG_SPRING16_25ns_v1_Veto') and
                      ele.passConversionVeto() and
                      ele.physObj.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and
                      ele.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3]
@@ -91,7 +95,7 @@ class Tau3MuAnalyzer(Analyzer):
     def buildTaus(self, taus, event):
         '''
         '''
-        map(Tau, taus)
+        taus = map(Tau, taus)
         taus = [tau for tau in taus if 
                 tau.tauID('decayModeFinding') > 0.5 and
                 tau.tauID('byLooseIsolationMVArun2v1DBoldDMwLT') > 0.5 and

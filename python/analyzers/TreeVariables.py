@@ -33,7 +33,10 @@ event_vars = [
     Variable('Flag_eeBadScFilter', type=int),
     Variable('Flag_globalTightHalo2016Filter', type=int),
     Variable('passBadMuonFilter', type=int),
-    Variable('passBadChargedHadronFilter', type=int)
+    Variable('passBadChargedHadronFilter', type=int),
+    Variable('n_muons'    , lambda ev : len(ev.muons), type=int),
+    Variable('n_electrons', lambda ev : len(ev.electrons), type=int),
+    Variable('n_taus'     , lambda ev : len(ev.taus), type=int),
 ]
 
 # triplet variables
@@ -58,6 +61,16 @@ triplet_vars = [
     Variable('mtTotal23', lambda cand : cand.mtTotal23()),
     Variable('mtSumMuons', lambda cand : cand.mtSumMuons()),
     Variable('mtSqSumMuons', lambda cand : cand.mtSqSumMuons()),
+    Variable('dR12', lambda cand : cand.dR12()),
+    Variable('dR13', lambda cand : cand.dR13()),
+    Variable('dR23', lambda cand : cand.dR23()),
+    Variable('dRtauMET', lambda cand : cand.dRtauMET()),
+    Variable('dRtauMuonMax', lambda cand : cand.dRtauMuonMax()),
+    Variable('tau_dBetaIsoCone0p8strength0p2_abs'),
+    Variable('tau_dBetaIsoCone0p8strength0p2_rel'),
+    Variable('absChargedFromPV'),
+    Variable('absChargedFromPU'),
+    Variable('absPhotonRaw'),
 ]
 
 # generic particle

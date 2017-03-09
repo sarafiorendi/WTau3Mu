@@ -22,6 +22,7 @@ from CMGTools.H2TauTau.proto.analyzers.METFilter                 import METFilte
 from CMGTools.WTau3Mu.analyzers.Tau3MuAnalyzer                   import Tau3MuAnalyzer
 from CMGTools.WTau3Mu.analyzers.WTau3MuTreeProducer              import WTau3MuTreeProducer
 from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer import Tau3MuKalmanVertexFitterAnalyzer
+from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer          import Tau3MuIsolationAnalyzer
 
 # import samples
 from CMGTools.WTau3Mu.samples.data_2016                          import datasamplesDoubleMuLowMass as samples
@@ -34,7 +35,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 ###################################################
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
-production     = getHeppyOption('production'    , True)
+production     = getHeppyOption('production'    , False)
 pick_events    = getHeppyOption('pick_events'   , False)
 data           = getHeppyOption('data'          , False)
 correct_recoil = getHeppyOption('correct_recoil', True )
@@ -133,6 +134,11 @@ vertexFitter = cfg.Analyzer(
     name='Tau3MuKalmanVertexFitterAnalyzer',
 )
 
+isoAna = cfg.Analyzer(
+    Tau3MuIsolationAnalyzer,
+    name='Tau3MuIsolationAnalyzer',
+)
+
 ###################################################
 ###                  SEQUENCE                   ###
 ###################################################
@@ -147,6 +153,7 @@ sequence = cfg.Sequence([
     pileUpAna,
     tau3MuAna,
     vertexFitter,
+    isoAna,
     treeProducer,
     metFilter,
 ])

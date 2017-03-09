@@ -2,6 +2,7 @@ import math
 
 from itertools import combinations
 
+from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
 from ROOT import TVector3
 
@@ -78,6 +79,21 @@ class Tau3MuMET(object):
 
     def charge23(self):
         return self.mu2().charge() + self.mu3().charge()
+
+    def dR12(self):
+        return deltaR(self.mu1(), self.mu2())
+
+    def dR13(self):
+        return deltaR(self.mu1(), self.mu3())
+
+    def dR23(self):
+        return deltaR(self.mu2(), self.mu3())
+
+    def dRtauMET(self):
+        return deltaR(self.p4Muons(), self.met())
+
+    def dRtauMuonMax(self):
+        return max([deltaR(self.p4Muons(), mu) for mu in [self.mu1(), self.mu2(), self.mu3()]])
 
     def p4(self):
         return self.p4_

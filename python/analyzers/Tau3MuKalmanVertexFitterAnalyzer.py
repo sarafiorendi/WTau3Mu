@@ -56,11 +56,12 @@ class Tau3MuKalmanVertexFitterAnalyzer(Analyzer):
 
         event.tau3mu.refittedVertex.ls  = displacementFromBeamspotTau.perp() / math.sqrt(tauvtxerr.rerr(displacementFromBeamspotTau))
         event.tau3mu.refittedVertex.cos = vperptau.Dot(tauperp)/(vperptau.R()*tauperp.R())
-            
+
         # add refitted p4 to the muons
 #         event.tau3mu.mu1_.p4refit = 
 #         event.tau3mu.mu2_.p4refit = 
 #         event.tau3mu.mu3_.p4refit = 
+#         event.refitTau3mu = event.tau3mu
 
         return True
 

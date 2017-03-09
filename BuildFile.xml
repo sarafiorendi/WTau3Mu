@@ -11,6 +11,8 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="MagneticField/ParametrizedEngine"/>
 <use name="RecoVertex/KalmanVertexFit"/>
+<use name="RecoVertex/KinematicFit"/>
+<use name="RecoVertex/KinematicFitPrimitives"/>
 <export>
   <lib   name="1"/>
 </export>

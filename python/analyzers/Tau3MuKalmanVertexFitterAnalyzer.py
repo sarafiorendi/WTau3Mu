@@ -18,6 +18,11 @@ class Tau3MuKalmanVertexFitterAnalyzer(Analyzer):
             'offlineBeamSpot',
             'reco::BeamSpot'
         )
+
+
+    def beginLoop(self, setup):
+        super(Tau3MuKalmanVertexFitterAnalyzer, self).beginLoop(setup)
+        self.vf = VertexFitter()
     
     def process(self, event):
         self.readCollections(event.input)
@@ -30,7 +35,7 @@ class Tau3MuKalmanVertexFitterAnalyzer(Analyzer):
         muons.push_back(event.tau3mu.mu3().physObj)
     
         try:
-            vf = VertexFitter()
+            self.vf = VertexFitter()
             secondaryVertex = vf.Fit(muons) # this is a TransientVertex
             tauVertex = getattr(secondaryVertex, 'operator Vertex')() # this is now a reco::Vertex, see http://cmslxr.fnal.gov/source/RecoVertex/VertexPrimitives/interface/TransientVertex.h#0237
             event.tau3mu.refittedVertex = tauVertex

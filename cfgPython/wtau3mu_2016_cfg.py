@@ -5,24 +5,25 @@ from CMGTools.RootTools.utils.splitFactor import splitFactor
 
 # import all analysers:
 # Heppy analyzers
-from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer              import JSONAnalyzer
-from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount         import SkimAnalyzerCount
-from PhysicsTools.Heppy.analyzers.core.EventSelector             import EventSelector
-from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer         import VertexAnalyzer
-from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer            import PileUpAnalyzer
-from PhysicsTools.Heppy.analyzers.gen.GeneratorAnalyzer          import GeneratorAnalyzer
-from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer          import LHEWeightAnalyzer
+from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer                 import JSONAnalyzer
+from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount            import SkimAnalyzerCount
+from PhysicsTools.Heppy.analyzers.core.EventSelector                import EventSelector
+from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer            import VertexAnalyzer
+from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer               import PileUpAnalyzer
+from PhysicsTools.Heppy.analyzers.gen.GeneratorAnalyzer             import GeneratorAnalyzer
+from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer             import LHEWeightAnalyzer
         
 # Tau-tau analysers        
-from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer           import TriggerAnalyzer
-from CMGTools.H2TauTau.proto.analyzers.RecoilCorrector           import RecoilCorrector
-from CMGTools.H2TauTau.proto.analyzers.METFilter                 import METFilter
+from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer              import TriggerAnalyzer
+from CMGTools.H2TauTau.proto.analyzers.RecoilCorrector              import RecoilCorrector
+from CMGTools.H2TauTau.proto.analyzers.METFilter                    import METFilter
 
 #WTau3Mu analysers
-from CMGTools.WTau3Mu.analyzers.Tau3MuAnalyzer                   import Tau3MuAnalyzer
-from CMGTools.WTau3Mu.analyzers.WTau3MuTreeProducer              import WTau3MuTreeProducer
-from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer import Tau3MuKalmanVertexFitterAnalyzer
-from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer          import Tau3MuIsolationAnalyzer
+from CMGTools.WTau3Mu.analyzers.Tau3MuAnalyzer                      import Tau3MuAnalyzer
+from CMGTools.WTau3Mu.analyzers.WTau3MuTreeProducer                 import WTau3MuTreeProducer
+from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer    import Tau3MuKalmanVertexFitterAnalyzer
+from CMGTools.WTau3Mu.analyzers.Tau3MuKinematicVertexFitterAnalyzer import Tau3MuKinematicVertexFitterAnalyzer
+from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer             import Tau3MuIsolationAnalyzer
 
 # import samples
 from CMGTools.WTau3Mu.samples.data_2016                          import datasamplesDoubleMuLowMass as samples
@@ -39,6 +40,7 @@ production     = getHeppyOption('production'    , False)
 pick_events    = getHeppyOption('pick_events'   , False)
 data           = getHeppyOption('data'          , False)
 correct_recoil = getHeppyOption('correct_recoil', True )
+kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 
 ###################################################
 ###               HANDLE SAMPLES                ###
@@ -130,10 +132,17 @@ metFilter = cfg.Analyzer(
     ]
 )
 
-vertexFitter = cfg.Analyzer(
-    Tau3MuKalmanVertexFitterAnalyzer,
-    name='Tau3MuKalmanVertexFitterAnalyzer',
-)
+if kin_vtx_fitter:
+    vertexFitter = cfg.Analyzer(
+        Tau3MuKinematicVertexFitterAnalyzer,
+        name='Tau3MuKinematicVertexFitterAnalyzer',
+    )
+else:
+    vertexFitter = cfg.Analyzer(
+        Tau3MuKalmanVertexFitterAnalyzer,
+        name='Tau3MuKalmanVertexFitterAnalyzer',
+    )
+    
 
 isoAna = cfg.Analyzer(
     Tau3MuIsolationAnalyzer,

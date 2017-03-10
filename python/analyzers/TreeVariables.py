@@ -76,11 +76,12 @@ triplet_vars = [
 
 # generic particle
 particle_vars = [
-    Variable('pt', lambda p: p.pt()),
-    Variable('eta', lambda p: p.eta()),
-    Variable('phi', lambda p: p.phi()),
-    Variable('charge', lambda p: p.charge() if hasattr(p, 'charge') else 0), # charge may be non-integer for gen particles
-    Variable('mass', lambda p: p.mass()),
+    Variable('pt'    , lambda p: p.pt() ),
+    Variable('eta'   , lambda p: p.eta()),
+    Variable('phi'   , lambda p: p.phi()),
+    # RM this is bad too, done just to cope with refitted tau3mu
+    Variable('charge', lambda p: getattr(p, 'charge') if hasattr(p, 'charge') else 0), # charge may be non-integer for gen particles
+    Variable('mass'  , lambda p: p.mass()),
 ]
 
 # stage-2 L1 object
@@ -152,18 +153,18 @@ vertex_vars = [
 
 # muon
 muon_vars = [
-    Variable('reliso05', lambda lep : lep.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0)),
-    Variable('reliso05_03', lambda lep : lep.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0)),
-    Variable('muonid_soft', lambda muon : muon.isSoftMuon(muon.associatedVertex)),
-    Variable('muonid_loose', lambda muon : muon.muonID('POG_ID_Loose')),
-    Variable('muonid_medium', lambda muon : muon.muonID('POG_ID_Medium_ICHEP')),
-    Variable('muonid_tight', lambda muon : muon.muonID('POG_ID_Tight')),
-    Variable('muonid_tightnovtx', lambda muon : muon.muonID('POG_ID_TightNoVtx')),
-    Variable('muonid_highpt', lambda muon : muon.muonID('POG_ID_HighPt')),
+    Variable('reliso05'         , lambda muon : muon.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0)),
+    Variable('reliso05_03'      , lambda muon : muon.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0)),
+    Variable('muonid_soft'      , lambda muon : muon.isSoftMuon(muon.associatedVertex)            ),
+    Variable('muonid_loose'     , lambda muon : muon.muonID('POG_ID_Loose')                       ),
+    Variable('muonid_medium'    , lambda muon : muon.muonID('POG_ID_Medium_ICHEP')                ),
+    Variable('muonid_tight'     , lambda muon : muon.muonID('POG_ID_Tight')                       ),
+    Variable('muonid_tightnovtx', lambda muon : muon.muonID('POG_ID_TightNoVtx')                  ),
+    Variable('muonid_highpt'    , lambda muon : muon.muonID('POG_ID_HighPt')                      ),
     # ask quality first...
 #     Variable('dxy_innertrack', lambda muon : muon.innerTrack().dxy(muon.associatedVertex.position())),
 #     Variable('dz_innertrack', lambda muon : muon.innerTrack().dz(muon.associatedVertex.position())),
-    Variable('weight_tracking', lambda muon : getattr(muon, 'weight_tracking', 1.)),
+    Variable('weight_tracking'  , lambda muon : getattr(muon, 'weight_tracking', 1.)),
 ]
 
 # tau

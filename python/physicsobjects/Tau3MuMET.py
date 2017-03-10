@@ -32,8 +32,11 @@ class Tau3MuMET(object):
         self.mu2_ = muons[1]
         self.mu3_ = muons[2]
         self.met_ = met
-        self.p4_ = self.mu1_.p4() + self.mu2_.p4() + self.mu3_.p4() + self.met_.p4()
-        self.p4Muons_ = self.mu1_.p4() + self.mu2_.p4() + self.mu3_.p4()
+        
+        self.mu1p4_ = self.mu1_.p4()
+        self.mu2p4_ = self.mu2_.p4()
+        self.mu3p4_ = self.mu3_.p4()
+
         self.checkResonances()
         self.refittedVertex = None
         
@@ -67,25 +70,25 @@ class Tau3MuMET(object):
                     self.vetoResonance2sigma = (mm[2] + rr[2]) * math.copysign(1, mm[1])
         
     def sumPt(self):
-        return self.p4_.pt()
+        return self.p4().pt()
 
     def sumPtMuons(self):
-        return self.p4Muons_.pt()
+        return self.p4Muons().pt()
         
     def mass(self):
-        return self.p4_.mass()
+        return self.p4().mass()
 
     def massMuons(self):
-        return self.p4Muons_.mass()
+        return self.p4Muons().mass()
 
     def mass12(self):
-        return (self.mu1().p4() + self.mu2().p4()).mass()
+        return (self.mu1p4_ + self.mu2p4_).mass()
 
     def mass13(self):
-        return (self.mu1().p4() + self.mu3().p4()).mass()
+        return (self.mu1p4_ + self.mu3p4_).mass()
 
     def mass23(self):
-        return (self.mu2().p4() + self.mu3().p4()).mass()
+        return (self.mu2p4_ + self.mu3p4_).mass()
 
     def charge12(self):
         return self.mu1().charge() + self.mu2().charge()
@@ -97,25 +100,25 @@ class Tau3MuMET(object):
         return self.mu2().charge() + self.mu3().charge()
 
     def dR12(self):
-        return deltaR(self.mu1(), self.mu2())
+        return deltaR(self.mu1p4_, self.mu2p4_)
 
     def dR13(self):
-        return deltaR(self.mu1(), self.mu3())
+        return deltaR(self.mu1p4_, self.mu3p4_)
 
     def dR23(self):
-        return deltaR(self.mu2(), self.mu3())
+        return deltaR(self.mu2p4_, self.mu3p4_)
 
     def dRtauMET(self):
         return deltaR(self.p4Muons(), self.met())
 
     def dRtauMuonMax(self):
-        return max([deltaR(self.p4Muons(), mu) for mu in [self.mu1(), self.mu2(), self.mu3()]])
+        return max([deltaR(self.p4Muons(), mu) for mu in [self.mu1p4_, self.mu2p4_, self.mu3p4_]])
 
     def p4(self):
-        return self.p4_
+        return self.mu1p4_ + self.mu2p4_ + self.mu3p4_ + self.met_.p4()
 
     def p4Muons(self):
-        return self.p4Muons_
+        return self.mu1p4_ + self.mu2p4_ + self.mu3p4_
 
     def mu1(self):
         return self.mu1_
@@ -130,24 +133,24 @@ class Tau3MuMET(object):
         return self.met_
 
     def calcPZeta(self):
-        mu1PT = TVector3(self.mu1().p4().x(), self.mu1().p4().y(), 0.)
-        mu2PT = TVector3(self.mu2().p4().x(), self.mu2().p4().y(), 0.)
-        mu3PT = TVector3(self.mu3().p4().x(), self.mu3().p4().y(), 0.)
+        mu1PT = TVector3(self.mu1p4_.x(), self.mu1p4_.y(), 0.)
+        mu2PT = TVector3(self.mu2p4_.x(), self.mu2p4_.y(), 0.)
+        mu3PT = TVector3(self.mu3p4_.x(), self.mu3p4_.y(), 0.)
         metPT = TVector3(self.met().p4().x(), self.met().p4().y(), 0.)
         zetaAxis = (mu1PT.Unit() + mu2PT.Unit() + mu3PT.Unit()).Unit()
         self.pZetaVis_ = mu1PT*zetaAxis + mu2PT*zetaAxis + mu3PT*zetaAxis
         self.pZetaMET_ = metPT*zetaAxis
 
     def mt1(self):
-        mt1 = self.calcMT(self.mu1(), self.met())
+        mt1 = self.calcMT(self.mu1p4_, self.met())
         return mt1
 
     def mt2(self):
-        mt2 = self.calcMT(self.mu2(), self.met())
+        mt2 = self.calcMT(self.mu2p4_, self.met())
         return mt2
 
     def mt3(self):
-        mt3 = self.calcMT(self.mu3(), self.met())
+        mt3 = self.calcMT(self.mu3p4_, self.met())
         return mt3
 
     def mttau(self):

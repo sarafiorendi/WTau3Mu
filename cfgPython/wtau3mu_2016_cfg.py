@@ -48,8 +48,9 @@ for sample in samples:
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
-# selectedComponents = samples
-selectedComponents = samples[-2:-1]
+selectedComponents = samples
+# selectedComponents = samples[-2:-1]
+# selectedComponents = samples[:-2] + samples[-1:]
     
 ###################################################
 ###                  ANALYSERS                  ###

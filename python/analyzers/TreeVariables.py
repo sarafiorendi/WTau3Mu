@@ -41,7 +41,8 @@ event_vars = [
 
 # triplet variables
 triplet_vars = [
-    Variable('vetoResonance', type=int),
+    Variable('vetoResonance2sigma', type=int),
+    Variable('vetoResonance3sigma', type=int),
     Variable('sumPt', lambda cand : cand.sumPt()),
     Variable('sumPtMuons', lambda cand : cand.sumPtMuons()),
     Variable('mass', lambda cand : cand.mass()),

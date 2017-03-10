@@ -1,6 +1,6 @@
 import math
 
-from itertools import combinations
+from itertools import combinations, product
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
@@ -9,15 +9,16 @@ from ROOT import TVector3
 global resonances
 
 resonances = [
-    ( 0.7827, 0.030, 1), # omega
-    ( 0.7753, 0.150, 2), # rho
-    ( 1.0195, 0.030, 3), # phi
-    ( 3.6861, 0.030, 4), # J/Psi (2S)
-    ( 3.770 , 0.030, 5), # J/Psi (3S)
-    ( 9.4603, 0.070, 6), # Upsilon
-    (10.0233, 0.070, 7), # Upsilon (2S)
-    (10.3552, 0.070, 8), # Upsilon (3S)
-    (91.1976, 2.495, 9), # Z
+    ( 0.7753, 0.150,  1), # rho
+    ( 0.7827, 0.030,  2), # omega
+    ( 1.0195, 0.030,  3), # phi
+    ( 3.0969, 0.030,  4), # J/Psi
+    ( 3.6861, 0.030,  5), # J/Psi (2S)
+    ( 3.770 , 0.030,  6), # J/Psi (3S)
+    ( 9.4603, 0.070,  7), # Upsilon
+    (10.0233, 0.070,  8), # Upsilon (2S)
+    (10.3552, 0.070,  9), # Upsilon (3S)
+    (91.1976, 2.495, 10), # Z
 ]
 
 class Tau3MuMET(object):
@@ -41,14 +42,29 @@ class Tau3MuMET(object):
         Save info about di-muon resonances, including whether the two muons are OS or SS.
         Negative is SS.
         '''
-        self.vetoResonance = 0
-        for rr in resonances:
-            if self.mass12() > (rr[0] - 3.*rr[1]) and self.mass12() < (rr[0] + 3.*rr[1]): 
-                self.vetoResonance = ( 0 + rr[2]) * ((self.charge12()==0)-(self.charge12()!=0))
-            if self.mass13() > (rr[0] - 3.*rr[1]) and self.mass13() < (rr[0] + 3.*rr[1]): 
-                self.vetoResonance = (10 + rr[2]) * ((self.charge13()==0)-(self.charge13()!=0))
-            if self.mass23() > (rr[0] - 3.*rr[1]) and self.mass23() < (rr[0] + 3.*rr[1]): 
-                self.vetoResonance = (20 + rr[2]) * ((self.charge23()==0)-(self.charge23()!=0))
+        self.vetoResonance3sigma = 0
+        self.vetoResonance2sigma = 0
+        
+        masses = [
+            (self.mass12(), self.charge12(),  0), 
+            (self.mass13(), self.charge13(), 10), 
+            (self.mass23(), self.charge23(), 20),
+        ]
+        
+        # not very neat...
+        for mm in masses:
+            distance = 3.
+            for rr in resonances:
+                if abs(mm[0]-rr[0]) < distance * rr[1]:
+                    distance = abs(mm[0]-rr[0]) / rr[1]
+                    self.vetoResonance3sigma = (mm[2] + rr[2]) * math.copysign(1, mm[1])
+
+        for mm in masses:
+            distance = 2.
+            for rr in resonances:
+                if abs(mm[0]-rr[0]) < distance * rr[1]:
+                    distance = abs(mm[0]-rr[0]) / rr[1]
+                    self.vetoResonance2sigma = (mm[2] + rr[2]) * math.copysign(1, mm[1])
         
     def sumPt(self):
         return self.p4_.pt()

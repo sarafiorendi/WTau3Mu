@@ -1,5 +1,6 @@
 <lcgdict>
 
  <class name="Tau3MuKalmanVertexFitterProducer"/>
+ <class name="Tau3MuKinematicVertexFitterProducer"/>
  
 </lcgdict>

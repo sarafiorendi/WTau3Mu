@@ -9,6 +9,22 @@ from PhysicsTools.Heppy.physicsobjects.Tau        import Tau
 from PhysicsTools.HeppyCore.utils.deltar          import deltaR, deltaR2
 
 from CMGTools.WTau3Mu.physicsobjects.Tau3MuMET    import Tau3MuMET
+from pdb import set_trace
+
+resonances = sorted([ #(mass, expected experimental width, ID)
+    ( 0.7753, 0.150,  1), # rho
+    ( 0.7827, 0.030,  2), # omega
+    ( 1.0195, 0.030,  3), # phi
+    ( 3.0969, 0.030,  4), # J/Psi
+    ( 3.6861, 0.030,  5), # J/Psi (2S)
+    ( 3.770 , 0.030,  6), # J/Psi (3S)
+    ( 9.4603, 0.070,  7), # Upsilon
+    (10.0233, 0.070,  8), # Upsilon (2S)
+    (10.3552, 0.070,  9), # Upsilon (3S)
+    (91.1976, 2.495, 10), # Z
+    ], key=lambda x: x[1]
+)
+sigmas_to_exclude = 2
 
 class Tau3MuAnalyzer(Analyzer):
     '''
@@ -72,6 +88,19 @@ class Tau3MuAnalyzer(Analyzer):
                  abs(mu.eta())<2.1]         
         return muons
 
+    def resonanceVeto(self, muons):
+        pairs = [(i,j) for i, j in combinations(muons, 2) if (i.charge()+j.charge()) == 0]
+        excluded = set()
+        for rmass, rwidth, _ in resonances:
+            for m1, m2 in pairs:
+                if m1 in excluded or m2 in excluded: continue
+                delta_mass = abs( (m1.p4()+m2.p4()).M() - rmass )
+                if delta_mass < sigmas_to_exclude:
+                    excluded.add(m1)
+                    excluded.add(m2)
+            pairs = [(i, j) for i, j in pairs if i not in excluded and j not in excluded]
+        return list(set(muons) - excluded)
+
     def buildElectrons(self, electrons, event):
         '''
         Used for veto
@@ -112,7 +141,9 @@ class Tau3MuAnalyzer(Analyzer):
         else:
             return False
 
-        event.muons     = self.buildMuons    (self.handles['muons'    ].product(), event)
+        event.muons     = self.resonanceVeto(
+            self.buildMuons    (self.handles['muons'    ].product(), event)
+            )
         event.electrons = self.buildElectrons(self.handles['electrons'].product(), event)
         event.taus      = self.buildTaus     (self.handles['taus'     ].product(), event)
         event.pfmet     = self.handles['pfmet'   ].product()[0]

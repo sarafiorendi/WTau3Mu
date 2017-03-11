@@ -35,9 +35,9 @@ class Tau3MuIsolationAnalyzer(Analyzer):
         check PhysicsTools/Heppy/interface/IsolationComputer.h
         Not sure everythin is consistent at the moment...
         '''
-        tau.absChargedFromPV  = self.IsolationComputer.chargedAbsIso        (tau, self.isoRadius) # already muon subtracted
-        tau.absChargedFromPU  = self.IsolationComputer.puAbsIso             (tau, self.dBetaCone)
-        tau.absPhotonRaw      = self.IsolationComputer.photonAbsIsoRaw      (tau, self.dBetaCone)
+        tau.absChargedFromPV  = self.IsolationComputer.chargedAbsIso  (tau, self.isoRadius) # already muon subtracted
+        tau.absChargedFromPU  = self.IsolationComputer.puAbsIso       (tau, self.dBetaCone)
+        tau.absPhotonRaw      = self.IsolationComputer.photonAbsIsoRaw(tau, self.dBetaCone)
         
 
     def process(self, event):
@@ -46,30 +46,32 @@ class Tau3MuIsolationAnalyzer(Analyzer):
         pf_cands = self.handles['pf'].product()
         self.IsolationComputer.setPackedCandidates(pf_cands)
 
-        # if there's a refitted candidate, use it
-        if hasattr(event, 'tau3muRefit'):
-            candidate = event.tau3muRefit
-        else:
-            candidate = event.tau3mu
-
-        muons = [candidate.mu1(), candidate.mu2(), candidate.mu3()]
-        
-        tau_charge = sum([mu.charge() for mu in muons])
-        tau_lvP4   = candidate.p4Muons()
-        tau_vtx    = candidate.refittedVertex.position() if hasattr(event.tau3mu, 'refittedVertex') else None
-        tau_pdg    = (tau_charge>0) * 15 - (tau_charge<0) * 15
-                
-        tau = ROOT.reco.RecoChargedCandidate( tau_charge, tau_lvP4, tau_vtx, tau_pdg) 
-
-        # compute and attach the different isolation components
-        self.attachTauIsolation(tau)
-
-        # compute delta beta isolation
-        dBetaIso = tau.absChargedFromPV + max(0., tau.absPhotonRaw - self.dBetaValue * tau.absChargedFromPU)
-
-        # attach isolation to the to tau3mu object
-        setattr(event.tau3mu, 'tau_dBetaIsoCone%sstrength%s_abs' %(str(self.dBetaCone).replace('.','p'), str(self.dBetaValue).replace('.','p')), dBetaIso)
-        setattr(event.tau3mu, 'tau_dBetaIsoCone%sstrength%s_rel' %(str(self.dBetaCone).replace('.','p'), str(self.dBetaValue).replace('.','p')), dBetaIso/tau.pt())
+        for candidate in [event.tau3muRefit, event.tau3mu]:
+            
+            muons = [candidate.mu1(), candidate.mu2(), candidate.mu3()]
+            
+            tau_charge = sum([mu.charge() for mu in muons])
+            tau_lvP4   = candidate.p4Muons()
+            # for the refitted canddate consider as vertex the refitted vertex, 
+            # otherwise take the leading vertex
+            tau_vtx    = candidate.refittedVertex.position() if hasattr(candidate, 'refittedVertex') else event.vertices[0].position()
+            tau_pdg    = (tau_charge>0) * 15 - (tau_charge<0) * 15
+                    
+            tau = ROOT.reco.RecoChargedCandidate(tau_charge, tau_lvP4, tau_vtx, tau_pdg) 
+    
+            # compute and attach the different isolation components
+            self.attachTauIsolation(tau)
+    
+            # compute delta beta isolation
+            dBetaIso = tau.absChargedFromPV + max(0., tau.absPhotonRaw - self.dBetaValue * tau.absChargedFromPU)
+    
+            # attach isolation to the to tau3mu object
+            setattr(candidate, 'tau_dBetaIsoCone%sstrength%s_abs' %(str(self.dBetaCone).replace('.','p'), str(self.dBetaValue).replace('.','p')), dBetaIso)
+            setattr(candidate, 'tau_dBetaIsoCone%sstrength%s_rel' %(str(self.dBetaCone).replace('.','p'), str(self.dBetaValue).replace('.','p')), dBetaIso/tau.pt())
+            
+            candidate.absChargedFromPV = tau.absChargedFromPV
+            candidate.absChargedFromPU = tau.absChargedFromPU
+            candidate.absPhotonRaw     = tau.absPhotonRaw    
 
         return True
         

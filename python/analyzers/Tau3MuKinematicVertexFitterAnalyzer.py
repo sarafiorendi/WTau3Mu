@@ -6,6 +6,7 @@ from copy import deepcopy as dc
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from CMGTools.WTau3Mu.physicsobjects.Tau3MuMET import Tau3MuMET
+from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
 
 gSystem.Load("libCMGToolsWTau3Mu")
 
@@ -43,6 +44,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         self.counters.counter('KinematicVertexFitter').inc('all events')
         
         event.bs = self.handles['offlinebeamspot'].product()
+        
         point = ROOT.reco.Vertex.Point(
             event.bs.position().x(),
             event.bs.position().y(),
@@ -51,7 +53,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         error = event.bs.covariance3D()
         chi2 = 0.
         ndof = 0.
-        bsvtx = ROOT.reco.Vertex(point, error, chi2, ndof, 3)
+        bsvtx = ROOT.reco.Vertex(point, error, chi2, ndof, 3) # size? say 3? does it matter?
 
         muons = ROOT.std.vector('pat::Muon')()
         muons.push_back(event.tau3mu.mu1().physObj)
@@ -64,10 +66,8 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
             return False
         
         # accessing the tree components
-        try:
-            svtree.movePointerToTheTop()
-        except:
-            import pdb ; pdb.set_trace()
+        svtree.movePointerToTheTop()
+
         # We are now at the top of the decay tree getting
         # the Tau reconstructed KinematicPartlcle
         tauref = svtree.currentParticle()
@@ -92,29 +92,56 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         chi2 = sv.chiSquared()
         ndof = sv.degreesOfFreedom()
         tauvtx = ROOT.reco.Vertex(point, error, chi2, ndof, 3)
-        event.tau3mu.refittedVertex = tauvtx
 
         # Now navigating down the tree, mu1
         if not svtree.movePointerToTheFirstChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted muon 1')
         mu1ref = svtree.currentParticle()
-        event.tau3mu.refitMu1 = self.buildP4(mu1ref)[0]
+        refitMu1 = self.buildP4(mu1ref)[0]
 
         # mu2
         if not svtree.movePointerToTheNextChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted muon 2')
         mu2ref = svtree.currentParticle()
-        event.tau3mu.refitMu2 = self.buildP4(mu2ref)[0]
+        refitMu2 = self.buildP4(mu2ref)[0]
 
         # mu3
         if not svtree.movePointerToTheNextChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted muon 3')
         mu3ref = svtree.currentParticle()
-        event.tau3mu.refitMu3 = self.buildP4(mu3ref)[0]
+        refitMu3 = self.buildP4(mu3ref)[0]
+
+        # create a new tau3mu object using the original pat muons
+        # after their p4 is updated to the refitted p4
+        
+        mu1refit = dc(event.tau3mu.mu1().physObj) # clone PAT Muons
+        mu2refit = dc(event.tau3mu.mu2().physObj) # clone PAT Muons
+        mu3refit = dc(event.tau3mu.mu3().physObj) # clone PAT Muons
+
+        mu1refit.setP4(refitMu1) # update p4
+        mu2refit.setP4(refitMu2) # update p4
+        mu3refit.setP4(refitMu3) # update p4
+        
+        # instantiate heppy muons from PAT muons
+        refitMuons = [
+             Muon(mu1refit), 
+             Muon(mu2refit), 
+             Muon(mu3refit),
+        ]
+        
+        # associate the primary vertex to the muons
+        for mu in refitMuons:
+            mu.associatedVertex = event.vertices[0]
+        
+        # create a new tau3mu object
+        event.tau3muRefit = Tau3MuMET(refitMuons, event.tau3mu.met())
+
+        # append the refitted vertex to it
+        event.tau3muRefit.refittedVertex = tauvtx
 
         # calculate 2D displacement significance
         distanceTauBS = self.vertTool.distance(tauvtx, bsvtx)
-        event.tau3mu.refittedVertex.ls = distanceTauBS.significance()
+        event.tau3muRefit.refittedVertex.ls = distanceTauBS.significance()
 
         # calculate decay length significance w.r.t. the beamspot
         tauperp = ROOT.math.XYZVector(event.tau3mu.refitTau.px(),
@@ -127,15 +154,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         
         vperptau = ROOT.math.XYZVector(displacementFromBeamspotTau.x(), displacementFromBeamspotTau.y(), 0.)
         
-        event.tau3mu.refittedVertex.cos = vperptau.Dot(tauperp)/(vperptau.R()*tauperp.R())
-
-        # clone the tau3mu object and change by hand the muon p4s
-        # assumes that all relevant computations in Tau3MuMET are done
-        # using these class attributes
-        event.tau3muRefit = dc(event.tau3mu)
-        event.tau3muRefit.mu1p4_ = event.tau3mu.refitMu1
-        event.tau3muRefit.mu2p4_ = event.tau3mu.refitMu2
-        event.tau3muRefit.mu3p4_ = event.tau3mu.refitMu3
+        event.tau3muRefit.refittedVertex.cos = vperptau.Dot(tauperp)/(vperptau.R()*tauperp.R())
         
         return True
 
@@ -155,15 +174,4 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         p4 = ROOT.Math.LorentzVector("ROOT::Math::PxPyPzE4D<double>")(ref_px, ref_py, ref_pz, energy)
         
         return p4, ref
-
-
-#     @staticmethod
-#     def buildRecoVertex(x, y, z, cov, chi2, ndof, nchildren):
-        
-
-
-
-
-
-
 

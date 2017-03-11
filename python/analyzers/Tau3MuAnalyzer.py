@@ -9,22 +9,8 @@ from PhysicsTools.Heppy.physicsobjects.Tau        import Tau
 from PhysicsTools.HeppyCore.utils.deltar          import deltaR, deltaR2
 
 from CMGTools.WTau3Mu.physicsobjects.Tau3MuMET    import Tau3MuMET
+from CMGTools.WTau3Mu.analyzers.resonances        import resonances, sigmas_to_exclude
 from pdb import set_trace
-
-resonances = sorted([ #(mass, expected experimental width, ID)
-    ( 0.7753, 0.150,  1), # rho
-    ( 0.7827, 0.030,  2), # omega
-    ( 1.0195, 0.030,  3), # phi
-    ( 3.0969, 0.030,  4), # J/Psi
-    ( 3.6861, 0.030,  5), # J/Psi (2S)
-    ( 3.770 , 0.030,  6), # J/Psi (3S)
-    ( 9.4603, 0.070,  7), # Upsilon
-    (10.0233, 0.070,  8), # Upsilon (2S)
-    (10.3552, 0.070,  9), # Upsilon (3S)
-    (91.1976, 2.495, 10), # Z
-    ], key=lambda x: x[1]
-)
-sigmas_to_exclude = 2
 
 class Tau3MuAnalyzer(Analyzer):
     '''
@@ -71,6 +57,7 @@ class Tau3MuAnalyzer(Analyzer):
         count.register('all events')
         count.register('> 0 vertex')
         count.register('> 0 tri-muon')
+        count.register('pass resonance veto')
 #         count.register('fourth muon veto')
 #         count.register('electron veto')
 #         count.register('trig matched')
@@ -141,9 +128,7 @@ class Tau3MuAnalyzer(Analyzer):
         else:
             return False
 
-        event.muons     = self.resonanceVeto(
-            self.buildMuons    (self.handles['muons'    ].product(), event)
-            )
+        event.muons     = self.buildMuons    (self.handles['muons'    ].product(), event)
         event.electrons = self.buildElectrons(self.handles['electrons'].product(), event)
         event.taus      = self.buildTaus     (self.handles['taus'     ].product(), event)
         event.pfmet     = self.handles['pfmet'   ].product()[0]
@@ -153,8 +138,6 @@ class Tau3MuAnalyzer(Analyzer):
         # event.vetoelectrons = [ele for ele in event.electrons if self.isVetoElectron(ele)]
         # event.vetotaus      = [tau for tau in event.taus      if self.isVetoTau(tau)     ]
         
-        event.tau3mus = [Tau3MuMET(triplet, event.pfmet) for triplet in combinations(event.muons, 3)]
-
         good = self.selectionSequence(event)
         
         return good
@@ -167,6 +150,15 @@ class Tau3MuAnalyzer(Analyzer):
             return False
 
         self.counters.counter('Tau3Mu').inc('> 0 tri-muon')
+
+        event.muons = self.resonanceVeto(event.muons)
+
+        if len(event.muons) < 3:
+            return False
+
+        self.counters.counter('Tau3Mu').inc('pass resonance veto')
+
+        event.tau3mus = [Tau3MuMET(triplet, event.pfmet) for triplet in combinations(event.muons, 3)]
 
         # testing di-lepton itself
         seltau3mu = event.tau3mus
@@ -195,10 +187,7 @@ class Tau3MuAnalyzer(Analyzer):
     
     def testVertex(self, lepton):
         '''Tests vertex constraints, for mu'''
-        try:
-            return abs(lepton.dxy()) < 0.045 and abs(lepton.dz()) < 0.2
-        except:
-            import pdb ; pdb.set_trace()
+        return abs(lepton.dxy()) < 0.045 and abs(lepton.dz()) < 0.2
         
     def testTauVertex(self, tau):
         '''Tests vertex constraints, for tau'''

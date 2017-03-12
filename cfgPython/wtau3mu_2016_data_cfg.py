@@ -24,6 +24,7 @@ from CMGTools.WTau3Mu.analyzers.WTau3MuTreeProducer                 import WTau3
 from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer    import Tau3MuKalmanVertexFitterAnalyzer
 from CMGTools.WTau3Mu.analyzers.Tau3MuKinematicVertexFitterAnalyzer import Tau3MuKinematicVertexFitterAnalyzer
 from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer             import Tau3MuIsolationAnalyzer
+from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMatcherAnalyzer
 
 # import samples
 from CMGTools.WTau3Mu.samples.data_2016                          import datasamplesDoubleMuLowMass as samples
@@ -101,6 +102,7 @@ pileUpAna = cfg.Analyzer(
 )
 
 genAna = GeneratorAnalyzer.defaultConfig
+genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether hadronic / leptonic decay
 
 recoilCorr = cfg.Analyzer(
     RecoilCorrector,
@@ -149,6 +151,11 @@ isoAna = cfg.Analyzer(
     name='Tau3MuIsolationAnalyzer',
 )
 
+genMatchAna = cfg.Analyzer(
+    GenMatcherAnalyzer,
+    name='GenMatcherAnalyzer',
+)
+
 ###################################################
 ###                  SEQUENCE                   ###
 ###################################################
@@ -164,6 +171,7 @@ sequence = cfg.Sequence([
     tau3MuAna,
     vertexFitter,
     isoAna,
+    genMatchAna,
     treeProducer,
     metFilter,
 ])

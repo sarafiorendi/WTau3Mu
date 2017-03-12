@@ -21,6 +21,14 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.bookMuon(self.tree, 'mu2_refit')
         self.bookMuon(self.tree, 'mu3_refit')        
         self.bookVertex(self.tree, 'tau_sv')
+
+        # generator information
+        self.bookGenParticle(self.tree, 'w')
+        self.bookGenParticle(self.tree, 'mu1_refit_gen')
+        self.bookGenParticle(self.tree, 'mu2_refit_gen')
+        self.bookGenParticle(self.tree, 'mu3_refit_gen')
+        self.bookGenParticle(self.tree, 'gentau')
+        self.bookParticle(self.tree, 'genmet')
         
     def process(self, event):
         '''
@@ -47,6 +55,22 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
 
         if hasattr(event.tau3muRefit, 'refittedVertex') and event.tau3muRefit.refittedVertex is not None:
             self.fillVertex(self.tree, 'tau_sv', event.tau3muRefit.refittedVertex)
+
+        if hasattr(event, 'genw') and event.genw is not None: 
+            self.fillGenParticle(self.tree, 'w', event.genw)
+
+        if hasattr(event.tau3muRefit.mu1(), 'genp') and event.tau3muRefit.mu1().genp is not None: 
+            self.fillGenParticle(self.tree, 'mu1_refit_gen', event.tau3muRefit.mu1().genp)
+        if hasattr(event.tau3muRefit.mu2(), 'genp') and event.tau3muRefit.mu2().genp is not None: 
+            self.fillGenParticle(self.tree, 'mu2_refit_gen', event.tau3muRefit.mu2().genp)
+        if hasattr(event.tau3muRefit.mu3(), 'genp') and event.tau3muRefit.mu3().genp is not None: 
+            self.fillGenParticle(self.tree, 'mu3_refit_gen', event.tau3muRefit.mu3().genp)
+
+        if hasattr(event, 'genmet') and event.genmet is not None: 
+            self.fillParticle(self.tree, 'genmet', event.genmet)
+
+        if hasattr(event, 'gentau') and event.gentau is not None: 
+            self.fillParticle(self.tree, 'gentau', event.gentau)
 
         self.fillTree(event)
 

@@ -164,7 +164,8 @@ class Tau3MuAnalyzer(Analyzer):
         seltau3mu = event.tau3mus
 
         # mass cut
-        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.]
+        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.] # RM fix this once done with checking using WZ 
+#         seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 999.]
         
         if len(seltau3mu) == 0:
             return False

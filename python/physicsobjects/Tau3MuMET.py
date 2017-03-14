@@ -34,20 +34,15 @@ class Tau3MuMET(object):
             (self.mass23(), self.charge23(), 20),
         ]
         
-        # not very neat...
         for mm in masses:
-            distance = 3.
-            for rr in resonances:
-                if abs(mm[0]-rr[0]) < distance * rr[1]:
-                    distance = abs(mm[0]-rr[0]) / rr[1]
-                    self.vetoResonance3sigma = (mm[2] + rr[2]) * (mm[1]==0 - mm[1]!=0)
+            distance = lambda rr : abs(mm[0]-rr[0]) / rr[1]
+            resonance = sorted(resonances, key=distance)[0]
+            id = (mm[2] + resonance[2]) * ((mm[1]==0) - (mm[1]!=0))
+            if distance(resonance) < 3. :
+                self.vetoResonance3sigma = id
+            if distance(resonance) < 2. :
+                self.vetoResonance2sigma = id
 
-        for mm in masses:
-            distance = 2.
-            for rr in resonances:
-                if abs(mm[0]-rr[0]) < distance * rr[1]:
-                    distance = abs(mm[0]-rr[0]) / rr[1]
-                    self.vetoResonance2sigma = (mm[2] + rr[2]) * (mm[1]==0 - mm[1]!=0)
         
     def sumPt(self):
         return self.p4().pt()
@@ -109,6 +104,9 @@ class Tau3MuMET(object):
     def mu3(self):
         return self.mu3_
 
+    def charge(self):
+        return self.mu1().charge() + self.mu2().charge() + self.mu3().charge()
+        
     def met(self):
         return self.met_
 

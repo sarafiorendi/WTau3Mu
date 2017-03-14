@@ -57,10 +57,7 @@ class Tau3MuAnalyzer(Analyzer):
         count.register('all events')
         count.register('> 0 vertex')
         count.register('> 0 tri-muon')
-        count.register('pass resonance veto')
-#         count.register('fourth muon veto')
-#         count.register('electron veto')
-#         count.register('trig matched')
+        # count.register('pass resonance veto')
         count.register('m < 10 GeV')
 
     def buildMuons(self, muons, event):
@@ -123,20 +120,16 @@ class Tau3MuAnalyzer(Analyzer):
     def process(self, event):
         self.readCollections(event.input)
 
-        if len(event.vertices):
-            self.counters.counter('Tau3Mu').inc('> 0 vertex')
-        else:
+        if not len(event.vertices):
             return False
+
+        self.counters.counter('Tau3Mu').inc('> 0 vertex')
 
         event.muons     = self.buildMuons    (self.handles['muons'    ].product(), event)
         event.electrons = self.buildElectrons(self.handles['electrons'].product(), event)
         event.taus      = self.buildTaus     (self.handles['taus'     ].product(), event)
         event.pfmet     = self.handles['pfmet'   ].product()[0]
         event.puppimet  = self.handles['puppimet'].product()[0]
-
-        # to be implemented
-        # event.vetoelectrons = [ele for ele in event.electrons if self.isVetoElectron(ele)]
-        # event.vetotaus      = [tau for tau in event.taus      if self.isVetoTau(tau)     ]
         
         good = self.selectionSequence(event)
         
@@ -151,12 +144,12 @@ class Tau3MuAnalyzer(Analyzer):
 
         self.counters.counter('Tau3Mu').inc('> 0 tri-muon')
 
-        event.muons = self.resonanceVeto(event.muons)
+        # event.muons = self.resonanceVeto(event.muons)
 
-        if len(event.muons) < 3:
-            return False
+        # if len(event.muons) < 3:
+        #     return False
 
-        self.counters.counter('Tau3Mu').inc('pass resonance veto')
+        # self.counters.counter('Tau3Mu').inc('pass resonance veto')
 
         event.tau3mus = [Tau3MuMET(triplet, event.pfmet) for triplet in combinations(event.muons, 3)]
 
@@ -164,8 +157,7 @@ class Tau3MuAnalyzer(Analyzer):
         seltau3mu = event.tau3mus
 
         # mass cut
-        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.] # RM fix this once done with checking using WZ 
-#         seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 999.]
+        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.]
         
         if len(seltau3mu) == 0:
             return False

@@ -37,6 +37,7 @@ event_vars = [
     Variable('n_muons'    , lambda ev : len(ev.muons), type=int),
     Variable('n_electrons', lambda ev : len(ev.electrons), type=int),
     Variable('n_taus'     , lambda ev : len(ev.taus), type=int),
+    Variable('n_candidates', lambda ev : ev.ncands, type=int),
 ]
 
 # triplet variables
@@ -45,6 +46,7 @@ triplet_vars = [
     Variable('vetoResonance3sigma', type=int),
     Variable('sumPt', lambda cand : cand.sumPt()),
     Variable('sumPtMuons', lambda cand : cand.sumPtMuons()),
+    Variable('charge', lambda cand : cand.charge()),
     Variable('mass', lambda cand : cand.mass()),
     Variable('massMuons', lambda cand : cand.massMuons()),
     Variable('mass12', lambda cand : cand.mass12()),

@@ -1,6 +1,6 @@
 resonances = sorted([ #(mass, expected experimental width, ID)
     ( 0.5479, 0.030,  1), # eta
-    ( 0.7753, 0.075,  2), # rho
+    ( 0.7753, 0.075,  2), # rho # not very narrow... maybe relax this?
     ( 0.7827, 0.030,  3), # omega
     ( 1.0195, 0.030,  4), # phi
     ( 3.0969, 0.030,  5), # J/Psi

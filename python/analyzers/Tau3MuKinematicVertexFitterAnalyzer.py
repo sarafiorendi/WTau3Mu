@@ -151,8 +151,9 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
             return False
         self.counters.counter('KinematicVertexFitter').inc('>0 triplets without resonances with other muons')
 
-        #   - if there's still more than one candidate, pick the one with the best vertex probability        
-        candidate = sorted(candidates, key=lambda cand : cand.svtree.prob, reverse=True)[0]
+        #   - if there's still more than one candidate, pick the one with the best vertex probability.
+        #     Give precedence to candidates with the correct charge        
+        candidate = sorted(candidates, key=lambda cand : ((cand.charge()!=1), cand.svtree.prob), reverse=True)[0]
         self.counters.counter('KinematicVertexFitter').inc('candidate chosen')        
 
         # save the number of candidates as event attribute

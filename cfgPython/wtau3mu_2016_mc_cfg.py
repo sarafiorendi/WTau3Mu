@@ -30,6 +30,8 @@ from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMa
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import WJetsToLNu, WJetsToLNu_LO, WZTo3LNu, WZTo3LNu_amcatnlo, DYJetsToLL_M10to50_LO, DYJetsToLL_M50_LO_ext
 # import samples, lists
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import QCD_Mu5, TriBosons, TTs
+# import samples, signal
+from CMGTools.WTau3Mu.samples.mc_2016 import WToTauTo3Mu
 
 puFileMC   = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
@@ -39,7 +41,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 ###################################################
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
-production     = getHeppyOption('production'    , True)
+production     = getHeppyOption('production'    , False)
 pick_events    = getHeppyOption('pick_events'   , False)
 data           = getHeppyOption('data'          , False)
 correct_recoil = getHeppyOption('correct_recoil', True )
@@ -56,8 +58,9 @@ for sample in samples:
     sample.puFileData = puFileData
     sample.puFileMC   = puFileMC
 
-selectedComponents = samples
-    
+# selectedComponents = samples
+selectedComponents = [WJetsToLNu, WJetsToLNu_LO]
+
 ###################################################
 ###                  ANALYSERS                  ###
 ###################################################
@@ -169,7 +172,7 @@ sequence = cfg.Sequence([
     genAna,
     triggerAna, # First analyser that applies selections
     vertexAna,
-    recoilCorr,
+    # recoilCorr, # for now this works only with HTT
     pileUpAna,
     tau3MuAna,
     vertexFitter,
@@ -183,10 +186,10 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = WZTo3LNu
+    comp                 = WToTauTo3Mu
     selectedComponents   = [comp]
     comp.splitFactor     = 1
-    comp.fineSplitFactor = 10
+    comp.fineSplitFactor = 1
     comp.files           = comp.files[:3]
 #     comp.files = [
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'

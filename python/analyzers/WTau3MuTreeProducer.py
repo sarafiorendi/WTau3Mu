@@ -34,6 +34,8 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.bookL1object(self.tree, 'mu2_L1')
         self.bookL1object(self.tree, 'mu3_L1')
 
+        # BDT output
+        self.var(self.tree, 'bdt_score')
         
     def process(self, event):
         '''
@@ -86,5 +88,9 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         if hasattr(event.tau3muRefit.mu3(), 'L1'):
             self.fillL1object(self.tree, 'mu3_L1', event.tau3muRefit.mu3().L1)
 
+        # BDT output
+        if hasattr(event, 'bdt'):
+            self.fill(self.tree, 'bdt_score', event.bdt)
+ 
         self.fillTree(event)
 

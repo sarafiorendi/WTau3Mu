@@ -84,8 +84,8 @@ class L1TriggerAnalyzer(Analyzer):
                 mu.L1matches.sort(key = lambda l1 : (l1.goodID, l1.pt(), -l1.dR), reverse = True)
                 mu.L1 = mu.L1matches[0]
 
-        if not hasattr(muons[0], 'L1'):
-            import pdb ; pdb.set_trace()
+#         if not hasattr(muons[0], 'L1'):
+#             import pdb ; pdb.set_trace()
             
         return True
 

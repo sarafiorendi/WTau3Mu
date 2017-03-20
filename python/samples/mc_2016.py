@@ -24,8 +24,8 @@ WToTauTo3Mu = cfg.MCComponent(
         '/afs/cern.ch/work/m/mverzett/public/perRic/t3mMINIAODSIM/t3mu_MINIAODSIM_8.root',
         '/afs/cern.ch/work/m/mverzett/public/perRic/t3mMINIAODSIM/t3mu_MINIAODSIM_9.root',
     ],
-    xSection      = 1.,
-    nGenEvents    = 10,
+    xSection      = 20508.9 * 1.e-7, # W to lep nu / 3.[pb] x BR
+    nGenEvents    = 20000.,
     triggers      = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)],
     effCorrFactor = 1,
 )

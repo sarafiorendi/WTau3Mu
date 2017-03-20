@@ -52,13 +52,13 @@ class BDTAnalyzer(Analyzer):
             TMath.Prob(vtx.chi2(), int(vtx.ndof()))                 ,
             vtx.ls                                                  ,
             vtx.cos                                                 ,
-            cand.mu1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0),
-            cand.mu2().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0),
-            cand.mu3().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0),
+            cand.mu1().relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0),
+            cand.mu2().relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0),
+            cand.mu3().relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0),
             cand.met().pt()                                         ,
-            mu1ID                                                   ,
-            mu2ID                                                   ,
-            mu3ID                                                   ,
+            int(mu1ID)                                              ,
+            int(mu2ID)                                              ,
+            int(mu3ID)                                              ,
         ])
         
         # import pdb ; pdb.set_trace()

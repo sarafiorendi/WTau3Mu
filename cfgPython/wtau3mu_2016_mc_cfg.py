@@ -25,6 +25,8 @@ from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer    import Tau3M
 from CMGTools.WTau3Mu.analyzers.Tau3MuKinematicVertexFitterAnalyzer import Tau3MuKinematicVertexFitterAnalyzer
 from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer             import Tau3MuIsolationAnalyzer
 from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMatcherAnalyzer
+from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
+from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 
 # import samples, one by one
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import WJetsToLNu, WJetsToLNu_LO, WZTo3LNu, WZTo3LNu_amcatnlo, DYJetsToLL_M10to50_LO, DYJetsToLL_M50_LO_ext
@@ -50,10 +52,16 @@ kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 ###################################################
 ###               HANDLE SAMPLES                ###
 ###################################################
-samples = [WJetsToLNu, WJetsToLNu_LO, WZTo3LNu, WZTo3LNu_amcatnlo, DYJetsToLL_M10to50_LO, DYJetsToLL_M50_LO_ext] + QCD_Mu5 + TTs
+samples = [WToTauTo3Mu, WJetsToLNu, WJetsToLNu_LO, WZTo3LNu, WZTo3LNu_amcatnlo, DYJetsToLL_M10to50_LO, DYJetsToLL_M50_LO_ext] + QCD_Mu5 + TTs
 
 for sample in samples:
     sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
+    # specify which muon should match to which filter. 
+    sample.trigger_filters = [
+        (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
+        (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
+        (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
+    ]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.puFileData = puFileData
     sample.puFileMC   = puFileMC
@@ -119,6 +127,7 @@ recoilCorr = cfg.Analyzer(
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',
+    trigger_match=True,
 )
 
 treeProducer = cfg.Analyzer(
@@ -162,6 +171,13 @@ genMatchAna = cfg.Analyzer(
     name='GenMatcherAnalyzer',
 )
 
+level1Ana = L1TriggerAnalyzer.defaultConfig
+
+bdtAna = cfg.Analyzer(
+    BDTAnalyzer,
+    name='BDTAnalyzer',
+)
+
 ###################################################
 ###                  SEQUENCE                   ###
 ###################################################
@@ -178,6 +194,8 @@ sequence = cfg.Sequence([
     vertexFitter,
     isoAna,
     genMatchAna,
+    level1Ana,
+    bdtAna,
     treeProducer,
     metFilter,
 ])
@@ -190,7 +208,7 @@ if not production:
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
-    comp.files           = comp.files[:3]
+    comp.files           = comp.files[:1]
 #     comp.files = [
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'
 #     ]

@@ -188,7 +188,7 @@ sequence = cfg.Sequence([
     genAna,
     triggerAna, # First analyser that applies selections
     vertexAna,
-    # recoilCorr, # for now this works only with HTT
+    # recoilCorr, # for now this works only with HTT, but it's probably not needed
     pileUpAna,
     tau3MuAna,
     vertexFitter,

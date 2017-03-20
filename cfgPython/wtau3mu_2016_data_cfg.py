@@ -25,6 +25,8 @@ from CMGTools.WTau3Mu.analyzers.Tau3MuKalmanVertexFitterAnalyzer    import Tau3M
 from CMGTools.WTau3Mu.analyzers.Tau3MuKinematicVertexFitterAnalyzer import Tau3MuKinematicVertexFitterAnalyzer
 from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer             import Tau3MuIsolationAnalyzer
 from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMatcherAnalyzer
+from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
+from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 
 # import samples
 from CMGTools.WTau3Mu.samples.data_2016                          import datasamplesDoubleMuLowMass as samples
@@ -48,6 +50,12 @@ kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 ###################################################
 for sample in samples:
     sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
+    # specify which muon should match to which filter. 
+    sample.trigger_filters = [
+        (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
+        (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
+        (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
+    ]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
@@ -113,6 +121,7 @@ recoilCorr = cfg.Analyzer(
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',
+    trigger_match=True,
 )
 
 treeProducer = cfg.Analyzer(
@@ -156,6 +165,13 @@ genMatchAna = cfg.Analyzer(
     name='GenMatcherAnalyzer',
 )
 
+level1Ana = L1TriggerAnalyzer.defaultConfig
+
+bdtAna = cfg.Analyzer(
+    BDTAnalyzer,
+    name='BDTAnalyzer',
+)
+
 ###################################################
 ###                  SEQUENCE                   ###
 ###################################################
@@ -166,12 +182,13 @@ sequence = cfg.Sequence([
     genAna,
     triggerAna, # First analyser that applies selections
     vertexAna,
-    recoilCorr,
     pileUpAna,
     tau3MuAna,
     vertexFitter,
     isoAna,
     genMatchAna,
+    level1Ana,
+    bdtAna,
     treeProducer,
     metFilter,
 ])

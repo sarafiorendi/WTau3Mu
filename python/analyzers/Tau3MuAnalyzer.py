@@ -70,7 +70,7 @@ class Tau3MuAnalyzer(Analyzer):
         muons = [mu for mu in muons if 
                  (mu.isSoftMuon(mu.associatedVertex) or mu.isLooseMuon()) and
                  mu.pt()>1. and
-                 abs(mu.eta())<2.1]         
+                 abs(mu.eta())<2.4]         
         return muons
 
     def resonanceVeto(self, muons):
@@ -163,30 +163,36 @@ class Tau3MuAnalyzer(Analyzer):
         if len(seltau3mu) == 0:
             return False
         self.counters.counter('Tau3Mu').inc('m < 10 GeV')
-        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.]
 
         # trigger matching
         # RM FIXME! for now it makes sense only if there's just one trigger
-        for triplet in seltau3mu:
-            triplet.mu1().trig_objs = []
-            triplet.mu2().trig_objs = []
-            triplet.mu3().trig_objs = []
-
-            triplet.mu1().trig_matched = False
-            triplet.mu2().trig_matched = False
-            triplet.mu3().trig_matched = False
-
-            for info in event.trigger_infos:
-                triplet.mu1().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.3]
-                triplet.mu2().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.3]
-                triplet.mu3().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.3]
-            
-            for getter, filters in self.cfg_comp.trigger_filters:
-                for obj in getter(triplet).trig_objs:
-                    if set(filters) & set(obj.filterLabels()):
-                        getter(triplet).trig_matched = True
-        
         if hasattr(self.cfg_ana, 'trigger_match') and self.cfg_ana.trigger_match:
+            for triplet in seltau3mu:
+                triplet.mu1().trig_objs = []
+                triplet.mu2().trig_objs = []
+                triplet.mu3().trig_objs = []
+    
+                triplet.mu1().trig_matched = False
+                triplet.mu2().trig_matched = False
+                triplet.mu3().trig_matched = False
+    
+                for info in event.trigger_infos:
+                    triplet.mu1().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.3]
+                    triplet.mu2().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.3]
+                    triplet.mu3().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.3]
+                
+                # FIXME! cannot pickle properly
+                self.cfg_comp.trigger_filters = [
+                    (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
+                    (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
+                    (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
+                ]
+                
+                for getter, filters in self.cfg_comp.trigger_filters:
+                    for obj in getter(triplet).trig_objs:
+                        if set(filters) & set(obj.filterLabels()):
+                            getter(triplet).trig_matched = True
+            
             seltau3mu = [triplet for triplet in seltau3mu if triplet.mu1().trig_matched \
                          and triplet.mu2().trig_matched and triplet.mu3().trig_matched]
             if len(seltau3mu) == 0:

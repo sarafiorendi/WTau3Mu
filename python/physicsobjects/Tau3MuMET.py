@@ -83,6 +83,15 @@ class Tau3MuMET(object):
     def dR23(self):
         return deltaR(self.mu2().p4(), self.mu3().p4())
 
+    def pt12(self):
+        return (self.mu1().p4() + self.mu2().p4()).pt()
+
+    def pt13(self):
+        return (self.mu1().p4() + self.mu3().p4()).pt()
+
+    def pt23(self):
+        return (self.mu2().p4() + self.mu3().p4()).pt()
+
     def dRtauMET(self):
         return deltaR(self.p4Muons(), self.met())
 

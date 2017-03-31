@@ -67,7 +67,31 @@ def createSampleLists(analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/m
                   tree_prod_name = tree_prod_name, 
                   is_data        = True),
     ]
+    
 
+    # RIC only for emergency FIXME!
+    tree_prod_name = ''
+
+    samples_mc = [
+        SampleCfg(name           = 'Signal', 
+                  dir_name       = 'signal', 
+                  ana_dir        = analysis_dir, 
+                  tree_prod_name = tree_prod_name,
+                  xsec           = WToTauTo3Mu.xSection, 
+                  sumweights     = WToTauTo3Mu.nGenEvents, 
+                  weight_expr    = '1.',
+                  is_signal      = True,),
+    ]
+
+    samples_data = [
+        SampleCfg(name           = 'data_obs', 
+                  dir_name       = 'data', 
+                  ana_dir        = analysis_dir, 
+                  tree_prod_name = tree_prod_name, 
+                  is_data        = True),
+    ]
+    # 
+    
     all_samples = samples_mc + samples_data
 
     sampleDict = {}

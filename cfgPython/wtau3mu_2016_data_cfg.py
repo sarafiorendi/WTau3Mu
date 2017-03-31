@@ -1,3 +1,4 @@
+import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -40,9 +41,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
 production     = getHeppyOption('production'    , False)
-pick_events    = getHeppyOption('pick_events'   , False)
-data           = getHeppyOption('data'          , False)
-correct_recoil = getHeppyOption('correct_recoil', True )
+pick_events    = getHeppyOption('pick_events'   , True )
 kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 
 ###################################################
@@ -51,11 +50,12 @@ kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 for sample in samples:
     sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
     # specify which muon should match to which filter. 
-    sample.trigger_filters = [
-        (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
-        (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
-        (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
-    ]
+    # FIXME! cannot pickle properly...
+#     sample.trigger_filters = [
+#         (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
+#         (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
+#         (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
+#     ]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
@@ -69,7 +69,9 @@ selectedComponents = samples
 eventSelector = cfg.Analyzer(
     EventSelector,
     name='EventSelector',
-    toSelect=[]
+    toSelect=[
+        588661057,
+    ]
 )
 
 lheWeightAna = cfg.Analyzer(
@@ -166,6 +168,7 @@ genMatchAna = cfg.Analyzer(
 )
 
 level1Ana = L1TriggerAnalyzer.defaultConfig
+level1Ana.process = 'RECO'
 
 bdtAna = cfg.Analyzer(
     BDTAnalyzer,
@@ -197,11 +200,11 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = samples[-1]
+    comp                 = samples[-3]
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
-    comp.files           = comp.files[:1]
+#     comp.files           = comp.files[:1]
 #     comp.files = [
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'
 #     ]

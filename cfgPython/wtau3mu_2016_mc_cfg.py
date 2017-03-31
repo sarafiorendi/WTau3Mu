@@ -1,3 +1,4 @@
+import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -45,8 +46,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 # production = True run on batch, production = False (or unset) run locally
 production     = getHeppyOption('production'    , False)
 pick_events    = getHeppyOption('pick_events'   , False)
-data           = getHeppyOption('data'          , False)
-correct_recoil = getHeppyOption('correct_recoil', True )
+correct_recoil = getHeppyOption('correct_recoil', False)
 kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 
 ###################################################
@@ -55,13 +55,13 @@ kin_vtx_fitter = getHeppyOption('kin_vtx_fitter', True )
 samples = [WToTauTo3Mu, WJetsToLNu, WJetsToLNu_LO, WZTo3LNu, WZTo3LNu_amcatnlo, DYJetsToLL_M10to50_LO, DYJetsToLL_M50_LO_ext] + QCD_Mu5 + TTs
 
 for sample in samples:
-    sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
+#     sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
     # specify which muon should match to which filter. 
-    sample.trigger_filters = [
-        (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
-        (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
-        (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
-    ]
+#     sample.trigger_filters = [
+#         (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
+#         (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
+#         (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
+#     ]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.puFileData = puFileData
     sample.puFileMC   = puFileMC
@@ -97,7 +97,7 @@ triggerAna = cfg.Analyzer(
     TriggerAnalyzer,
     name='TriggerAnalyzer',
     addTriggerObjects=True,
-    requireTrigger=True,
+    requireTrigger=False,
     usePrescaled=False
 )
 
@@ -127,7 +127,7 @@ recoilCorr = cfg.Analyzer(
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',
-    trigger_match=True,
+    trigger_match=False,
 )
 
 treeProducer = cfg.Analyzer(
@@ -208,7 +208,7 @@ if not production:
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
-    comp.files           = comp.files[:1]
+#     comp.files           = comp.files[:1]
 #     comp.files = [
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'
 #     ]

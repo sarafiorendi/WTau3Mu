@@ -1,0 +1,4 @@
+<library name="CMGToolsWTau3MuPlugins" file="*.cc">
+  <use name="CMGTools/WTau3Mu"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

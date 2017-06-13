@@ -67,6 +67,7 @@ namespace cmg{
       edm::ESHandle<MagneticField> theBField;
        
       // reco muons
+      const edm::EDGetTokenT<pat::MuonCollection> muonSrc_;
       edm::Handle<pat::MuonCollection> mucand;
 
       // Extrapolator to cylinder
@@ -81,7 +82,8 @@ namespace cmg{
   };
 }
 
-cmg::L1MuonRecoPropagator::L1MuonRecoPropagator(const edm::ParameterSet & iConfig)
+cmg::L1MuonRecoPropagator::L1MuonRecoPropagator(const edm::ParameterSet & iConfig):
+  muonSrc_( consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("patMuonSrc") ) )
 { }
 
 
@@ -90,7 +92,7 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
 {
     
   // Get the muon candidates
-  iEvent.getByLabel("slimmedMuons", mucand);
+  iEvent.getByToken(muonSrc_, mucand);
 
   // Get the Magnetic field from the setup
   iSetup.get<IdealMagneticFieldRecord>().get(theBField);
@@ -103,6 +105,8 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
     
 	// Take the tracker track and build a transient track out of it
 	reco::TrackRef tr_mu = imu->innerTrack();  
+   
+    std::cout << "__LINE__" << "in da loop" << std::endl;
 
 	tsos = surfExtrapTrkSam(tr_mu, 790);   // track at ME2+ plane - extrapolation
 	if (tsos.isValid()) {
@@ -150,6 +154,7 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
 	  //   muonData->tr_phi_mb2.push_back(acos(cosphi));
 	  // else
 	  //   muonData->tr_phi_mb2.push_back(2*pig-acos(cosphi));
+	  std::cout << "__LINE__" << "xx" << xx << std::endl;
 	}
 	else{
 	  // muonData->tr_z_mb2.push_back(-999999);
@@ -205,4 +210,5 @@ cmg::L1MuonRecoPropagator::cylExtrapTrkSam(reco::TrackRef track, double rho)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(cmg::L1MuonRecoPropagator);
+using namespace cmg;
+DEFINE_FWK_MODULE(L1MuonRecoPropagator);

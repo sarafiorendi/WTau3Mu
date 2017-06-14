@@ -15,12 +15,15 @@ process.GlobalTag.globaltag = cms.string( "92X_upgrade2017_TSG_For83XSamples_V4"
 
 # Configure the object that reads the input file
 process.source = cms.Source('PoolSource', 
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/m/manzoni/public/perLuca/outputFULL.root'),
+    fileNames = cms.untracked.vstring(
+#         'file:/afs/cern.ch/work/m/manzoni/public/perLuca/outputFULL.root',
+        'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/Tau3Mu/outputFULL.root',
+    ),
 )
 
 process.extrapolator = cms.EDProducer(
     'L1MuonRecoPropagator',
-    patMuonSrc = cms.InputTag('slimmedMuons')
+    patMuonSrc = cms.InputTag('slimmedMuons'),
 )
 
 # Configure the object that writes an output file

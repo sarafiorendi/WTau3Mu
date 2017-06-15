@@ -2,11 +2,11 @@
 
  <class name="Tau3MuKalmanVertexFitterProducer"/>
  <class name="Tau3MuKinematicVertexFitterProducer"/>
- 
- <class name="std::vector<std::pair<const pat::Muon*, TLorentzVector> >"/>
- <class name="edm::Wrapper<std::vector<std::pair<const pat::Muon*, TLorentzVector> > >"/> 
 
- <class name="std::pair<const pat::Muon*,TLorentzVector>"/>
- <class name="edm::Wrapper<std::pair<const pat::Muon*,TLorentzVector> >"/>
+ <class name="std::pair<edm::Ptr<pat::Muon>,TLorentzVector>"/>
+ <class name="edm::Wrapper<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> >"/>
+
+ <class name="std::vector<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> >"/>
+ <class name="edm::Wrapper<std::vector<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> > >"/> 
  
 </lcgdict>

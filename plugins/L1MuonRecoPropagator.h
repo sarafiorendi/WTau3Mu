@@ -54,6 +54,9 @@
 // B Field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+// RIC
+#include "DataFormats/Common/interface/RefToPtr.h"
+
 
 namespace cmg{
   class L1MuonRecoPropagator : public edm::EDProducer {
@@ -72,8 +75,8 @@ namespace cmg{
       edm::ESHandle<MagneticField> theBField;
        
       // reco muons
-      const edm::EDGetTokenT<pat::MuonCollection> muonSrc_;
-      edm::Handle<pat::MuonCollection> mucand;
+      const edm::EDGetTokenT<edm::View<pat::Muon>> muonSrc_;
+      edm::Handle<edm::View<pat::Muon>> mucand;
 
       // Extrapolator to cylinder
       edm::ESHandle<Propagator> propagatorAlong;
@@ -94,28 +97,27 @@ namespace cmg{
       TLorentzVector ME2Pextrap;    
       TLorentzVector ME2Mextrap;    
       TLorentzVector MB2extrap;    
-
       
   };
 }
 
 cmg::L1MuonRecoPropagator::L1MuonRecoPropagator(const edm::ParameterSet & iConfig):
-  muonSrc_( consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("patMuonSrc") ) )
+  muonSrc_( consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("patMuonSrc") ) )
 { 
-  produces<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> ("ME2Pextrap");
-  produces<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> ("ME2Mextrap");
-  produces<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> ("MB2extrap" );
+  produces<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> ("ME2Pextrap");
+  produces<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> ("ME2Mextrap");
+  produces<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> ("MB2extrap" );
 }
 
 
 void 
 cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
-
+  
   // unique pointers for the output
-  std::unique_ptr<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> ME2Pextrap_ptr(new std::vector<std::pair<const pat::Muon *, TLorentzVector>>);
-  std::unique_ptr<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> ME2Mextrap_ptr(new std::vector<std::pair<const pat::Muon *, TLorentzVector>>);
-  std::unique_ptr<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> MB2extrap_ptr (new std::vector<std::pair<const pat::Muon *, TLorentzVector>>);
+  std::unique_ptr<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> ME2Pextrap_ptr(new std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>);
+  std::unique_ptr<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> ME2Mextrap_ptr(new std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>);
+  std::unique_ptr<std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>> MB2extrap_ptr (new std::vector<std::pair<edm::Ptr<pat::Muon>, TLorentzVector>>);
        
   // Get the muon candidates
   iEvent.getByToken(muonSrc_, mucand);
@@ -127,50 +129,60 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny"        , propagatorAlong   );
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
   
-  for(pat::MuonCollection::const_iterator imu = mucand->begin(); imu != mucand->end(); imu++){
-        
-    if (!imu->isStandAloneMuon() && !imu->isGlobalMuon()) continue;
-
-    std::cout << __LINE__ << " ==============================================================================="<< std::endl;
-    std::cout             << "reco pt  " << imu -> pt() <<  "\t eta  " << imu->eta() << "\t phi  " << imu->phi() << std::endl;
-        
-    // Take the tracker track and build a transient track out of it
-    reco::TrackRef tr_mu = imu->outerTrack(); // the only one that does not fail!
-      
-    tsos = surfExtrapTrkSam(tr_mu, 790);   // track at ME2+ plane - extrapolation
-    if (tsos.isValid()) {
-      phi = tsos.globalMomentum().phi();
-      eta = tsos.globalMomentum().eta();
-      ME2Pextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-      std::cout << "\t extrapolation to ME2+ plane" << std::endl;
-      std::cout << "\t phi " << phi << " eta " << eta << std::endl;
-      ME2Pextrap_ptr -> push_back ( std::pair<const pat::Muon *, TLorentzVector>(&(*imu), ME2Pextrap) );
-      // ME2Pextrap_ptr[&(*imu)] = ME2Pextrap;
-    }
+//   for(pat::MuonCollection::const_iterator imu = mucand->begin(); imu != mucand->end(); imu++){
+  for(edm::View<pat::Muon>::const_iterator imu = mucand->begin(); imu != mucand->end(); imu++){
     
-    tsos = surfExtrapTrkSam(tr_mu, -790);   // track at ME2- plane - extrapolation
-    if (tsos.isValid()) {
-      phi = tsos.globalMomentum().phi();
-      eta = tsos.globalMomentum().eta();
-      ME2Mextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-      std::cout << "\t extrapolation to ME2- plane" << std::endl;
-      std::cout << "\t phi " << phi << " eta " << eta << std::endl;
-      ME2Mextrap_ptr -> push_back ( std::pair<const pat::Muon *, TLorentzVector>(&(*imu), ME2Pextrap) );
-      // ME2Mextrap_ptr[&(*imu)] = ME2Mextrap;
+    // Get the pointer to the muon in the collection
+    unsigned int idx = imu - mucand->begin();
+    edm::Ptr<pat::Muon> ptrMuon = mucand->ptrAt(idx);
+    
+    // reset the extrapolated TLorentzVectors to the pat Muon p4
+    ME2Pextrap.SetPtEtaPhiM(imu->pt(), imu->eta(), imu->phi(), imu->mass());
+    ME2Mextrap.SetPtEtaPhiM(imu->pt(), imu->eta(), imu->phi(), imu->mass());
+    MB2extrap .SetPtEtaPhiM(imu->pt(), imu->eta(), imu->phi(), imu->mass());
+
+    if (imu->isStandAloneMuon() || imu->isGlobalMuon()){
+
+      std::cout << __LINE__ << " ==============================================================================="<< std::endl;
+      std::cout             << "reco pt  " << imu -> pt() <<  "\t eta  " << imu->eta() << "\t phi  " << imu->phi() << std::endl;
+          
+      // Take the tracker track and build a transient track out of it
+      reco::TrackRef tr_mu = imu->outerTrack(); // the only one that does not fail!
+        
+      tsos = surfExtrapTrkSam(tr_mu, 790);   // track at ME2+ plane - extrapolation
+      if (tsos.isValid()) {
+        phi = tsos.globalMomentum().phi();
+        eta = tsos.globalMomentum().eta();
+        ME2Pextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
+        std::cout << "\t extrapolation to ME2+ plane" << std::endl;
+        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+      }
+      
+      tsos = surfExtrapTrkSam(tr_mu, -790);   // track at ME2- plane - extrapolation
+      if (tsos.isValid()) {
+        phi = tsos.globalMomentum().phi();
+        eta = tsos.globalMomentum().eta();
+        ME2Mextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
+        std::cout << "\t extrapolation to ME2- plane" << std::endl;
+        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+      }
+  
+      tsos = cylExtrapTrkSam(tr_mu, 500);  // track at MB2 radius - extrapolation
+      if (tsos.isValid()) {
+        phi = tsos.globalMomentum().phi();
+        eta = tsos.globalMomentum().eta();
+        MB2extrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
+        std::cout << "\t extrapolation to MB2 plane" << std::endl;
+        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+      }    
     }
 
-    tsos = cylExtrapTrkSam(tr_mu, 500);  // track at MB2 radius - extrapolation
-    if (tsos.isValid()) {
-      phi = tsos.globalMomentum().phi();
-      eta = tsos.globalMomentum().eta();
-      MB2extrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-      std::cout << "\t extrapolation to MB2 plane" << std::endl;
-      std::cout << "\t phi " << phi << " eta " << eta << std::endl;
-      MB2extrap_ptr -> push_back ( std::pair<const pat::Muon *, TLorentzVector>(&(*imu), ME2Pextrap) );
-      // MB2extrap_ptr[&(*imu)] = MB2extrap;
-    }    
-  }
+    ME2Pextrap_ptr -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
+    ME2Mextrap_ptr -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
+    MB2extrap_ptr  -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
 
+  }
+  
   iEvent.put(std::move(ME2Pextrap_ptr), "ME2Pextrap");
   iEvent.put(std::move(ME2Mextrap_ptr), "ME2Mextrap");
   iEvent.put(std::move(MB2extrap_ptr ), "MB2extrap" );

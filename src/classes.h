@@ -16,13 +16,11 @@ namespace {
     Tau3MuKalmanVertexFitterProducer tau3muKalmanVtx_;
     Tau3MuKinematicVertexFitterProducer tau3muKinVtx_;
 
-    std::vector<std::pair<const pat::Muon*, TLorentzVector> > mpmtlv;
-    edm::Wrapper<std::vector<std::pair<const pat::Muon*, TLorentzVector> > > wmpmtlv; 
-//     edm::helpers<std::vector<std::pair<const pat::Muon *, TLorentzVector>>> hmpmtlv; 
+    std::pair<edm::Ptr<pat::Muon>,TLorentzVector> pppmtlv;
+    edm::Wrapper<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> > wpppmtlv;
 
-    std::pair<const pat::Muon*,TLorentzVector> ppmtlv;
-    edm::Wrapper<std::pair<const pat::Muon*,TLorentzVector> > wppmtlv; 
-//     edm::helpers<std::pair<const pat::Muon*,TLorentzVector> > hppmtlv; 
+    std::vector<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> > vpppmtlv;
+    edm::Wrapper<std::vector<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> > > wvpppmtlv;
 
   };
 }

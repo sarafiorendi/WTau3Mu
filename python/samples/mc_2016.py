@@ -6,9 +6,7 @@ import os
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
-# WToTauTo3Mu = kreator.makeMCComponent("DoubleMuonLowMass_Run2016B_23Sep2016"    , "/DoubleMuonLowMass/Run2016B-23Sep2016-v3/MINIAOD" , "CMS", ".*root", json)
-
-
+# first private production
 WToTauTo3Mu = cfg.MCComponent(
     dataset       = 'WToTauTo3Mu',
     name          = 'WToTauTo3Mu',

@@ -5,11 +5,12 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
-from PhysicsTools.Heppy.physicsobjects.L1Candidate import L1Candidate
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 from PhysicsTools.Heppy.physicsobjects.Jet import Jet
+
+from CMGTools.WTau3Mu.physicsobjects.L1Candidate import L1Candidate
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -38,19 +39,16 @@ class L1TriggerAnalyzer(Analyzer):
     def declareHandles(self):
         super(L1TriggerAnalyzer, self).declareHandles()
         
-        if hasattr(self.cfg_ana, 'labelmuon'): labelmuon = self.cfg_ana.labelmuon
-        else: labelmuon = 'gmtStage2Digis'
-
-        if hasattr(self.cfg_ana, 'process'): process = self.cfg_ana.process
-        else: process = 'HLT'
+        if hasattr(self.cfg_ana, 'collection'): collection = self.cfg_ana.collection
+        else: collection = ('gmtStage2Digis', 'Muon', 'HLT')
                     
-        self.handles[Stage2L1ObjEnum.Muon] = AutoHandle( (labelmuon, 'Muon', process), 'BXVector<l1t::Muon>' )
+        self.handles[Stage2L1ObjEnum.Muon] = AutoHandle( collection, 'BXVector<l1t::Muon>' )
         
     def process(self, event):
         self.readCollections(event.input)
         
         muons = [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()]
-        
+                
         dRmax = 0.3
         if hasattr(self.cfg_ana, 'dR'):
             dRmax = self.cfg_ana.dR

@@ -56,9 +56,23 @@ class Tau3MuIsolationAnalyzer(Analyzer):
             # otherwise take the leading vertex
             tau_vtx    = candidate.refittedVertex.position() if hasattr(candidate, 'refittedVertex') else event.vertices[0].position()
             tau_pdg    = (tau_charge>0) * 15 - (tau_charge<0) * 15
-                    
-            tau = ROOT.reco.RecoChargedCandidate(tau_charge, tau_lvP4, tau_vtx, tau_pdg) 
-    
+               
+            #import pdb ; pdb.set_trace()
+            
+            # this crashes...
+            # IncrementalExecutor::executeFunction: symbol '_ZN4reco13LeafCandidateC2EiRKN4ROOT4Math13LorentzVectorINS2_9PxPyPzE4DIdEEEERKNS2_16PositionVector3DINS2_11Cartesian3DIdEENS2_26DefaultCoordinateSystemTagEEEiib' unresolved while linking symbol '__cf_216'!
+            # You are probably missing the definition of reco::LeafCandidate::LeafCandidate(int, ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > const&, ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>, ROOT::Math::DefaultCoordinateSystemTag> const&, int, int, bool)
+            # Maybe you need to load the corresponding shared library?
+            # Error in <TClingCallFunc::make_wrapper>: Failed to compile
+            # tau = ROOT.reco.RecoChargedCandidate(tau_charge, tau_lvP4, tau_vtx, tau_pdg) 
+            
+            # RM need this in 922
+            tau = ROOT.reco.RecoChargedCandidate()
+            tau.setPdgId(-15)
+            tau.setCharge(-1)
+            tau.setP4(tau_lvP4)
+            tau.setVertex(tau_vtx)
+             
             # compute and attach the different isolation components
             self.attachTauIsolation(tau)
     

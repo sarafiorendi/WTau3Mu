@@ -54,10 +54,6 @@
 // B Field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-// RIC
-#include "DataFormats/Common/interface/RefToPtr.h"
-
-
 namespace cmg{
   class L1MuonRecoPropagator : public edm::EDProducer {
     public:
@@ -143,8 +139,9 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
 
     if (imu->isStandAloneMuon() || imu->isGlobalMuon()){
 
-      std::cout << __LINE__ << " ==============================================================================="<< std::endl;
-      std::cout             << "reco pt  " << imu -> pt() <<  "\t eta  " << imu->eta() << "\t phi  " << imu->phi() << std::endl;
+      // RM: don't be lazy, use a logger!
+      // std::cout << __LINE__ << " ==============================================================================="<< std::endl;
+      // std::cout             << "reco pt  " << imu -> pt() <<  "\t eta  " << imu->eta() << "\t phi  " << imu->phi() << std::endl;
           
       // Take the tracker track and build a transient track out of it
       reco::TrackRef tr_mu = imu->outerTrack(); // the only one that does not fail!
@@ -154,8 +151,8 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
         phi = tsos.globalMomentum().phi();
         eta = tsos.globalMomentum().eta();
         ME2Pextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-        std::cout << "\t extrapolation to ME2+ plane" << std::endl;
-        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+        // std::cout << "\t extrapolation to ME2+ plane" << std::endl;
+        // std::cout << "\t phi " << phi << " eta " << eta << std::endl;
       }
       
       tsos = surfExtrapTrkSam(tr_mu, -790);   // track at ME2- plane - extrapolation
@@ -163,8 +160,8 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
         phi = tsos.globalMomentum().phi();
         eta = tsos.globalMomentum().eta();
         ME2Mextrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-        std::cout << "\t extrapolation to ME2- plane" << std::endl;
-        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+        // std::cout << "\t extrapolation to ME2- plane" << std::endl;
+        // std::cout << "\t phi " << phi << " eta " << eta << std::endl;
       }
   
       tsos = cylExtrapTrkSam(tr_mu, 500);  // track at MB2 radius - extrapolation
@@ -172,8 +169,8 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
         phi = tsos.globalMomentum().phi();
         eta = tsos.globalMomentum().eta();
         MB2extrap.SetPtEtaPhiM(imu->pt(), eta, phi, imu->mass());
-        std::cout << "\t extrapolation to MB2 plane" << std::endl;
-        std::cout << "\t phi " << phi << " eta " << eta << std::endl;
+        // std::cout << "\t extrapolation to MB2 plane" << std::endl;
+        // std::cout << "\t phi " << phi << " eta " << eta << std::endl;
       }    
     }
 

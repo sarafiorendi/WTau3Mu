@@ -9,8 +9,14 @@ handle = Handle ('std::vector<pat::Muon>')
 label  = ("slimmedMuons")
 
 
-handle_bis = Handle ('vector<pair<edm::Ptr<pat::Muon>,TLorentzVector> >')
-label_bis  = ("extrapolator", "MB2extrap") 
+handle_barrel = Handle('vector<pair<edm::Ptr<pat::Muon>,TLorentzVector> >')
+label_barrel  = ("extrapolator", "MB2extrap") 
+
+handle_endcapP = Handle('vector<pair<edm::Ptr<pat::Muon>,TLorentzVector> >')
+label_endcapP = ("extrapolator", "ME2Pextrap") 
+
+handle_endcapM = Handle('vector<pair<edm::Ptr<pat::Muon>,TLorentzVector> >')
+label_endcapM = ("extrapolator", "ME2Mextrap") 
 
 ROOT.gROOT.SetBatch()
 
@@ -28,8 +34,18 @@ event.getByLabel (label, handle)
 muons = handle.product()
 
 
-event.getByLabel (label_bis, handle_bis)
-muonsL1Barrel = handle_bis.product()
+event.getByLabel(label_barrel, handle_barrel)
+muonsL1Barrel = handle_barrel.product()
+
+event.getByLabel(label_endcapP, handle_endcapP)
+muonsL1EndcapP = handle_endcapP.product()
+
+event.getByLabel(label_endcapM, handle_endcapM)
+muonsL1EndcapM = handle_endcapM.product()
+
+for i in range(6):
+    print muonsL1Barrel[i].second.Phi(), muonsL1EndcapM[i].second.Phi(), muonsL1EndcapP[i].second.Phi()
+
 
 # if len(muons):
 #     muons[0].track().pt()

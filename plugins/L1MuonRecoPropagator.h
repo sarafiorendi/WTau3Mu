@@ -175,8 +175,8 @@ cmg::L1MuonRecoPropagator::produce(edm::Event & iEvent, const edm::EventSetup & 
     }
 
     ME2Pextrap_ptr -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
-    ME2Mextrap_ptr -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
-    MB2extrap_ptr  -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Pextrap) );
+    ME2Mextrap_ptr -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, ME2Mextrap) );
+    MB2extrap_ptr  -> push_back ( std::pair<edm::Ptr<pat::Muon>, TLorentzVector>( ptrMuon, MB2extrap ) );
 
   }
   

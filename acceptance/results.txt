@@ -1,0 +1,12 @@
+run on 3000 signal events
+       1336 signal events have ALL muons inside the tracker acceptance
+       904 signal events are eventually reconstructed at offline
+
+
+reconstructable muons defined as (AN2010_138_v12)
+
+for gg in gen_muons:
+    if abs(gg.eta()) > 2.5: continue
+    elif abs(gg.eta()) < 1.  and gg.pt() > 3. : reconstructable_muons.append(gg)
+    elif abs(gg.eta()) >= 1. and gg.pt() > 0.8: reconstructable_muons.append(gg)
+

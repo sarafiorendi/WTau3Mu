@@ -122,8 +122,7 @@ def compute_rate(files, index):
         ntuple.Fill(unpackedBs)
     
         for k, v in seeds.iteritems():
-            if v>0:
-                acceptance_tot.Fill(k, v>0)        
+            acceptance_tot.Fill(k, v>0)        
     
     f.cd()
     ntuple.Write()
@@ -310,6 +309,6 @@ rate_files = [
 ]
 
 
-for i, file in enumerate(rate_files[:2]):
+for i, file in enumerate(rate_files):
     compute_rate(file, i)
 

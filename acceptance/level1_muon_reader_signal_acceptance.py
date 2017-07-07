@@ -190,10 +190,9 @@ for i, event in enumerate(events):
     ntuple.Fill(unpackedBs)
 
     for k, v in seeds.iteritems():
-        if v>0:
-            acceptance_tot.Fill(k, v>0)
-            if len(reconstructable_muons)==3:
-                acceptance_reconstructable.Fill(k, v>0)
+        acceptance_tot.Fill(k, v>0)
+        if len(reconstructable_muons)==3:
+            acceptance_reconstructable.Fill(k, v>0)
 
 f.cd()
 ntuple.Write()

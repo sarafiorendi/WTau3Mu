@@ -21,44 +21,55 @@ def compute_rate(files, index):
     label_L1muon   = ('gmtStage2Digis', 'Muon') 
         
     mykeys = [
-        'L1_SingleMu_22_eta2p1_qual12',
-    
-        'L1_SingleMu_25_qual12',
-    
-        'L1_DoubleMu_10_1_Q12_maxMass4p0',
-        'L1_DoubleMu_9_1_Q12_maxMass4p0',
-        'L1_DoubleMu_8_3_Q12_maxMass4p0',
-        'L1_DoubleMu_6_2_Q12_maxMass4p0',
-        'L1_DoubleMu_5_3_Q12_maxMass4p0',
-        
-        'L1_DoubleMu_10_1_Q8_maxMass4p0',
-        'L1_DoubleMu_9_1_Q8_maxMass4p0',
-        'L1_DoubleMu_8_3_Q8_maxMass4p0',
-        'L1_DoubleMu_6_2_Q8_maxMass4p0',
-        'L1_DoubleMu_5_3_Q8_maxMass4p0',
-        
-        'L1_DoubleMu_10_1_Q12_maxMass4p0_OS',
-        'L1_DoubleMu_9_1_Q12_maxMass4p0_0S',
-        'L1_DoubleMu_8_3_Q12_maxMass4p0_0S',
-        'L1_DoubleMu_6_2_Q12_maxMass4p0_0S',
-        'L1_DoubleMu_5_3_Q12_maxMass4p0_0S',
-        
-        'L1_DoubleMu_10_1_Q8_maxMass4p0_0S',
-        'L1_DoubleMu_9_1_Q8_maxMass4p0_0S',
-        'L1_DoubleMu_8_3_Q8_maxMass4p0_0S',
-        'L1_DoubleMu_6_2_Q8_maxMass4p0_0S',
-        'L1_DoubleMu_5_3_Q8_maxMass4p0_0S',
-        
-        'L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4',
-        'L1_TripleMu_5_3_0_DoubleMu_5_3_OS_Mass_Max17',
-        'L1_DoubleMu4_SQ_OS_dR_Max1p2',
-        'L1_DoubleMu4p5_SQ_OS_dR_Max1p2',
+        'L1_SingleMu_22_eta2p1_Q12'                         ,
+          
+        'L1_SingleMu_25_Q12'                                ,
+          
+        'L1_DoubleMu_15_7_Q8'                               ,
+          
+        'L1_DoubleMu_12_0_Q12_maxMass4p0'                   ,
+        'L1_DoubleMu_10_1_Q12_maxMass4p0'                   ,
+        'L1_DoubleMu_9_1_Q12_maxMass4p0'                    ,
+        'L1_DoubleMu_8_3_Q12_maxMass4p0'                    ,
+        'L1_DoubleMu_6_2_Q12_maxMass4p0'                    ,
+        'L1_DoubleMu_5_3_Q12_maxMass4p0'                    ,
+          
+        'L1_DoubleMu_12_0_Q8_maxMass4p0'                    ,
+        'L1_DoubleMu_10_1_Q8_maxMass4p0'                    ,
+        'L1_DoubleMu_9_1_Q8_maxMass4p0'                     ,
+        'L1_DoubleMu_8_3_Q8_maxMass4p0'                     ,
+        'L1_DoubleMu_6_2_Q8_maxMass4p0'                     ,
+        'L1_DoubleMu_5_3_Q8_maxMass4p0'                     ,
+          
+        'L1_DoubleMu_12_0_Q12_maxMass4p0_OS'                ,
+        'L1_DoubleMu_10_1_Q12_maxMass4p0_OS'                ,
+        'L1_DoubleMu_9_1_Q12_maxMass4p0_OS'                 ,
+        'L1_DoubleMu_8_3_Q12_maxMass4p0_OS'                 ,
+        'L1_DoubleMu_6_2_Q12_maxMass4p0_OS'                 ,
+        'L1_DoubleMu_5_3_Q12_maxMass4p0_OS'                 ,
+          
+        'L1_DoubleMu_12_0_Q8_maxMass4p0_OS'                 ,
+        'L1_DoubleMu_10_1_Q8_maxMass4p0_OS'                 ,
+        'L1_DoubleMu_9_1_Q8_maxMass4p0_OS'                  ,
+        'L1_DoubleMu_8_3_Q8_maxMass4p0_OS'                  ,
+        'L1_DoubleMu_6_2_Q8_maxMass4p0_OS'                  ,
+        'L1_DoubleMu_5_3_Q8_maxMass4p0_OS'                  ,
+          
+        'L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4'                 ,
+        'L1_DoubleMu4_SQ_OS_dR_Max1p2'                      ,
+        'L1_DoubleMu4p5_SQ_OS_dR_Max1p2'                    ,
+          
+        'L1_TripleMu_4_4_4'                                 ,
+        'L1_TripleMu_5_3_3'                                 ,
+        'L1_TripleMu_5SQ_3SQ_0OQ'                           ,
+        'L1_TripleMu_5_3_0_DoubleMu_5_3_OS_Mass_Max17'      ,
+        'L1_TripleMu_5SQ_3SQ_0_DoubleMu_5_3_SQ_OS_Mass_Max9',
     ]
 
     acceptance_tot = ROOT.TH1F('L1_acceptance_tot', 'L1_acceptance_tot', len(mykeys), 0, len(mykeys)+1)
 
-    ntuple = ROOT.TNtuple('tree','tree',':'.join(mykeys))
     f = ROOT.TFile('acceptance_rate_%d.root' %index, 'recreate')
+    ntuple = ROOT.TNtuple('tree','tree',':'.join(mykeys))
     
     passed = 0
     totevents = events.size()
@@ -72,8 +83,8 @@ def compute_rate(files, index):
         event.getByLabel (label_L1muon, handle_L1muons)
         L1_muons_bx = handle_L1muons.product()
         
-        if not L1_muons_bx.size(0):
-            continue
+#         if not L1_muons_bx.size(0):
+#             continue
                     
         L1_muons = []
         
@@ -85,39 +96,50 @@ def compute_rate(files, index):
         for kk in mykeys:
             seeds[kk] = 0
 
-        seeds['L1_SingleMu_22_eta2p1_qual12'                ] = single_muon(L1_muons, 22, 2.1, 12)
-                 
-        seeds['L1_SingleMu_25_qual12'                       ] = single_muon(L1_muons, 25, 2.5, 12)
-                 
-        seeds['L1_DoubleMu_10_1_Q12_maxMass4p0'             ] = di_muon    (L1_muons, 10, 1, qual1=12, qual2=12, maxMass=4)
-        seeds['L1_DoubleMu_9_1_Q12_maxMass4p0'              ] = di_muon    (L1_muons,  9, 1, qual1=12, qual2=12, maxMass=4)
-        seeds['L1_DoubleMu_8_3_Q12_maxMass4p0'              ] = di_muon    (L1_muons,  8, 3, qual1=12, qual2=12, maxMass=4)
-        seeds['L1_DoubleMu_6_2_Q12_maxMass4p0'              ] = di_muon    (L1_muons,  6, 2, qual1=12, qual2=12, maxMass=4)
-        seeds['L1_DoubleMu_5_3_Q12_maxMass4p0'              ] = di_muon    (L1_muons,  5, 3, qual1=12, qual2=12, maxMass=4)
-    
-        seeds['L1_DoubleMu_10_1_Q8_maxMass4p0'              ] = di_muon    (L1_muons, 10, 1, qual1= 8, qual2= 8, maxMass=4)
-        seeds['L1_DoubleMu_9_1_Q8_maxMass4p0'               ] = di_muon    (L1_muons,  9, 1, qual1= 8, qual2= 8, maxMass=4)
-        seeds['L1_DoubleMu_8_3_Q8_maxMass4p0'               ] = di_muon    (L1_muons,  8, 3, qual1= 8, qual2= 8, maxMass=4)
-        seeds['L1_DoubleMu_6_2_Q8_maxMass4p0'               ] = di_muon    (L1_muons,  6, 2, qual1= 8, qual2= 8, maxMass=4)
-        seeds['L1_DoubleMu_5_3_Q8_maxMass4p0'               ] = di_muon    (L1_muons,  5, 3, qual1= 8, qual2= 8, maxMass=4)
-    
-        seeds['L1_DoubleMu_10_1_Q12_maxMass4p0_OS'          ] = di_muon    (L1_muons, 10, 1, qual1=12, qual2=12, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_9_1_Q12_maxMass4p0_0S'           ] = di_muon    (L1_muons,  9, 1, qual1=12, qual2=12, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_8_3_Q12_maxMass4p0_0S'           ] = di_muon    (L1_muons,  8, 3, qual1=12, qual2=12, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_6_2_Q12_maxMass4p0_0S'           ] = di_muon    (L1_muons,  6, 2, qual1=12, qual2=12, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_5_3_Q12_maxMass4p0_0S'           ] = di_muon    (L1_muons,  5, 3, qual1=12, qual2=12, maxMass=4, sign=0)
-    
-        seeds['L1_DoubleMu_10_1_Q8_maxMass4p0_0S'           ] = di_muon    (L1_muons, 10, 1, qual1= 8, qual2= 8, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_9_1_Q8_maxMass4p0_0S'            ] = di_muon    (L1_muons,  9, 1, qual1= 8, qual2= 8, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_8_3_Q8_maxMass4p0_0S'            ] = di_muon    (L1_muons,  8, 3, qual1= 8, qual2= 8, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_6_2_Q8_maxMass4p0_0S'            ] = di_muon    (L1_muons,  6, 2, qual1= 8, qual2= 8, maxMass=4, sign=0)
-        seeds['L1_DoubleMu_5_3_Q8_maxMass4p0_0S'            ] = di_muon    (L1_muons,  5, 3, qual1= 8, qual2= 8, maxMass=4, sign=0)
-    
-        seeds['L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4'           ] = di_muon    (L1_muons,  0, 0, eta1=1.5, eta2=1.5, qual1=12, qual2=12, maxDr=1.4, sign=0)
-        seeds['L1_TripleMu_5_3_0_DoubleMu_5_3_OS_Mass_Max17'] = tri_muon   (L1_muons,  5, 3, 0, maxMass=17, sign=0)
-        seeds['L1_DoubleMu4_SQ_OS_dR_Max1p2'                ] = di_muon    (L1_muons,  4  , 4  , qual1=12, qual2=12, maxDr=1.2, sign=0)
-        seeds['L1_DoubleMu4p5_SQ_OS_dR_Max1p2'              ] = di_muon    (L1_muons,  4.5, 4.5, qual1=12, qual2=12, maxDr=1.2, sign=0)
-    
+            seeds['L1_SingleMu_22_eta2p1_Q12'                         ] = single_muon(L1_muons, 22, 2.1, 12)
+                           
+            seeds['L1_SingleMu_25_Q12'                                ] = single_muon(L1_muons, 25, 2.5, 12)
+          
+            seeds['L1_DoubleMu_15_7_Q8'                               ] = di_muon    (L1_muons, 15, 7, qual1= 8, qual2= 8)
+                           
+            seeds['L1_DoubleMu_12_0_Q12_maxMass4p0'                   ] = di_muon    (L1_muons, 12, 0, qual1=12, qual2=12, maxMass=4)
+            seeds['L1_DoubleMu_10_1_Q12_maxMass4p0'                   ] = di_muon    (L1_muons, 10, 1, qual1=12, qual2=12, maxMass=4)
+            seeds['L1_DoubleMu_9_1_Q12_maxMass4p0'                    ] = di_muon    (L1_muons,  9, 1, qual1=12, qual2=12, maxMass=4)
+            seeds['L1_DoubleMu_8_3_Q12_maxMass4p0'                    ] = di_muon    (L1_muons,  8, 3, qual1=12, qual2=12, maxMass=4)
+            seeds['L1_DoubleMu_6_2_Q12_maxMass4p0'                    ] = di_muon    (L1_muons,  6, 2, qual1=12, qual2=12, maxMass=4)
+            seeds['L1_DoubleMu_5_3_Q12_maxMass4p0'                    ] = di_muon    (L1_muons,  5, 3, qual1=12, qual2=12, maxMass=4)
+              
+            seeds['L1_DoubleMu_12_0_Q8_maxMass4p0'                    ] = di_muon    (L1_muons, 12, 0, qual1= 8, qual2= 8, maxMass=4)
+            seeds['L1_DoubleMu_10_1_Q8_maxMass4p0'                    ] = di_muon    (L1_muons, 10, 1, qual1= 8, qual2= 8, maxMass=4)
+            seeds['L1_DoubleMu_9_1_Q8_maxMass4p0'                     ] = di_muon    (L1_muons,  9, 1, qual1= 8, qual2= 8, maxMass=4)
+            seeds['L1_DoubleMu_8_3_Q8_maxMass4p0'                     ] = di_muon    (L1_muons,  8, 3, qual1= 8, qual2= 8, maxMass=4)
+            seeds['L1_DoubleMu_6_2_Q8_maxMass4p0'                     ] = di_muon    (L1_muons,  6, 2, qual1= 8, qual2= 8, maxMass=4)
+            seeds['L1_DoubleMu_5_3_Q8_maxMass4p0'                     ] = di_muon    (L1_muons,  5, 3, qual1= 8, qual2= 8, maxMass=4)
+              
+            seeds['L1_DoubleMu_12_0_Q12_maxMass4p0_OS'                ] = di_muon    (L1_muons, 12, 0, qual1=12, qual2=12, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_10_1_Q12_maxMass4p0_OS'                ] = di_muon    (L1_muons, 10, 1, qual1=12, qual2=12, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_9_1_Q12_maxMass4p0_OS'                 ] = di_muon    (L1_muons,  9, 1, qual1=12, qual2=12, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_8_3_Q12_maxMass4p0_OS'                 ] = di_muon    (L1_muons,  8, 3, qual1=12, qual2=12, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_6_2_Q12_maxMass4p0_OS'                 ] = di_muon    (L1_muons,  6, 2, qual1=12, qual2=12, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_5_3_Q12_maxMass4p0_OS'                 ] = di_muon    (L1_muons,  5, 3, qual1=12, qual2=12, maxMass=4, sign=0)
+              
+            seeds['L1_DoubleMu_12_0_Q8_maxMass4p0_OS'                 ] = di_muon    (L1_muons, 12, 0, qual1= 8, qual2= 8, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_10_1_Q8_maxMass4p0_OS'                 ] = di_muon    (L1_muons, 10, 1, qual1= 8, qual2= 8, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_9_1_Q8_maxMass4p0_OS'                  ] = di_muon    (L1_muons,  9, 1, qual1= 8, qual2= 8, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_8_3_Q8_maxMass4p0_OS'                  ] = di_muon    (L1_muons,  8, 3, qual1= 8, qual2= 8, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_6_2_Q8_maxMass4p0_OS'                  ] = di_muon    (L1_muons,  6, 2, qual1= 8, qual2= 8, maxMass=4, sign=0)
+            seeds['L1_DoubleMu_5_3_Q8_maxMass4p0_OS'                  ] = di_muon    (L1_muons,  5, 3, qual1= 8, qual2= 8, maxMass=4, sign=0)
+              
+            seeds['L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4'                 ] = di_muon    (L1_muons,  0  , 0  , eta1=1.5, eta2=1.5, qual1=12, qual2=12, maxDr=1.4, sign=0)
+            seeds['L1_DoubleMu4_SQ_OS_dR_Max1p2'                      ] = di_muon    (L1_muons,  4  , 4  , qual1=12, qual2=12, maxDr=1.2, sign=0)
+            seeds['L1_DoubleMu4p5_SQ_OS_dR_Max1p2'                    ] = di_muon    (L1_muons,  4.5, 4.5, qual1=12, qual2=12, maxDr=1.2, sign=0)
+          
+            seeds['L1_TripleMu_4_4_4'                                 ] = tri_muon   (L1_muons,  4, 4, 4)
+            seeds['L1_TripleMu_5_3_3'                                 ] = tri_muon   (L1_muons,  5, 3, 0)
+            seeds['L1_TripleMu_5SQ_3SQ_0OQ'                           ] = tri_muon   (L1_muons,  5, 3, 0, qual1=12, qual2=12, qual3=4)
+            seeds['L1_TripleMu_5_3_0_DoubleMu_5_3_OS_Mass_Max17'      ] = tri_muon   (L1_muons,  5, 3, 0, maxMass=17, sign=0)
+            seeds['L1_TripleMu_5SQ_3SQ_0_DoubleMu_5_3_SQ_OS_Mass_Max9'] = tri_muon   (L1_muons,  5, 3, 0, qual1=12, qual2=12, maxMass=9, sign=0)
+        
         unpackedBs = array('f',seeds.values())      
         ntuple.Fill(unpackedBs)
     
@@ -127,7 +149,7 @@ def compute_rate(files, index):
     f.cd()
     ntuple.Write()
     
-    acceptance_tot.Scale(1./float(totevents))
+#     acceptance_tot.Scale(1./float(totevents))
     acceptance_tot.SetMinimum(0.)
     acceptance_tot.SetMaximum(1.05)
     acceptance_tot.Draw('HIST')

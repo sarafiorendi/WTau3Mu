@@ -2,6 +2,8 @@ import ROOT
 from CMGTools.WTau3Mu.analyzers.WTau3MuTreeProducerBase import WTau3MuTreeProducerBase
 from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
+global muon_mass
+muon_mass = 0.1056583745
 
 class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
 
@@ -24,12 +26,12 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.bookVertex(self.tree, 'tau_sv')
 
         # generator information
-        self.bookGenParticle(self.tree, 'w')
+        self.bookGenParticle(self.tree, 'gen_w')
         self.bookGenParticle(self.tree, 'mu1_refit_gen')
         self.bookGenParticle(self.tree, 'mu2_refit_gen')
         self.bookGenParticle(self.tree, 'mu3_refit_gen')
-        self.bookGenParticle(self.tree, 'gentau')
-        self.bookParticle(self.tree, 'genmet')
+        self.bookGenParticle(self.tree, 'cand_refit_gen')
+        self.bookParticle(self.tree, 'gen_met')
 
         # trigger information
         self.bookL1object(self.tree, 'mu1_L1')
@@ -80,7 +82,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
 
         # generator information
         if hasattr(event, 'genw') and event.genw is not None: 
-            self.fillGenParticle(self.tree, 'w', event.genw)
+            self.fillGenParticle(self.tree, 'gen_w', event.genw)
 
         if hasattr(event.tau3muRefit.mu1(), 'genp') and event.tau3muRefit.mu1().genp is not None: 
             self.fillGenParticle(self.tree, 'mu1_refit_gen', event.tau3muRefit.mu1().genp)
@@ -90,10 +92,10 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
             self.fillGenParticle(self.tree, 'mu3_refit_gen', event.tau3muRefit.mu3().genp)
 
         if hasattr(event, 'genmet') and event.genmet is not None: 
-            self.fillParticle(self.tree, 'genmet', event.genmet)
+            self.fillParticle(self.tree, 'gen_met', event.genmet)
 
         if hasattr(event, 'gentau') and event.gentau is not None: 
-            self.fillParticle(self.tree, 'gentau', event.gentau)
+            self.fillParticle(self.tree, 'cand_refit_gen', event.gentau)
 
         # trigger information
         if hasattr(event.tau3muRefit.mu1(), 'L1'):
@@ -112,7 +114,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu1().L1.pt(),
                 event.tau3muRefit.mu1().L1.eta(),
                 event.tau3muRefit.mu1().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
         
             l1mu2 = ROOT.TLorentzVector()
@@ -120,7 +122,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu2().L1.pt(),
                 event.tau3muRefit.mu2().L1.eta(),
                 event.tau3muRefit.mu2().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
                     
             l1mass12 = (l1mu1 + l1mu2).M()
@@ -138,7 +140,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu1().L1.pt(),
                 event.tau3muRefit.mu1().L1.eta(),
                 event.tau3muRefit.mu1().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
         
             l1mu3 = ROOT.TLorentzVector()
@@ -146,7 +148,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu3().L1.pt(),
                 event.tau3muRefit.mu3().L1.eta(),
                 event.tau3muRefit.mu3().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
                     
             l1mass13 = (l1mu1 + l1mu3).M()
@@ -164,7 +166,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu2().L1.pt(),
                 event.tau3muRefit.mu2().L1.eta(),
                 event.tau3muRefit.mu2().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
         
             l1mu3 = ROOT.TLorentzVector()
@@ -172,7 +174,7 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
                 event.tau3muRefit.mu3().L1.pt(),
                 event.tau3muRefit.mu3().L1.eta(),
                 event.tau3muRefit.mu3().L1.phi(),
-                0.1056583745,
+                muon_mass,
             )
                     
             l1mass23 = (l1mu2 + l1mu3).M()

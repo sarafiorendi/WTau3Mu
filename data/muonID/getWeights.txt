@@ -1,0 +1,7 @@
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-B-19.weights.xml
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-B-25.weights.xml
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-E-00.weights.xml
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-E-10.weights.xml
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-E-19.weights.xml
+wget https://raw.githubusercontent.com/lca93/WTau3Mu/92X/TMVAWeights/TMVA-muonid-bmm4-E-17.weights.xml
+

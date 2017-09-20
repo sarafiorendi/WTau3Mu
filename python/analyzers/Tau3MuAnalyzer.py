@@ -48,7 +48,6 @@ class Tau3MuAnalyzer(Analyzer):
             'slimmedMETs',
             'std::vector<pat::MET>'
         )
-        
 
     def beginLoop(self, setup):
         super(Tau3MuAnalyzer, self).beginLoop(setup)
@@ -70,7 +69,7 @@ class Tau3MuAnalyzer(Analyzer):
         muons = [mu for mu in muons if 
                  (mu.isSoftMuon(mu.associatedVertex) or mu.isLooseMuon()) and
                  mu.pt()>1. and
-                 abs(mu.eta())<2.4]         
+                 abs(mu.eta())<=2.5]          
         return muons
 
     def resonanceVeto(self, muons):
@@ -79,7 +78,7 @@ class Tau3MuAnalyzer(Analyzer):
         for rmass, rwidth, _ in resonances:
             for m1, m2 in pairs:
                 if m1 in excluded or m2 in excluded: continue
-                delta_mass = abs( (m1.p4()+m2.p4()).M() - rmass )
+                delta_mass = abs( (m1.p4()+m2.p4()).M() - rmass ) / rwidth
                 if delta_mass < sigmas_to_exclude:
                     excluded.add(m1)
                     excluded.add(m2)
@@ -158,8 +157,8 @@ class Tau3MuAnalyzer(Analyzer):
         seltau3mu = event.tau3mus
 
         # mass cut
-        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 10.]
-        
+        seltau3mu = [triplet for triplet in seltau3mu if triplet.massMuons() < 3.]
+
         if len(seltau3mu) == 0:
             return False
         self.counters.counter('Tau3Mu').inc('m < 10 GeV')
@@ -199,8 +198,6 @@ class Tau3MuAnalyzer(Analyzer):
                 return False
             self.counters.counter('Tau3Mu').inc('trigger matched')
         
-#         import pdb ; pdb.set_trace()
-
         event.seltau3mu = seltau3mu
 
         event.tau3mu = self.bestTriplet(seltau3mu)
@@ -214,7 +211,7 @@ class Tau3MuAnalyzer(Analyzer):
         The best triplet is the one with the correct charge and highest mT(3mu, MET). 
         If there are more than one triplets with the wrong charge, take the one with the highest  mT(3mu, MET).
         '''
-        triplets.sort(key=lambda tt : (abs(tt.mu1().charge() + tt.mu2().charge() + tt.mu3().charge())==1 * tt.mttau()) - (abs(tt.mu1().charge() + tt.mu2().charge() + tt.mu3().charge())!=1 / max(tt.mttau(), 1.e-12)), reverse=True )
+        triplets.sort(key=lambda tt : (abs(tt.charge())==1, tt.mttau()), reverse=True)    
         return triplets[0]
     
     def testVertex(self, lepton):

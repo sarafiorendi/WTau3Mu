@@ -110,10 +110,9 @@ lepton_vars = [
 #     Variable('weight_trigger', lambda lep : getattr(lep, 'weight_trigger', 1.)),
 #     Variable('eff_trigger_data', lambda lep : getattr(lep, 'eff_data_trigger', -999.)),
 #     Variable('eff_trigger_mc', lambda lep : getattr(lep, 'eff_mc_trigger', -999.)),
-    Variable('weight_idiso', lambda lep : getattr(lep, 'weight_idiso', 1.)),
+#     Variable('weight_idiso', lambda lep : getattr(lep, 'weight_idiso', 1.)),
 #     Variable('eff_idiso_data', lambda lep : getattr(lep, 'eff_data_idiso', -999.)),
 #     Variable('eff_idiso_mc', lambda lep : getattr(lep, 'eff_mc_idiso', -999.)),
-    Variable('gen_match')
 ]
 
 # electron
@@ -164,15 +163,36 @@ muon_vars = [
     Variable('reliso05_03'      , lambda muon : muon.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0)),
     Variable('muonid_soft'      , lambda muon : muon.isSoftMuon(muon.associatedVertex)            ),
     Variable('muonid_loose'     , lambda muon : muon.muonID('POG_ID_Loose')                       ),
-    # Variable('muonid_medium'    , lambda muon : muon.muonID('POG_ID_Medium_ICHEP')                ),
     Variable('muonid_medium'    , lambda muon : muon.muonID('POG_ID_Medium')                      ),
     Variable('muonid_tight'     , lambda muon : muon.muonID('POG_ID_Tight')                       ),
     Variable('muonid_tightnovtx', lambda muon : muon.muonID('POG_ID_TightNoVtx')                  ),
     Variable('muonid_highpt'    , lambda muon : muon.muonID('POG_ID_HighPt')                      ),
+    Variable('muonid_BDT'       , lambda muon : muon.BDTvalue                                     ),
+]
+
+muon_extra_vars = [
     # ask quality first...
-#     Variable('dxy_innertrack', lambda muon : muon.innerTrack().dxy(muon.associatedVertex.position())),
-#     Variable('dz_innertrack', lambda muon : muon.innerTrack().dz(muon.associatedVertex.position())),
-    Variable('weight_tracking'  , lambda muon : getattr(muon, 'weight_tracking', 1.)),
+    Variable('dxy_innertrack'   , lambda muon : muon.innerTrack().dxy(muon.associatedVertex.position())              ),
+    Variable('dz_innertrack'    , lambda muon : muon.innerTrack().dz(muon.associatedVertex.position())               ),
+    Variable('weight_tracking'  , lambda muon : getattr(muon, 'weight_tracking', 1.)                                 ),
+    Variable('pdgIDoverweight'  , lambda muon : muon.pdgIDoverweight    if hasattr(muon, "pdgIDoverweight")  else -99),
+    #BDT VARS 
+    Variable('segComp'          , lambda muon : muon.segComp            if hasattr(muon, 'segComp')          else -99),
+    Variable('chi2LocMom'       , lambda muon : muon.chi2LocMom         if hasattr(muon, 'chi2LocMom')       else -99),
+    Variable('chi2LocPos'       , lambda muon : muon.chi2LocPos         if hasattr(muon, 'chi2LocPos')       else -99),
+    Variable('glbTrackTailProb' , lambda muon : muon.glbTrackTailProb   if hasattr(muon, 'glbTrackTailProb') else -99),
+    Variable('iValFrac'         , lambda muon : muon.iValFrac           if hasattr(muon, 'iValFrac')         else -99),
+    Variable('LHW'              , lambda muon : muon.LHW                if hasattr(muon, 'LHW')              else -99),
+    Variable('kinkFinder'       , lambda muon : muon.kinkFinder         if hasattr(muon, 'kinkFinder')       else -99),
+    Variable('timeAtIpInOutErr' , lambda muon : muon.timeAtIpInOutErr   if hasattr(muon, 'timeAtIpInOutErr') else -99),
+    Variable('outerChi2'        , lambda muon : muon.outerChi2          if hasattr(muon, 'outerChi2')        else -99),
+    Variable('innerChi2'        , lambda muon : muon.innerChi2          if hasattr(muon, 'innerChi2')        else -99),
+    Variable('trkRelChi2'       , lambda muon : muon.trkRelChi2         if hasattr(muon, 'trkRelChi2')       else -99),
+    Variable('vMuonHitComb'     , lambda muon : muon.vMuonHitComb       if hasattr(muon, 'vMuonHitComb')     else -99),
+    Variable('Qprod'            , lambda muon : muon.Qprod              if hasattr(muon, 'Qprod')            else -99),
+    Variable('LogGlbKinkFinder' , lambda muon : muon.LogGlbKinkFinder   if hasattr(muon, 'LogGlbKinkFinder') else -99),
+    #fake muons variables
+    Variable('isFake'           , lambda muon : muon.isFake             if hasattr(muon, 'isFake')           else -99),
 ]
 
 # tau

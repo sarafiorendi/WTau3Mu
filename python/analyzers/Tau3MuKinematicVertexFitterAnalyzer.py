@@ -100,7 +100,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         for rmass, rwidth, _ in resonances:
             for m1, m2 in pairs:
                 #import pdb ; pdb.set_trace()
-                hasVtx, vtxtree = self.hasDiMuonVertex(m1, m2, 0.01)
+                hasVtx, vtxtree = self.hasDiMuonVertex(m1, m2, 0.05)
                 if not hasVtx:
                     continue
                 # get mu1 refitted p4
@@ -114,7 +114,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
                 refitMu2 = self.buildP4(mu2ref)[0]
                 
                 # check mass of the refitted dimuon
-                delta_mass = abs( (refitMu1+refitMu2).M() - rmass )
+                delta_mass = abs( (refitMu1+refitMu2).M() - rmass ) / rwidth
                 if delta_mass < sigmas_to_exclude:
                         return False
 
@@ -153,7 +153,8 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
 
         #   - if there's still more than one candidate, pick the one with the best vertex probability.
         #     Give precedence to candidates with the correct charge        
-        candidate = sorted(candidates, key=lambda cand : ((cand.charge()!=1), cand.svtree.prob), reverse=True)[0]
+        candidates.sort(key=lambda cand : (abs(cand.charge())==1, cand.mttau()), reverse=True)
+        candidate = candidates[0]
         self.counters.counter('KinematicVertexFitter').inc('candidate chosen')        
 
         # save the number of candidates as event attribute

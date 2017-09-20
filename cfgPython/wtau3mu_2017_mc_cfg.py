@@ -29,6 +29,7 @@ from CMGTools.WTau3Mu.analyzers.Tau3MuIsolationAnalyzer             import Tau3M
 from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMatcherAnalyzer
 from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
+from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.mc_2017 import WToTauTo3Mu
@@ -44,7 +45,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 production         = getHeppyOption('production'        , False)
 pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
-extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', True )
+extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
 ###################################################
 ###               HANDLE SAMPLES                ###
 ###################################################
@@ -168,6 +169,16 @@ bdtAna = cfg.Analyzer(
     name='BDTAnalyzer',
 )
 
+muIdAna = cfg.Analyzer(
+    MVAMuonIDAnalyzer,
+    name='MVAMuonIDAnalyzer',
+    xml_pathBB = 'TMVA-muonid-bmm4-B-25.weights.xml',
+    xml_pathEC = 'TMVA-muonid-bmm4-E-19.weights.xml',
+    useBkgID = False,
+    useSigID = True,
+    useSideBands = False,
+)
+
 fileCleaner = cfg.Analyzer(
     FileCleaner,
     name='FileCleaner'
@@ -186,9 +197,10 @@ sequence = cfg.Sequence([
     pileUpAna,
     tau3MuAna,
     vertexFitter,
+    muIdAna,
     isoAna,
     genMatchAna,
-    level1Ana,
+#     level1Ana,
     bdtAna,
     treeProducer,
     metFilter,

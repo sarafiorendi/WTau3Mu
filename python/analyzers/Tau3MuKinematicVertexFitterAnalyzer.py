@@ -265,6 +265,13 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         vperptau = ROOT.math.XYZVector(displacementFromBeamspotTau.x(), displacementFromBeamspotTau.y(), 0.)
         
         event.tau3muRefit.refittedVertex.cos = vperptau.Dot(tauperp)/(vperptau.R()*tauperp.R())
+
+#         print '         tau3mu MET after corrections pt ', event.tau3mu.met().pt()
+#         print '         tau3mu MET after corrections phi', event.tau3mu.met().phi()
+#         print '         tau3mu mT  after corrections    ', event.tau3mu.mttau()
+#         print 'refitted tau3mu MET after corrections pt ', event.tau3muRefit.met().pt()
+#         print 'refitted tau3mu MET after corrections phi', event.tau3muRefit.met().phi()
+#         print 'refitted tau3mu mT  after corrections    ', event.tau3muRefit.mttau()
         
         return True
 

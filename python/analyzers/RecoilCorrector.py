@@ -111,23 +111,14 @@ class RecoilCorrector(Analyzer):
             math.sqrt(px_new*px_new + py_new*py_new)
         )
         
-        print '\n\n==========================================================================='
-        print 'gen MET pt                                ', event.genmet.pt()
-        print 'gen MET phi                               ', event.genmet.phi()
-        print '=========='
-        print '         tau3mu MET before corrections pt ', event.tau3mu.met().pt()
-        print '         tau3mu MET before corrections phi', event.tau3mu.met().phi()
-        print '         tau3mu mT  before corrections    ', event.tau3mu.mttau()
-        print 'refitted tau3mu MET before corrections pt ', event.tau3muRefit.met().pt()
-        print 'refitted tau3mu MET before corrections phi', event.tau3muRefit.met().phi()
-        print 'refitted tau3mu mT  before corrections    ', event.tau3muRefit.mttau()
-        print '=========='
-        
+#         print '\n\n==========================================================================='
+#         print 'gen MET pt                                ', event.genmet.pt()
+#         print 'gen MET phi                               ', event.genmet.phi()
+#         print '=========='
+#         print '         tau3mu MET before corrections pt ', event.tau3mu.met().pt()
+#         print '         tau3mu MET before corrections phi', event.tau3mu.met().phi()
+#         print '         tau3mu mT  before corrections    ', event.tau3mu.mttau()
+
         event.pfmet.setP4(newmet)
 
-        print '         tau3mu MET after corrections pt ', event.tau3mu.met().pt()
-        print '         tau3mu MET after corrections phi', event.tau3mu.met().phi()
-        print '         tau3mu mT  after corrections    ', event.tau3mu.mttau()
-        print 'refitted tau3mu MET after corrections pt ', event.tau3muRefit.met().pt()
-        print 'refitted tau3mu MET after corrections phi', event.tau3muRefit.met().phi()
-        print 'refitted tau3mu mT  after corrections    ', event.tau3muRefit.mttau()
+        return True

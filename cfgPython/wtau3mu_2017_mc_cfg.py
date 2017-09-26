@@ -1,4 +1,4 @@
-import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
+# import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -30,6 +30,7 @@ from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMa
 from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
+from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.mc_2017 import WToTauTo3Mu
@@ -125,20 +126,6 @@ treeProducer = cfg.Analyzer(
     name='WTau3MuTreeProducer',
 )
 
-metFilter = cfg.Analyzer(
-    METFilter,
-    name='METFilter',
-    processName='RECO',
-    triggers=[
-        'Flag_HBHENoiseFilter', 
-        'Flag_HBHENoiseIsoFilter', 
-        'Flag_EcalDeadCellTriggerPrimitiveFilter',
-        'Flag_goodVertices',
-        'Flag_eeBadScFilter',
-        'Flag_globalTightHalo2016Filter'
-    ]
-)
-
 if kin_vtx_fitter:
     vertexFitter = cfg.Analyzer(
         Tau3MuKinematicVertexFitterAnalyzer,
@@ -159,6 +146,7 @@ isoAna = cfg.Analyzer(
 genMatchAna = cfg.Analyzer(
     GenMatcherAnalyzer,
     name='GenMatcherAnalyzer',
+    getter = lambda event : event.tau3mu,
 )
 
 level1Ana = L1TriggerAnalyzer.defaultConfig
@@ -179,6 +167,12 @@ muIdAna = cfg.Analyzer(
     useSideBands = False,
 )
 
+recoilAna = cfg.Analyzer(
+    RecoilCorrector,
+    name='RecoilCorrector',
+    pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
+)
+
 fileCleaner = cfg.Analyzer(
     FileCleaner,
     name='FileCleaner'
@@ -196,15 +190,107 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
+    genMatchAna,
+    recoilAna,
     vertexFitter,
     muIdAna,
     isoAna,
-    genMatchAna,
 #     level1Ana,
     bdtAna,
     treeProducer,
-    metFilter,
 ])
+
+###################################################
+###                PICK EVENTS                  ###
+###################################################
+if pick_events:
+    eventSelector.toSelect = [
+         5870,
+         5900,
+         5899,
+         5912,
+         5927,
+         5950,
+         5955,
+         6000,
+        38071,
+         6019,
+         6025,
+         6045,
+         6130,
+         6160,
+         6195,
+         9639,
+         9702,
+         9740,
+         9744,
+         9780,
+        38203,
+        38264,
+        38281,
+        38397,
+        59654,
+        59695,
+        59734,
+        59733,
+        59737,
+        59751,
+        59802,
+        59944,
+        59974,
+        59987,
+        64309,
+        64305,
+        64332,
+        64429,
+        64479,
+        80175,
+        87267,
+        87353,
+        87835,
+        87852,
+        87933,
+        87953,
+        88084,
+         7027,
+         7076,
+         7079,
+         7165,
+        28614,
+        28718,
+        28747,
+        28762,
+        28792,
+        28875,
+        28942,
+        28946,
+        28969,
+        28997,
+        58073,
+        58157,
+        62806,
+        62826,
+        62922,
+        63018,
+        63041,
+        63133,
+        63141,
+        79022,
+        79068,
+        79120,
+        79161,
+        79191,
+        78382,
+        78407,
+        78544,
+        83347,
+        83370,
+        84002,
+        84065,
+        84079,
+        84081,
+    ]
+    sequence.insert(0, eventSelector)
 
 ###################################################
 ###            SET BATCH OR LOCAL               ###
@@ -214,7 +300,7 @@ if not production:
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
-    comp.files           = comp.files[:1]
+#     comp.files           = comp.files[:1]
 #     comp.files = [
 #       'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/Tau3Mu/outputFULL.root',
 #       # 'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',

@@ -71,6 +71,7 @@ triplet_vars = [
     Variable('pt23'                              , lambda cand : cand.pt23()                ),
     Variable('dRtauMET'                          , lambda cand : cand.dRtauMET()            ),
     Variable('dRtauMuonMax'                      , lambda cand : cand.dRtauMuonMax()        ),
+    Variable('dPhitauMET'                        , lambda cand : cand.dPhitauMET()          ),
     Variable('tau_pt'                            , lambda cand : cand.p4Muons().pt()        ),
     Variable('tau_eta'                           , lambda cand : cand.p4Muons().eta()       ),
     Variable('tau_phi'                           , lambda cand : cand.p4Muons().phi()       ),

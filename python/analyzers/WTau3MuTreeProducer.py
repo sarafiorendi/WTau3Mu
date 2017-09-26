@@ -34,21 +34,22 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.bookParticle(self.tree, 'gen_met')
 
         # trigger information
-        self.bookL1object(self.tree, 'mu1_L1')
-        self.bookL1object(self.tree, 'mu2_L1')
-        self.bookL1object(self.tree, 'mu3_L1')
-
-        self.var(self.tree, 'L1_mass12')
-        self.var(self.tree, 'L1_mass13')
-        self.var(self.tree, 'L1_mass23')
-
-        self.var(self.tree, 'L1_dR12')
-        self.var(self.tree, 'L1_dR13')
-        self.var(self.tree, 'L1_dR23')
-
-        self.var(self.tree, 'L1_pt12')
-        self.var(self.tree, 'L1_pt13')
-        self.var(self.tree, 'L1_pt23')
+        if hasattr(self.cfg_ana, 'fillL1') and self.cfg_ana.fillL1:
+            self.bookL1object(self.tree, 'mu1_L1')
+            self.bookL1object(self.tree, 'mu2_L1')
+            self.bookL1object(self.tree, 'mu3_L1')
+    
+            self.var(self.tree, 'L1_mass12')
+            self.var(self.tree, 'L1_mass13')
+            self.var(self.tree, 'L1_mass23')
+    
+            self.var(self.tree, 'L1_dR12')
+            self.var(self.tree, 'L1_dR13')
+            self.var(self.tree, 'L1_dR23')
+    
+            self.var(self.tree, 'L1_pt12')
+            self.var(self.tree, 'L1_pt13')
+            self.var(self.tree, 'L1_pt23')
 
         # BDT output
         self.var(self.tree, 'bdt_proba')
@@ -98,92 +99,92 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
             self.fillParticle(self.tree, 'cand_refit_gen', event.gentau)
 
         # trigger information
-        if hasattr(event.tau3muRefit.mu1(), 'L1'):
-            self.fillL1object(self.tree, 'mu1_L1', event.tau3muRefit.mu1().L1)
-        if hasattr(event.tau3muRefit.mu2(), 'L1'):
-            self.fillL1object(self.tree, 'mu2_L1', event.tau3muRefit.mu2().L1)
-        if hasattr(event.tau3muRefit.mu3(), 'L1'):
-            self.fillL1object(self.tree, 'mu3_L1', event.tau3muRefit.mu3().L1)
+        if hasattr(self.cfg_ana, 'fillL1') and self.cfg_ana.fillL1:
+            if hasattr(event.tau3muRefit.mu1(), 'L1'):
+                self.fillL1object(self.tree, 'mu1_L1', event.tau3muRefit.mu1().L1)
+            if hasattr(event.tau3muRefit.mu2(), 'L1'):
+                self.fillL1object(self.tree, 'mu2_L1', event.tau3muRefit.mu2().L1)
+            if hasattr(event.tau3muRefit.mu3(), 'L1'):
+                self.fillL1object(self.tree, 'mu3_L1', event.tau3muRefit.mu3().L1)
+    
+            if hasattr(event.tau3muRefit.mu1(), 'L1') and hasattr(event.tau3muRefit.mu2(), 'L1'):
 
-
-        if hasattr(event.tau3muRefit.mu1(), 'L1') and \
-           hasattr(event.tau3muRefit.mu2(), 'L1'):
-
-            l1mu1 = ROOT.TLorentzVector()
-            l1mu1.SetPtEtaPhiM(
-                event.tau3muRefit.mu1().L1.pt(),
-                event.tau3muRefit.mu1().L1.eta(),
-                event.tau3muRefit.mu1().L1.phi(),
-                muon_mass,
-            )
-        
-            l1mu2 = ROOT.TLorentzVector()
-            l1mu2.SetPtEtaPhiM(
-                event.tau3muRefit.mu2().L1.pt(),
-                event.tau3muRefit.mu2().L1.eta(),
-                event.tau3muRefit.mu2().L1.phi(),
-                muon_mass,
-            )
-                    
-            l1mass12 = (l1mu1 + l1mu2).M()
-            l1dR12   = deltaR(l1mu1.Eta(), l1mu1.Phi(), l1mu2.Eta(), l1mu2.Phi())
-            l1pt12   = (l1mu1 + l1mu2).Pt()
+                l1mu1 = ROOT.TLorentzVector()
+                l1mu1.SetPtEtaPhiM(
+                    event.tau3muRefit.mu1().L1.pt(),
+                    event.tau3muRefit.mu1().L1.eta(),
+                    event.tau3muRefit.mu1().L1.phi(),
+                    muon_mass,
+                )
+            
+                l1mu2 = ROOT.TLorentzVector()
+                l1mu2.SetPtEtaPhiM(
+                    event.tau3muRefit.mu2().L1.pt(),
+                    event.tau3muRefit.mu2().L1.eta(),
+                    event.tau3muRefit.mu2().L1.phi(),
+                    muon_mass,
+                )
+                        
+                l1mass12 = (l1mu1 + l1mu2).M()
+                l1dR12   = deltaR(l1mu1.Eta(), l1mu1.Phi(), l1mu2.Eta(), l1mu2.Phi())
+                l1pt12   = (l1mu1 + l1mu2).Pt()
+                
             self.fill(self.tree, 'L1_mass12', l1mass12)
             self.fill(self.tree, 'L1_dR12'  , l1dR12)
             self.fill(self.tree, 'L1_pt12'  , l1pt12)
+    
+            if hasattr(event.tau3muRefit.mu1(), 'L1') and hasattr(event.tau3muRefit.mu3(), 'L1'):
 
-        if hasattr(event.tau3muRefit.mu1(), 'L1') and \
-           hasattr(event.tau3muRefit.mu3(), 'L1'):
-
-            l1mu1 = ROOT.TLorentzVector()
-            l1mu1.SetPtEtaPhiM(
-                event.tau3muRefit.mu1().L1.pt(),
-                event.tau3muRefit.mu1().L1.eta(),
-                event.tau3muRefit.mu1().L1.phi(),
-                muon_mass,
-            )
-        
-            l1mu3 = ROOT.TLorentzVector()
-            l1mu3.SetPtEtaPhiM(
-                event.tau3muRefit.mu3().L1.pt(),
-                event.tau3muRefit.mu3().L1.eta(),
-                event.tau3muRefit.mu3().L1.phi(),
-                muon_mass,
-            )
-                    
-            l1mass13 = (l1mu1 + l1mu3).M()
-            l1dR13   = deltaR(l1mu1.Eta(), l1mu1.Phi(), l1mu3.Eta(), l1mu3.Phi())
-            l1pt13   = (l1mu1 + l1mu3).Pt()
+                l1mu1 = ROOT.TLorentzVector()
+                l1mu1.SetPtEtaPhiM(
+                    event.tau3muRefit.mu1().L1.pt(),
+                    event.tau3muRefit.mu1().L1.eta(),
+                    event.tau3muRefit.mu1().L1.phi(),
+                    muon_mass,
+                )
+            
+                l1mu3 = ROOT.TLorentzVector()
+                l1mu3.SetPtEtaPhiM(
+                    event.tau3muRefit.mu3().L1.pt(),
+                    event.tau3muRefit.mu3().L1.eta(),
+                    event.tau3muRefit.mu3().L1.phi(),
+                    muon_mass,
+                )
+                        
+                l1mass13 = (l1mu1 + l1mu3).M()
+                l1dR13   = deltaR(l1mu1.Eta(), l1mu1.Phi(), l1mu3.Eta(), l1mu3.Phi())
+                l1pt13   = (l1mu1 + l1mu3).Pt()
+            
             self.fill(self.tree, 'L1_mass13', l1mass13)
             self.fill(self.tree, 'L1_dR13'  , l1dR13)
             self.fill(self.tree, 'L1_pt13'  , l1pt13)
+    
+            if hasattr(event.tau3muRefit.mu2(), 'L1') and hasattr(event.tau3muRefit.mu3(), 'L1'):
 
-        if hasattr(event.tau3muRefit.mu2(), 'L1') and \
-           hasattr(event.tau3muRefit.mu3(), 'L1'):
-
-            l1mu2 = ROOT.TLorentzVector()
-            l1mu2.SetPtEtaPhiM(
-                event.tau3muRefit.mu2().L1.pt(),
-                event.tau3muRefit.mu2().L1.eta(),
-                event.tau3muRefit.mu2().L1.phi(),
-                muon_mass,
-            )
-        
-            l1mu3 = ROOT.TLorentzVector()
-            l1mu3.SetPtEtaPhiM(
-                event.tau3muRefit.mu3().L1.pt(),
-                event.tau3muRefit.mu3().L1.eta(),
-                event.tau3muRefit.mu3().L1.phi(),
-                muon_mass,
-            )
-                    
-            l1mass23 = (l1mu2 + l1mu3).M()
-            l1dR23   = deltaR(l1mu2.Eta(), l1mu2.Phi(), l1mu3.Eta(), l1mu3.Phi())
-            l1pt23   = (l1mu2 + l1mu3).Pt()
+                l1mu2 = ROOT.TLorentzVector()
+                l1mu2.SetPtEtaPhiM(
+                    event.tau3muRefit.mu2().L1.pt(),
+                    event.tau3muRefit.mu2().L1.eta(),
+                    event.tau3muRefit.mu2().L1.phi(),
+                    muon_mass,
+                )
+            
+                l1mu3 = ROOT.TLorentzVector()
+                l1mu3.SetPtEtaPhiM(
+                    event.tau3muRefit.mu3().L1.pt(),
+                    event.tau3muRefit.mu3().L1.eta(),
+                    event.tau3muRefit.mu3().L1.phi(),
+                    muon_mass,
+                )
+                        
+                l1mass23 = (l1mu2 + l1mu3).M()
+                l1dR23   = deltaR(l1mu2.Eta(), l1mu2.Phi(), l1mu3.Eta(), l1mu3.Phi())
+                l1pt23   = (l1mu2 + l1mu3).Pt()
+            
             self.fill(self.tree, 'L1_mass23', l1mass23)
             self.fill(self.tree, 'L1_dR23'  , l1dR23)
             self.fill(self.tree, 'L1_pt23'  , l1pt23)
-
+    
         # BDT output
         if hasattr(event, 'bdt_proba'):
             self.fill(self.tree, 'bdt_proba', event.bdt_proba)

@@ -98,6 +98,9 @@ class Tau3MuMET(object):
     def dRtauMuonMax(self):
         return max([deltaR(self.p4Muons(), mu) for mu in [self.mu1(), self.mu2(), self.mu3()]])
 
+    def dPhitauMET(self):
+        return deltaPhi(self.p4Muons().phi(), self.met().phi())
+
     def p4(self):
         return self.mu1().p4() + self.mu2().p4() + self.mu3().p4() + self.met().p4()
 

@@ -1,3 +1,4 @@
+from copy import deepcopy as dc
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -10,12 +11,13 @@ class GenMatcherAnalyzer(Analyzer):
         if event.input.eventAuxiliary().isRealData():
             return True
         
-        # match the refitted tau to gen tau
-        tau = event.tau3muRefit.p4Muons()
+        # match the tau to gen tau
+        tau3mu = self.cfg_ana.getter(event)
+        tau = tau3mu.p4Muons()
         best_match, dRmin = bestMatch(tau, event.gentaus)
         tau_match = best_match if dRmin < 0.3 else None
                     
-        muons = [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()]          
+        muons = [tau3mu.mu1(), tau3mu.mu2(), tau3mu.mu3()]          
         
         # now match the three muons: 
         #    first try to match to any stable gen particle
@@ -51,6 +53,16 @@ class GenMatcherAnalyzer(Analyzer):
 
 #         if not hasattr(muons[0], 'genp') or (hasattr(muons[0], 'genp') and abs(muons[0].genp.pdgId())!=13):
 #             import pdb ; pdb.set_trace()
+
+#         print '\n==========================================================================='
+#         print bestMatch(tau, event.gentaus)
+#         print tau.pt(), tau.eta(), tau.phi()
+#         print event.gentaus[0].pt(), event.gentaus[0].eta(), event.gentaus[0].phi()
+#         print ''
+#         for mm in event.muons: print mm.pt(), mm.eta(), mm.phi(), mm.charge()
+#         print ''
+#         for mm in event.allmuons: print mm.pt(), mm.eta(), mm.phi(), mm.charge()
+#         import pdb ; pdb.set_trace()
         
         return True
     

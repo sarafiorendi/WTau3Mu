@@ -63,6 +63,9 @@ class BDTAnalyzer(Analyzer):
         
         # import pdb ; pdb.set_trace()
                 
-        event.bdt_proba    = float(self.classifier.predict_proba    (event_variables.reshape(1, -1))[:,1][0])
-        event.bdt_decision = float(self.classifier.decision_function(event_variables.reshape(1, -1))[0])
-        
+        try:
+            event.bdt_proba    = float(self.classifier.predict_proba    (event_variables.reshape(1, -1))[:,1][0])
+            event.bdt_decision = float(self.classifier.decision_function(event_variables.reshape(1, -1))[0])
+        except:
+            event.bdt_proba    = -99.
+            event.bdt_decision = -99.

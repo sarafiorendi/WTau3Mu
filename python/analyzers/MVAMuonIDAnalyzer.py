@@ -114,7 +114,7 @@ class MVAMuonIDAnalyzer (Analyzer):
             (hasattr(mu, 'globalTrack'))                        and\
             (mu.innerTrack().normalizedChi2() <= 10)            and\
             (mu.combinedQuality().trkRelChi2 <= 3)              and\
-            (hasattrsshh(mu, 'globalTrack')                     and\
+            (hasattr(mu, 'globalTrack')                 and\
              hasattr(mu.globalTrack(), 'hitPattern'))
         )
 
@@ -191,14 +191,9 @@ class MVAMuonIDAnalyzer (Analyzer):
             if mu.isStandAloneMuon(): count.inc('isStandAloneMuon')            
             if mu.isPFMuon()        : count.inc('isPFMuon')
 
-        for mu in muons:
-            if self.cfg_ana.useSideBands and \
-               1.7 < (muons[0].p4()+muons[1].p4()+muons[2].p4()).M() < 1.85 : break
-            if not mu.isGlobalMuon(): mu.BDTvalue = -1; continue #selecto only global muons
-            if self.cfg_ana.useBkgID and hasattr(mu, 'genp') and abs(mu.genp.pdgId()) == 13: 
-                continue 
-            if self.cfg_ana.useSigID and hasattr(mu, 'genp') and abs(mu.genp.pdgId()) != 13:
-                continue 
+        # compute the BDT value for both pre- and post-refit muons, as the score can slightly change
+        for mu in muons + muonsRefit:
+            if not self.passPreSelection(mu): continue
             mu.segComp          = self.var[0][0] = mu.segmentCompatibility()
             mu.chi2LocMom       = self.var[1][0] = mu.combinedQuality().chi2LocalMomentum
             mu.chi2LocPos       = self.var[2][0] = mu.combinedQuality().chi2LocalPosition
@@ -226,9 +221,5 @@ class MVAMuonIDAnalyzer (Analyzer):
             #endcap muons
             else:
                 mu.BDTvalue = self.readerEC.EvaluateMVA("BDT")
-
-        #update reftted muons
-        for mm, mr in zip(muons, muonsRefit):
-            mr.BDTvalue = mm.BDTvalue
 
         return True

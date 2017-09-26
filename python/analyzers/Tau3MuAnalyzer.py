@@ -125,6 +125,7 @@ class Tau3MuAnalyzer(Analyzer):
 
         self.counters.counter('Tau3Mu').inc('> 0 vertex')
 
+        event.allmuons  =                     self.handles['muons'    ].product()
         event.muons     = self.buildMuons    (self.handles['muons'    ].product(), event)
         event.electrons = self.buildElectrons(self.handles['electrons'].product(), event)
         event.taus      = self.buildTaus     (self.handles['taus'     ].product(), event)

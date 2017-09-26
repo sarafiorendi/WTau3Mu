@@ -155,6 +155,10 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         #     Give precedence to candidates with the correct charge        
         candidates.sort(key=lambda cand : (abs(cand.charge())==1, cand.mttau()), reverse=True)
         candidate = candidates[0]
+#         if len(candidates)>1:
+#             print '\n###############################################################'
+#             import pdb ; pdb.set_trace()
+#             for tt in candidates: print tt.charge(), tt.p4Muons().pt(), tt.p4Muons().eta(), tt.p4Muons().phi(), tt.p4Muons().mass(), tt.mttau(), tt.svtree.prob 
         self.counters.counter('KinematicVertexFitter').inc('candidate chosen')        
 
         # save the number of candidates as event attribute
@@ -224,8 +228,23 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         for mu in refitMuons:
             mu.associatedVertex = event.vertices[0]
         
+        # propagate the new muon p4s to the MET: subtract old, add new muons
+        newmet = dc(event.tau3mu.met())
+        
+        newmetP4 = event.tau3mu.met().p4() - \
+                   event.tau3mu.mu1().p4() - \
+                   event.tau3mu.mu2().p4() - \
+                   event.tau3mu.mu3().p4() + \
+                   mu1refit.p4()           + \
+                   mu2refit.p4()           + \
+                   mu3refit.p4()
+        
+        newmet.setP4(newmetP4)
+        
+        import pdb ; pdb.set_trace()
+        
         # create a new tau3mu object
-        event.tau3muRefit = Tau3MuMET(refitMuons, event.tau3mu.met())
+        event.tau3muRefit = Tau3MuMET(refitMuons, newmet)
 
         # append the refitted vertex to it
         event.tau3muRefit.refittedVertex = tauvtx

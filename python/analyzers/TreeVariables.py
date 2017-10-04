@@ -54,6 +54,8 @@ triplet_vars = [
     Variable('charge12'                          , lambda cand : cand.charge12()  , type=int),
     Variable('charge13'                          , lambda cand : cand.charge13()  , type=int),
     Variable('charge23'                          , lambda cand : cand.charge23()  , type=int),
+    Variable('met_pt'                            , lambda cand : cand.met().pt()            ),
+    Variable('met_phi'                           , lambda cand : cand.met().phi()           ),
     Variable('mt1'                               , lambda cand : cand.mt1()                 ),
     Variable('mt2'                               , lambda cand : cand.mt2()                 ),
     Variable('mt3'                               , lambda cand : cand.mt3()                 ),

@@ -240,9 +240,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
                    mu3refit.p4()
         
         newmet.setP4(newmetP4)
-        
-        import pdb ; pdb.set_trace()
-        
+                
         # create a new tau3mu object
         event.tau3muRefit = Tau3MuMET(refitMuons, newmet)
 

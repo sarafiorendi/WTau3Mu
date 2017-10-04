@@ -1,4 +1,5 @@
 import ROOT
+import random
 from DataFormats.FWLite import Events, Handle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi
 from itertools import product, combinations, groupby
@@ -34,7 +35,37 @@ ROOT.gStyle.SetOptStat(0)
 
 # events = Events('outputFULL.root')
 events = Events([
-    '/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_2_4/src/HLTrigger/Configuration/test/jian/outputFULL.root',
+    # '/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_2_4/src/HLTrigger/Configuration/test/jian/outputFULL.root',    
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_116.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_12.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_147.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_200.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_211.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_215.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_230.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_231.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_237.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_263.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_267.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_268.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_271.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_277.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_278.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_283.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_286.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_292.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_295.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_296.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_306.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_309.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_31.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_310.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_329.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_333.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_337.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_51.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_8.root',
+    '/eos/cms/store/group/phys_tau/DsTau3MuNewPathsV3/DsToTauToMuMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/DsTau3MuNewPathsV3/170727_120403/0000/outputFULL_81.root',
 ])
 
 handle_muons   = Handle ('std::vector<reco::Muon>')
@@ -60,10 +91,11 @@ in_the_acceptance = 0
 
 totevents = events.size()
 
-ric     = 0
-jian    = 0
-noiso   = 0
-anytrig = 0
+ric      = 0
+jian     = 0
+noiso    = 0
+anytrig  = 0
+offmuons = 0
 
 f1 = ROOT.TFile('tau3mu_jian_tuple.root', 'recreate')
 
@@ -131,14 +163,20 @@ branches = [
 #     'HLT_WTau3Mu_Mu5_Mu1_TrkMu0_v1',
 ]
 hlts = [
+#     'HLT_IsoMu27_v10',
+#     'HLT_DoubleMu3_Trk_Tau3mu_newMuonReco_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Iter0and1_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Iter0and1_merge_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_TauCharge1_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v1',
+#     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_TauCharge1_v1',
     'HLT_IsoMu27_v10',
     'HLT_DoubleMu3_Trk_Tau3mu_newMuonReco_v1',
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_v1',
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Iter0and1_v1',
+    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_Iter0and1_merge_v1', 
+    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_Charge1_Iter0and1_merge_v1',
     'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Iter0and1_merge_v1',
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_TauCharge1_v1',
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v1',
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_TauCharge1_v1',
+    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1_Iter0and1_merge_v1',
 ]
 seeds    = [
     'L1_SingleMu_22_eta2p1_Q12'                         ,
@@ -230,11 +268,18 @@ for i, event in enumerate(events):
 #         import pdb ; pdb.set_trace()
 
     gen_muons = [pp for pp in gen_particles if abs(pp.pdgId())==13 and abs(pp.mother().pdgId())==15]
-    gen_taus  = [pp for pp in gen_particles if abs(pp.pdgId())==15]
+
+    # get rid of Jian's double tau3mu events...
+    gen_taus  = [pp for pp in gen_particles if abs(pp.pdgId())==15 and pp.numberOfDaughters()==3 and abs(pp.daughter(0).pdgId())==13 and abs(pp.daughter(1).pdgId())==13 and abs(pp.daughter(2).pdgId())==13]
+    if len(gen_taus)>1:
+        gen_taus = [random.choice(gen_taus)]
+    
+    tau = gen_taus[0]
+    gen_muons = [tau.daughter(0), tau.daughter(1), tau.daughter(2)]
     
     normalTau = 0
     for itau in gen_taus:
-        if not(itau.numberOfDaughters() and abs(itau.daughter(0).pdgId())==13 \
+        if not(itau.numberOfDaughters()==3 and abs(itau.daughter(0).pdgId())==13 \
           and abs(itau.daughter(1).pdgId())==13 and abs(itau.daughter(2).pdgId())==13):
             normalTau += 1
     
@@ -281,6 +326,8 @@ for i, event in enumerate(events):
 
     if len(goodmuons)!=3:
         continue
+    
+    offmuons += 1
 
     goodmuons.sort(key = lambda mu : mu.pt(), reverse=True)
 
@@ -464,6 +511,7 @@ print 'jian    ', jian
 print 'ric     ', ric
 # print 'noiso   ', noiso
 print 'any     ', anytrig
+print 'offmuons', offmuons
 
 
 

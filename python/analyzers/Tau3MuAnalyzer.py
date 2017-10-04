@@ -49,6 +49,12 @@ class Tau3MuAnalyzer(Analyzer):
             'std::vector<pat::MET>'
         )
 
+        self.handles['mvamets'] = AutoHandle(
+            ('MVAMET', 'MVAMET', 'MVAMET'),
+            'std::vector<pat::MET>',
+            mayFail = True # not guaranteed MVA MET is always available
+        )
+
     def beginLoop(self, setup):
         super(Tau3MuAnalyzer, self).beginLoop(setup)
         self.counters.addCounter('Tau3Mu')
@@ -131,9 +137,13 @@ class Tau3MuAnalyzer(Analyzer):
         event.taus      = self.buildTaus     (self.handles['taus'     ].product(), event)
         event.pfmet     = self.handles['pfmet'   ].product()[0]
         event.puppimet  = self.handles['puppimet'].product()[0]
+        if getattr(self.cfg_ana, 'useMVAmet', False):
+            event.mvamets  = self.handles['mvamets'].product()
         
         good = self.selectionSequence(event)
         
+        event.selectedLeptons = [lep for lep in event.muons + event.electrons if lep.pt()>10.] #+ event.taus # useful for jet cross cleaning
+
         return good
 
     def selectionSequence(self, event):
@@ -152,7 +162,10 @@ class Tau3MuAnalyzer(Analyzer):
 
         # self.counters.counter('Tau3Mu').inc('pass resonance veto')
 
-        event.tau3mus = [Tau3MuMET(triplet, event.pfmet) for triplet in combinations(event.muons, 3)]
+        if getattr(self.cfg_ana, 'useMVAmet', False):
+            event.tau3mus = [Tau3MuMET(triplet, event.mvamets, useMVAmet=True) for triplet in combinations(event.muons, 3)]
+        else:
+            event.tau3mus = [Tau3MuMET(triplet, event.pfmet) for triplet in combinations(event.muons, 3)]
 
         # testing di-lepton itself
         seltau3mu = event.tau3mus

@@ -19,6 +19,7 @@ from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer             import LHEWe
 from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer              import TriggerAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.METFilter                    import METFilter
 from CMGTools.H2TauTau.proto.analyzers.FileCleaner                  import FileCleaner
+from CMGTools.H2TauTau.proto.analyzers.JetAnalyzer                  import JetAnalyzer
 
 #WTau3Mu analysers
 from CMGTools.WTau3Mu.analyzers.Tau3MuAnalyzer                      import Tau3MuAnalyzer
@@ -173,6 +174,25 @@ recoilAna = cfg.Analyzer(
     pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
 )
 
+# see SM HTT TWiki
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SMTauTau2016#Jet_Energy_Corrections
+jetAna = cfg.Analyzer(
+    JetAnalyzer,
+    name='JetAnalyzer',
+    jetCol='slimmedJets',
+    jetPt=20.,
+    jetEta=4.7,
+    relaxJetId=False, # relax = do not apply jet ID
+    relaxPuJetId=True, # relax = do not apply pileup jet ID
+    jerCorr=False,
+    #jesCorr = 1., # Shift jet energy scale in terms of uncertainties (1 = +1 sigma)
+    puJetIDDisc='pileupJetId:fullDiscriminant',
+    recalibrateJets=True,
+    applyL2L3Residual='MC',
+    mcGT='80X_mcRun2_asymptotic_2016_TrancheIV_v8',
+    dataGT='80X_dataRun2_2016SeptRepro_v7',
+)
+
 fileCleaner = cfg.Analyzer(
     FileCleaner,
     name='FileCleaner'
@@ -190,8 +210,9 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
+#     jetAna,
     genMatchAna,
-    recoilAna,
+#     recoilAna,
     vertexFitter,
     muIdAna,
     isoAna,

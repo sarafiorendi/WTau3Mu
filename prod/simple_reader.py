@@ -44,7 +44,8 @@ event.getByLabel(label_endcapM, handle_endcapM)
 muonsL1EndcapM = handle_endcapM.product()
 
 for i in range(6):
-    print muonsL1Barrel[i].second.Phi(), muonsL1EndcapM[i].second.Phi(), muonsL1EndcapP[i].second.Phi()
+    print muons[i].pt(), muonsL1Barrel[i].second.Phi(), muonsL1EndcapM[i].second.Phi(), muonsL1EndcapP[i].second.Phi()
+    print muons[i].pt(), muonsL1Barrel[i].second.Eta(), muonsL1EndcapM[i].second.Eta(), muonsL1EndcapP[i].second.Eta()
 
 
 # if len(muons):

@@ -12,13 +12,37 @@ class Tau3MuMET(object):
     ''' 
     '''
 
-    def __init__(self, muons, met):
+    def __init__(self, muons, met, useMVAmet=False):
         muons = sorted(muons, key=lambda mu : mu.pt(), reverse=True)
         self.mu1_ = muons[0]
         self.mu2_ = muons[1]
         self.mu3_ = muons[2]
-        self.met_ = met        
+        if not useMVAmet:
+            self.met_ = met        
+        else: 
+            self.met_ = self.findMVAmet(met)
         self.checkResonances()
+        
+    def findMVAmet(self, met):
+        '''
+        For each triplet there's a corresponding MVA MET object.
+        This method finds the correct correspondence.
+        '''
+        muons = [self.mu1_.physObj , self.mu2_.physObj , self.mu3_.physObj]
+
+        for imet in met:        
+            metmuons = [imet.userCand(iname).get() for iname in imet.userCandNames()]
+            matched = 0
+            already_matched = []
+            for i, j in product(metmuons, muons):
+                if i==j and j not in already_matched:
+                    already_matched.append(j)
+                    matched += 1
+            if matched == 3:
+                return imet
+        
+        import pdb ; pdb.set_trace()
+        raise Exception('no good MVA met found!')
         
     def checkResonances(self):
         '''

@@ -32,6 +32,7 @@ class RecoilCorrector(Analyzer):
         # Instantiate a Recoil Corrector
         self.rcPFMET = RC(self.cfg_ana.pfMetRCFile)
 
+
     def declareHandles(self):
         super(RecoilCorrector, self).declareHandles()
 
@@ -39,6 +40,7 @@ class RecoilCorrector(Analyzer):
             'slimmedJets',
             'vector<pat::Jet>'
         )
+
 
     @staticmethod
     def getGenP4(boson):
@@ -65,21 +67,21 @@ class RecoilCorrector(Analyzer):
         if not hasattr(event, 'genw'):
             return
 
-        # read the jet collection and count
+        # read the jet collection and count, only if not done already by JetAnalyzer
         # build the jets as prescribed by Alexei
-        self.readCollections(event.input)
-        event.jets = [Jet(jj) for jj in self.handles['jets'].product()]
-
-        event.cleanJets, _ = cleanObjectCollection(
-            event.jets,
-            masks = event.muons + event.electrons, # clean from leptons as prescribed (see Tau3Mu analyzer)
-            deltaRMin = 0.5
-        )
-
-        event.cleanJets30 = [jet for jet in event.cleanJets if jet.pt()>30                 and\
-                                                               abs(jet.eta())<4.7          and\
-                                                               jet.jetID("POG_PFID_Loose") and\
-                                                               jet.puJetId()                   ]
+        if not hasattr(event, 'cleanJets30'):
+            self.readCollections(event.input)
+            event.jets = [Jet(jj) for jj in self.handles['jets'].product()]
+    
+            event.cleanJets, _ = cleanObjectCollection(
+                event.jets,
+                masks = event.selectedLeptons,
+                deltaRMin = 0.5
+            )
+    
+            event.cleanJets30 = [jet for jet in event.cleanJets if jet.pt()>30                 and\
+                                                                   abs(jet.eta())<4.7          and\
+                                                                   jet.jetID("POG_PFID_Loose")    ]
 
         n_jets_30 = len(event.cleanJets30)
 

@@ -96,31 +96,6 @@ class Tau3MuMET(object):
             # Should think of how to treat them, e.g. set the square root argument to 0
             return Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.), Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.)
 
-#         distance = 1.e10
-        
-#         missing_energy_p4 = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.)
-
-#         print '\tdmez_plus %.2f \t\t mez_minus %.2f' %(mez_plus, mez_minus)
-#         
-#         for mez in [mez_plus, mez_minus]:
-#             energy = math.sqrt(self.met().pt()**2 + mez**2)
-#             me = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(self.met().px(), self.met().py(), mez, energy) 
-#         
-#             wp4 = me + self.p4Muons()
-#  
-#             dmass = abs(wp4.mass() - mw)
-#             print '\tdmass', dmass
-#             
-#             import pdb ; pdb.set_trace()
-#             
-#             print '\tmez %.2f\t W mass %.2f\t' %(mez, wp4.mass())
-# 
-#             if dmass < distance:
-#                 distance = dmass
-#                 missing_energy_p4 = me
-#         
-#         print 'W mass %.2f\t, pt %.2f\t, eta %.2f\t, phi %.2f\t' %(wp4.mass(), wp4.pt(), wp4.eta(), wp4.phi())
-
         if abs(mez_plus) > abs(mez_minus):
             mez_min = mez_minus
             mez_max = mez_plus
@@ -152,10 +127,7 @@ class Tau3MuMET(object):
             wp4_min = self.me_mez_min() + self.p4Muons()            
         if self.me_mez_max().energy()>0.:
             wp4_max = self.me_mez_max() + self.p4Muons()
-        
-        if self.me_mez_min().energy()>0. and abs(wp4_min.mass()-80.385)>2:
-            import pdb ; pdb.set_trace()
-            
+                    
         return wp4_min, wp4_max
         
     def sumPt(self):

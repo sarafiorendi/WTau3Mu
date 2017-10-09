@@ -74,7 +74,7 @@ class Tau3MuMET(object):
     def _me(self):
         '''
         Longitudinal momentum component of the neutrino, assuming W mass = 80.385 GeV and
-        mw^2 = (E_tau + E_inv)^2 - (pz_tau + pz_inv)^2 - (pt_tau - pt_inv)^2
+        mw^2 = (E_tau + E_inv)^2 - (pz_tau + pz_inv)^2 - (px_tau - px_inv)^2  - (py_tau - py_inv)^2
         
         The quadratic equation gives two solutions, both are returned.
         '''
@@ -86,10 +86,12 @@ class Tau3MuMET(object):
         B = -2.*constant*self.p4Muons().pz()
         C = self.p4Muons().energy()**2*self.met().pt()**2 - constant**2
         
-        try: 
-            mez_plus  = 0.5 * ( -B + math.sqrt(B**2 - 4.*A*C) ) / A
-            mez_minus = 0.5 * ( -B - math.sqrt(B**2 - 4.*A*C) ) / A
-        except: 
+        radical = B**2 - 4.*A*C
+        
+        if radical>=0.:
+            mez_plus  = 0.5 * ( -B + math.sqrt(radical) ) / A
+            mez_minus = 0.5 * ( -B - math.sqrt(radical) ) / A
+        else: 
             mez_plus  = 0.
             mez_minus = 0.
             # non physical solutions might simply be resolution effects. 
@@ -190,7 +192,6 @@ class Tau3MuMET(object):
     def p4(self):
         return self.mu1().p4() + self.mu2().p4() + self.mu3().p4() + self.met().p4()
         
-
     def p4Muons(self):
         return self.mu1().p4() + self.mu2().p4() + self.mu3().p4()
 

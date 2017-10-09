@@ -1,11 +1,12 @@
 import math
 
 from itertools import combinations, product
+# from copy import deepcopy as dc
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
 from CMGTools.WTau3Mu.analyzers.resonances import resonances, sigmas_to_exclude
-from ROOT import TVector3
+from ROOT import TVector3, Math
 
 class Tau3MuMET(object):
 
@@ -17,10 +18,10 @@ class Tau3MuMET(object):
         self.mu1_ = muons[0]
         self.mu2_ = muons[1]
         self.mu3_ = muons[2]
-        if not useMVAmet:
-            self.met_ = met        
-        else: 
+        if useMVAmet:
             self.met_ = self.findMVAmet(met)
+        else: 
+            self.met_ = met        
         self.checkResonances()
         
     def findMVAmet(self, met):
@@ -39,6 +40,9 @@ class Tau3MuMET(object):
                     already_matched.append(j)
                     matched += 1
             if matched == 3:
+                # get rid of eta component and mass being != 0
+                newp4 = Math.LorentzVector('<ROOT::Math::PtEtaPhiM4D<double>')(imet.pt(), 0., imet.phi(), 0.)
+                imet.setP4(newp4)
                 return imet
         
         import pdb ; pdb.set_trace()
@@ -67,6 +71,92 @@ class Tau3MuMET(object):
             if distance(resonance) < 2. :
                 self.vetoResonance2sigma = id
 
+    def _me(self):
+        '''
+        Longitudinal momentum component of the neutrino, assuming W mass = 80.385 GeV and
+        mw^2 = (E_tau + E_inv)^2 - (pz_tau + pz_inv)^2 - (pt_tau - pt_inv)^2
+        
+        The quadratic equation gives two solutions, both are returned.
+        '''
+        mw = 80.385
+
+        constant = (self.met().px()*self.p4Muons().px() + self.met().py()*self.p4Muons().py()) + 0.5*(mw**2 - self.p4Muons().mass()**2)
+        
+        A = self.p4Muons().energy()**2 - self.p4Muons().pz()**2
+        B = -2.*constant*self.p4Muons().pz()
+        C = self.p4Muons().energy()**2*self.met().pt()**2 - constant**2
+        
+        try: 
+            mez_plus  = 0.5 * ( -B + math.sqrt(B**2 - 4.*A*C) ) / A
+            mez_minus = 0.5 * ( -B - math.sqrt(B**2 - 4.*A*C) ) / A
+        except: 
+            mez_plus  = 0.
+            mez_minus = 0.
+            # non physical solutions might simply be resolution effects. 
+            # Should think of how to treat them, e.g. set the square root argument to 0
+            return Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.), Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.)
+
+#         distance = 1.e10
+        
+#         missing_energy_p4 = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.)
+
+#         print '\tdmez_plus %.2f \t\t mez_minus %.2f' %(mez_plus, mez_minus)
+#         
+#         for mez in [mez_plus, mez_minus]:
+#             energy = math.sqrt(self.met().pt()**2 + mez**2)
+#             me = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(self.met().px(), self.met().py(), mez, energy) 
+#         
+#             wp4 = me + self.p4Muons()
+#  
+#             dmass = abs(wp4.mass() - mw)
+#             print '\tdmass', dmass
+#             
+#             import pdb ; pdb.set_trace()
+#             
+#             print '\tmez %.2f\t W mass %.2f\t' %(mez, wp4.mass())
+# 
+#             if dmass < distance:
+#                 distance = dmass
+#                 missing_energy_p4 = me
+#         
+#         print 'W mass %.2f\t, pt %.2f\t, eta %.2f\t, phi %.2f\t' %(wp4.mass(), wp4.pt(), wp4.eta(), wp4.phi())
+
+        if abs(mez_plus) > abs(mez_minus):
+            mez_min = mez_minus
+            mez_max = mez_plus
+        else:
+            mez_min = mez_plus
+            mez_max = mez_minus
+
+        energy_min = math.sqrt(self.met().pt()**2 + mez_min**2)
+        energy_max = math.sqrt(self.met().pt()**2 + mez_max**2)
+        
+        missing_energy_p4_mez_min = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(self.met().px(), self.met().py(), mez_min, energy_min) 
+        missing_energy_p4_mez_max = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(self.met().px(), self.met().py(), mez_max, energy_max) 
+                
+        return missing_energy_p4_mez_min, missing_energy_p4_mez_max
+
+    def me(self):
+        return self._me()[0]
+
+    def me_mez_min(self):
+        return self._me()[0]
+
+    def me_mez_max(self):
+        return self._me()[1]
+
+    def reco_w(self):
+        wp4_min = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.) 
+        wp4_max = Math.LorentzVector('<ROOT::Math::PxPyPzE4D<double>')(0., 0., 0., 0.)
+        if self.me_mez_min().energy()>0.:
+            wp4_min = self.me_mez_min() + self.p4Muons()            
+        if self.me_mez_max().energy()>0.:
+            wp4_max = self.me_mez_max() + self.p4Muons()
+        
+        if self.me_mez_min().energy()>0. and abs(wp4_min.mass()-80.385)>2:
+            import pdb ; pdb.set_trace()
+            
+        return wp4_min, wp4_max
         
     def sumPt(self):
         return self.p4().pt()
@@ -127,6 +217,7 @@ class Tau3MuMET(object):
 
     def p4(self):
         return self.mu1().p4() + self.mu2().p4() + self.mu3().p4() + self.met().p4()
+        
 
     def p4Muons(self):
         return self.mu1().p4() + self.mu2().p4() + self.mu3().p4()

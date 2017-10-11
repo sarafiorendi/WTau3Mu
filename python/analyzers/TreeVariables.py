@@ -241,8 +241,9 @@ for tau_id in tauIDs_extra:
 # jet
 jet_vars = [
     Variable('mva_pu', lambda jet : jet.puMva('pileupJetId:fullDiscriminant')),
+    Variable('id_pu', lambda jet : jet.puJetId()),
     # Variable('id_loose', lambda jet : jet.looseJetId()),
-    Variable('id_pu', lambda jet : jet.puJetId() + jet.puJetId(wp='medium') + jet.puJetId(wp='tight')),
+    # Variable('id_pu', lambda jet : jet.puJetId() + jet.puJetId(wp='medium') + jet.puJetId(wp='tight')),
     # Variable('area', lambda jet : jet.jetArea()),
     Variable('flavour_parton', lambda jet : jet.partonFlavour()),
     Variable('csv', lambda jet : jet.btagMVA),

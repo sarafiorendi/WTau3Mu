@@ -24,6 +24,16 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.bookMuon(self.tree, 'mu3_refit')        
         self.bookVertex(self.tree, 'tau_sv')
 
+        # jet information
+        self.bookJet(self.tree, 'jet1' , fill_extra=False)
+        self.bookJet(self.tree, 'jet2' , fill_extra=False)
+        self.bookJet(self.tree, 'bjet1', fill_extra=False)
+        self.bookJet(self.tree, 'bjet2', fill_extra=False)
+        self.var(self.tree, 'HTjets' )
+        self.var(self.tree, 'HTbjets')
+        self.var(self.tree, 'njets'  )
+        self.var(self.tree, 'nbjets' )
+
         # generator information
         self.bookGenParticle(self.tree, 'gen_w')
         self.bookGenParticle(self.tree, 'mu1_refit_gen')
@@ -189,5 +199,21 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         if hasattr(event, 'bdt_decision'):
             self.fill(self.tree, 'bdt_decision', event.bdt_decision)
  
+
+        # jet variables
+        if len(event.cleanJets)>0:
+            self.fillJet(self.tree, 'jet1', event.cleanJets[0], fill_extra=False)
+        if len(event.cleanJets)>1:
+            self.fillJet(self.tree, 'jet2', event.cleanJets[1], fill_extra=False)
+        if len(event.cleanBJets)>0:
+            self.fillJet(self.tree, 'bjet1', event.cleanBJets[0], fill_extra=False)
+        if len(event.cleanBJets)>1:
+            self.fillJet(self.tree, 'bjet2', event.cleanBJets[1], fill_extra=False)
+
+        self.fill(self.tree, 'HTjets' , event.HT_cleanJets   )
+        self.fill(self.tree, 'HTbjets', event.HT_bJets       )
+        self.fill(self.tree, 'njets'  , len(event.cleanJets) )
+        self.fill(self.tree, 'nbjets' , len(event.cleanBJets))
+
         self.fillTree(event)
 

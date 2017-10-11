@@ -15,3 +15,22 @@ Once the cards are ready you need to move a different CMSSW following the prescr
 There you need to copy (or symlink) this directory with the datacards in it.
 
 The script ```make_limits.sh``` will compute the 90% and 95% expected limits and create 6 txt file (and a bunch of root files) containing the logs and the final results.
+
+
+## Installing the appropriate `combine`
+
+Stick to 747, 810 crashes.  
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit#ROOT6_SLC6_release_CMSSW_7_4_X
+
+```
+cmsrel CMSSW_7_4_7
+cd CMSSW_7_4_7/src 
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v6.3.1
+scramv1 b clean; scramv1 b # always make a clean build, as scram doesn't always see updates to src/LinkDef.h
+```
+

@@ -38,6 +38,7 @@ event_vars = [
     Variable('n_electrons', lambda ev : len(ev.electrons), type=int),
     Variable('n_taus'     , lambda ev : len(ev.taus), type=int),
     Variable('n_candidates', lambda ev : ev.ncands, type=int),
+    Variable('n_vtx', lambda ev : len(ev.goodVertices), type=int),
     Variable('weight', lambda ev : ev.eventWeight, type=float),
     Variable('puweight', lambda ev : ev.eventWeight, type=float),
 ]

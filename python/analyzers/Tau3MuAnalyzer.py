@@ -63,7 +63,7 @@ class Tau3MuAnalyzer(Analyzer):
         count.register('> 0 vertex')
         count.register('> 0 tri-muon')
         # count.register('pass resonance veto')
-        count.register('m < 10 GeV')
+        count.register('m < 3 GeV')
         count.register('trigger matched')
 
     def buildMuons(self, muons, event):
@@ -175,7 +175,7 @@ class Tau3MuAnalyzer(Analyzer):
 
         if len(seltau3mu) == 0:
             return False
-        self.counters.counter('Tau3Mu').inc('m < 10 GeV')
+        self.counters.counter('Tau3Mu').inc('m < 3 GeV')
 
         # trigger matching
         # RM FIXME! for now it makes sense only if there's just one trigger

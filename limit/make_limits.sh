@@ -1,5 +1,9 @@
 #! /bin/bash
 
+echo "combining cards: datacard_barrel.txt + datacard_endcap.txt"
+combineCards.py barrel=datacard_barrel.txt endcap=datacard_endcap.txt > datacard.txt 
+
+echo "creating model"
 text2workspace.py datacard.txt -o model.root
 
 echo 'computing the 95% limit'

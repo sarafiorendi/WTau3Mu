@@ -40,3 +40,8 @@ git checkout v6.3.1
 scramv1 b clean; scramv1 b # always make a clean build, as scram doesn't always see updates to src/LinkDef.h
 ```
 
+## Tutorial
+https://indico.cern.ch/event/577649/#b-229590-higgs-combine-tool-mi
+especially
+https://indico.cern.ch/event/577649/contributions/2388727/attachments/1380321/2098157/HComb-Tutorial-Nov16-combineTool.pdf
+

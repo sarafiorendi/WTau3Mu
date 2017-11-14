@@ -1,4 +1,6 @@
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
+from collections import OrderedDict
+
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -48,14 +50,22 @@ production         = getHeppyOption('production'        , False)
 pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
 extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
-compute_mvamet     = getHeppyOption('compute_mvamet'    , True )
+compute_mvamet     = getHeppyOption('compute_mvamet'    , False)
 ###################################################
 ###               HANDLE SAMPLES                ###
 ###################################################
 samples = [WToTauTo3Mu]
 
 for sample in samples:
-    sample.triggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 5)]
+    sample.triggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(4, 5)]
+    sample.triggers += ['HLT_IsoMu24_v%d'                                   %i for i in range(4, 5)]
+    sample.triggers += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(4, 5)]
+    sample.triggers += ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'           %i for i in range(7, 8)]
+    sample.triggers += ['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'         %i for i in range(6, 7)]
+    sample.triggers += ['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'       %i for i in range(3, 4)]
+    sample.triggers += ['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v%d' %i for i in range(7, 8)]
+    sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(4, 5)]
+
     # specify which muon should match to which filter. 
 #     sample.trigger_filters = [
 #         (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
@@ -117,10 +127,22 @@ pileUpAna = cfg.Analyzer(
 genAna = GeneratorAnalyzer.defaultConfig
 genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether hadronic / leptonic decay
 
+# for each path specify which filters you want the muons to match to
+triggers_and_filters = OrderedDict()
+triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
+triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
+triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]
+triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = ['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = ['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = ['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = ['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ]
+triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = ['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105']
+
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',
-    trigger_match=True,
+#     trigger_match=True,
+    trigger_match=triggers_and_filters,
     useMVAmet=True,
 )
 
@@ -180,19 +202,19 @@ recoilAna = cfg.Analyzer(
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SMTauTau2016#Jet_Energy_Corrections
 jetAna = cfg.Analyzer(
     JetAnalyzer,
-    name='JetAnalyzer',
-    jetCol='slimmedJets',
-    jetPt=20.,
-    jetEta=4.7,
-    relaxJetId=False, # relax = do not apply jet ID
-    relaxPuJetId=True, # relax = do not apply pileup jet ID
-    jerCorr=False,
+    name              = 'JetAnalyzer',
+    jetCol            = 'slimmedJets',
+    jetPt             = 20.,
+    jetEta            = 4.7,
+    relaxJetId        = False, # relax = do not apply jet ID
+    relaxPuJetId      = True, # relax = do not apply pileup jet ID
+    jerCorr           = False,
+    puJetIDDisc       = 'pileupJetId:fullDiscriminant',
+    recalibrateJets   = True,
+    applyL2L3Residual = 'MC',
+    mcGT              = '80X_mcRun2_asymptotic_2016_TrancheIV_v8',
+    dataGT            = '80X_dataRun2_2016SeptRepro_v7',
     #jesCorr = 1., # Shift jet energy scale in terms of uncertainties (1 = +1 sigma)
-    puJetIDDisc='pileupJetId:fullDiscriminant',
-    recalibrateJets=True,
-    applyL2L3Residual='MC',
-    mcGT='80X_mcRun2_asymptotic_2016_TrancheIV_v8',
-    dataGT='80X_dataRun2_2016SeptRepro_v7',
 )
 
 fileCleaner = cfg.Analyzer(
@@ -212,7 +234,7 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-#     jetAna,
+    jetAna,
     genMatchAna,
 #     recoilAna,
     vertexFitter,
@@ -232,9 +254,10 @@ if not production:
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
 #     comp.files           = comp.files[:1]
-#     comp.files = [
-#        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'
-#     ]
+    comp.files = [
+       'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
+#        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',
+    ]
 
 preprocessor = None
 

@@ -177,37 +177,56 @@ class Tau3MuAnalyzer(Analyzer):
             return False
         self.counters.counter('Tau3Mu').inc('m < 3 GeV')
 
+        # match only if the trigger fired
+        event.fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]
+
         # trigger matching
-        # RM FIXME! for now it makes sense only if there's just one trigger
-        if hasattr(self.cfg_ana, 'trigger_match') and self.cfg_ana.trigger_match:
+        if hasattr(self.cfg_ana, 'trigger_match') and len(self.cfg_ana.trigger_match.keys())>0:
+                        
             for triplet in seltau3mu:
-                triplet.mu1().trig_objs = []
-                triplet.mu2().trig_objs = []
-                triplet.mu3().trig_objs = []
+                
+                triplet.hltmatched = [] # initialise to no match
+                
+                triplet.mu1().trig_objs = [] # initialise to no trigger objct matches
+                triplet.mu2().trig_objs = [] # initialise to no trigger objct matches
+                triplet.mu3().trig_objs = [] # initialise to no trigger objct matches
     
-                triplet.mu1().trig_matched = False
-                triplet.mu2().trig_matched = False
-                triplet.mu3().trig_matched = False
+                triplet.mu1().trig_matched = False # initialise to no match
+                triplet.mu2().trig_matched = False # initialise to no match
+                triplet.mu3().trig_matched = False # initialise to no match
     
+                # add all matched objects to each muon
                 for info in event.trigger_infos:
                     triplet.mu1().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.3]
                     triplet.mu2().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.3]
                     triplet.mu3().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.3]
                 
-                # FIXME! cannot pickle properly
-                self.cfg_comp.trigger_filters = [
-                    (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
-                    (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
-                    (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
-                ]
+                # iterate over the path:filters dictionary
+                #     the filters MUST be sorted correctly: i.e. first filter in the dictionary 
+                #     goes with the first muons and so on
+                for k, v in self.cfg_ana.trigger_match.iteritems():
+
+                    if not any(k in name for name in event.fired_triggers):
+                         continue
+                         
+                    trigger_filters = []
+
+                    if len(v)>0: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu1')(), [v[0]]) )
+                    if len(v)>1: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu2')(), [v[1]]) )
+                    if len(v)>2: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu3')(), [v[2]]) )
                 
-                for getter, filters in self.cfg_comp.trigger_filters:
-                    for obj in getter(triplet).trig_objs:
-                        if set(filters) & set(obj.filterLabels()):
-                            getter(triplet).trig_matched = True
+                    for getter, filters in trigger_filters:
+                        for obj in getter(triplet).trig_objs:
+                            if set(filters) & set(obj.filterLabels()):
+                                getter(triplet).trig_matched = True
+
+                    ismatched = sum([int(jj.trig_matched) for jj in [triplet.mu1(), triplet.mu2(), triplet.mu3()]])            
             
-            seltau3mu = [triplet for triplet in seltau3mu if triplet.mu1().trig_matched \
-                         and triplet.mu2().trig_matched and triplet.mu3().trig_matched]
+                    if len(trigger_filters) == ismatched:
+                        triplet.hltmatched.append(k)
+            
+            seltau3mu = [triplet for triplet in seltau3mu if len(triplet.hltmatched)>0]
+            
             if len(seltau3mu) == 0:
                 return False
             self.counters.counter('Tau3Mu').inc('trigger matched')
@@ -218,7 +237,6 @@ class Tau3MuAnalyzer(Analyzer):
 
 
         return True
-
 
     def bestTriplet(self, triplets):
         '''

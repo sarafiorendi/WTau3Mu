@@ -60,6 +60,15 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
             self.var(self.tree, 'L1_pt13')
             self.var(self.tree, 'L1_pt23')
 
+        self.var(self.tree, 'hlt_doublemu3_trk_tau3mu'                     )
+        self.var(self.tree, 'hlt_isomu24'                                  )
+        self.var(self.tree, 'hlt_isotkmu24'                                )
+        self.var(self.tree, 'hlt_mu17_trkisovvl_mu8_trkisovvl_dz'          )
+        self.var(self.tree, 'hlt_mu17_trkisovvl_tkmu8_trkisovvl_dz'        )
+        self.var(self.tree, 'hlt_tkmu17_trkisovvl_tkmu8_trkisovvl_dz'      )
+        self.var(self.tree, 'hlt_doublemu4_lowmassnonresonanttrk_displaced')
+        self.var(self.tree, 'hlt_triplemu_12_10_5'                         )
+
         # BDT output
         self.var(self.tree, 'bdt_proba')
         self.var(self.tree, 'bdt_decision')
@@ -192,6 +201,16 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
             self.fill(self.tree, 'L1_mass23', l1mass23)
             self.fill(self.tree, 'L1_dR23'  , l1dR23)
             self.fill(self.tree, 'L1_pt23'  , l1pt23)
+
+        # HLT bits & matches
+        self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu'                     , any('HLT_DoubleMu3_Trk_Tau3mu'                      in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_isomu24'                                  , any('HLT_IsoMu24'                                   in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_isotkmu24'                                , any('HLT_IsoTkMu24'                                 in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_mu17_trkisovvl_mu8_trkisovvl_dz'          , any('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'           in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_mu17_trkisovvl_tkmu8_trkisovvl_dz'        , any('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'         in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_tkmu17_trkisovvl_tkmu8_trkisovvl_dz'      , any('HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'       in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_doublemu4_lowmassnonresonanttrk_displaced', any('HLT_DoubleMu4_LowMassNonResonantTrk_Displaced' in name for name in event.tau3mu.hltmatched))
+        self.fill(self.tree, 'hlt_triplemu_12_10_5'                         , any('HLT_TripleMu_12_10_5'                          in name for name in event.tau3mu.hltmatched))
     
         # BDT output
         if hasattr(event, 'bdt_proba'):

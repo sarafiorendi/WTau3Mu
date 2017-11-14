@@ -1,18 +1,31 @@
 #! /bin/bash
 
-echo "combining cards: datacard_barrel.txt + datacard_endcap.txt"
-combineCards.py barrel=datacard_barrel.txt endcap=datacard_endcap.txt > datacard.txt 
 
-echo "creating model"
-text2workspace.py datacard.txt -o model.root
+wps='0.65 0.70 0.75 0.80 0.85 0.90 0.92'
+for wp in $wps
+    do
+    echo "WP "$wp
+    echo "combining cards: datacard_barrel.txt + datacard_endcap.txt"
+    barrel='datacard_barrel'$wp'.txt'
+    endcap='datacard_endcap'$wp'.txt'
+    datacard='datacard'$wp'.txt'
+    model='model'$wp'.root'
+    combineCards.py barrel=$barrel endcap=$endcap > $datacard
 
-echo 'computing the 95% limit'
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.5 &> central_0.95.txt
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.16 &> plus_one_sigma_0.95.txt
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.84 &> minus_one_sigma_0.95.txt
+    echo "creating model"
+    text2workspace.py $datacard -o $model 
+    
+#     echo 'computing the 95% limit'
+#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5 &> central_0.95_WP$wp.txt
+#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.16 &> plus_one_sigma_0.95_WP$wp.txt
+#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.84 &> minus_one_sigma_0.95_WP$wp.txt
+    
+    echo 'computing the 90% limit'
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5  -C 0.9 &> central_0.90_WP$wp.txt
+#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.16 -C 0.9 &> plus_one_sigma_0.90_WP$wp.txt
+#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.84 -C 0.9 &> minus_one_sigma_0.90_WP$wp.txt
 
-echo 'computing the 90% limit'
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.5  -C 0.9 &> central_0.90.txt
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.16 -C 0.9 &> plus_one_sigma_0.90.txt
-combine -M HybridNew --testStat=LHC --frequentist model.root -T 2000 --expectedFromGrid 0.84 -C 0.9 &> minus_one_sigma_0.90.txt
+    done
+
+
 

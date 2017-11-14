@@ -10,6 +10,7 @@ import sklearn
 from pdb import set_trace
 from sklearn.externals import joblib
 import argparse
+import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--load', help='load pkl instead of training')
@@ -24,7 +25,8 @@ features = [
 ]
 sig = pandas.DataFrame(
 	root_numpy.root2array(
-		'signal.root', 'tree',
+		'/afs/cern.ch/work/m/manzoni/public/perMauro/Prod_v1p1/WToTauTo3Mu/WTau3MuTreeProducer/tree.root', 'tree',
+# 		'signal.root', 'tree',
 		branches = [
 			'cand_refit_tau_mass', 'cand_refit_tau_dBetaIsoCone0p8strength0p2_rel',
 			'cand_refit_mttau', 'cand_refit_tau_pt', 'cand_refit_dRtauMET', 
@@ -39,10 +41,12 @@ sig = pandas.DataFrame(
 	)
 sig['target'] = np.ones(sig.shape[0])
 
+print 'loaded signal'
 
 bkg = pandas.DataFrame(
 	root_numpy.root2array(
-		'DATI.root', 'tree',
+		['/afs/cern.ch/work/m/manzoni/public/perMauro/Prod_v1p1/DoubleMuonLowMass*/WTau3MuTreeProducer/tree.root'], 'tree',
+# 		'DATI.root', 'tree',
 		branches = [
 			'cand_refit_massMuons', 'cand_refit_tau_dBetaIsoCone0p8strength0p2_rel',
 			'cand_refit_mttau', 'cand_refit_sumPtMuons', 'cand_refit_dRtauMET', 
@@ -57,6 +61,8 @@ bkg = pandas.DataFrame(
 		)
 	)
 bkg['target'] = np.zeros(bkg.shape[0])
+
+print 'loaded bkg'
 
 mapping = {
 	'cand_refit_massMuons' : 'cand_refit_tau_mass',
@@ -96,6 +102,9 @@ fpr = ((bkg.tau_sv_prob > 0.10) & (bkg.cand_refit_tau_dBetaIsoCone0p8strength0p2
 fpr /= float(bkg.shape[0])
 print 'Default selection -- Signal eff.: %.2f%%, Bkg. eff.: %.2f%%' % (tpr*100, fpr*100)
 
+cutbased_file = open('cut_based.pck', 'w+')
+pickle.dump((tpr, fpr), cutbased_file)
+cutbased_file.close()
 
 data = pandas.concat([sig, bkg])
 train, test = train_test_split(data, test_size=0.33, random_state=42)
@@ -130,22 +139,28 @@ print 'Pearson correlation coefficient on scaled data:', pearson_coeff, " 2 tail
 import itertools
 xy = [i*j for i,j in itertools.product([10.**i for i in range(-8, 0)], [1,2,4,8])]+[1]
 plt.plot(xy, xy, color='grey', linestyle='--')
-plt.xlim([10**-8, 1.0])
+plt.xlim([10**-5, 1.0])
 plt.ylim([0.0, 1.05])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 	
 #draw baseline point
-plt.plot([fpr], [tpr], label='baseline', markerfacecolor='red', marker='o', markersize=10)
+plt.plot([fpr], [tpr], label='cut based', markerfacecolor='red', marker='o', markersize=10)
 	
 plt.xscale('log')
 
 fpr, tpr, _ = roc_curve(test.target, pred)
 plt.plot(fpr, tpr, label='BDT', color='b')
 
+roc_file = open('roc.pck', 'w+')
+pickle.dump((tpr, fpr), roc_file)
+roc_file.close()
+
 plt.legend(loc='best')
-plt.title('Full set (dot, full lines), vs. fakes only (triangle, dashed), vs. PU (star, dot-dash)')
+plt.grid()
+plt.title('ROC')
 plt.savefig('roc.png')
+plt.savefig('roc.pdf')
 plt.clf()
 	
 decisions = []
@@ -187,6 +202,6 @@ plt.errorbar(center, hist, yerr=err, fmt='o', c='b', label='B (test)')
 plt.xlabel("BDT output")
 plt.ylabel("Arbitrary units")
 plt.legend(loc='best')
-plt.savefig('overtrain.png')
+plt.savefig('overtrain.pdf')
 plt.clf()
 

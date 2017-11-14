@@ -31,9 +31,10 @@ from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMa
 from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
+from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
 
 # import samples
-from CMGTools.WTau3Mu.samples.data_2016                             import datasamplesDoubleMuLowMass23Sept2017 as samples
+from CMGTools.WTau3Mu.samples.data_2016                             import datasamplesDoubleMuLowMass03Feb2017 as samples
 
 puFileMC   = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
@@ -177,23 +178,29 @@ muIdAna = cfg.Analyzer(
     useSideBands = False,
 )
 
+recoilAna = cfg.Analyzer(
+    RecoilCorrector,
+    name='RecoilCorrector',
+    pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
+)
+
 # see SM HTT TWiki
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SMTauTau2016#Jet_Energy_Corrections
 jetAna = cfg.Analyzer(
     JetAnalyzer,
-    name='JetAnalyzer',
-    jetCol='slimmedJets',
-    jetPt=20.,
-    jetEta=4.7,
-    relaxJetId=False, # relax = do not apply jet ID
-    relaxPuJetId=True, # relax = do not apply pileup jet ID
-    jerCorr=False,
+    name              = 'JetAnalyzer',
+    jetCol            = 'slimmedJets',
+    jetPt             = 20.,
+    jetEta            = 4.7,
+    relaxJetId        = False, # relax = do not apply jet ID
+    relaxPuJetId      = True, # relax = do not apply pileup jet ID
+    jerCorr           = False,
+    puJetIDDisc       = 'pileupJetId:fullDiscriminant',
+    recalibrateJets   = True,
+    applyL2L3Residual = 'MC',
+    mcGT              = '80X_mcRun2_asymptotic_2016_TrancheIV_v8',
+    dataGT            = '80X_dataRun2_2016SeptRepro_v7',
     #jesCorr = 1., # Shift jet energy scale in terms of uncertainties (1 = +1 sigma)
-    puJetIDDisc='pileupJetId:fullDiscriminant',
-    recalibrateJets=True,
-    applyL2L3Residual='MC',
-    mcGT='80X_mcRun2_asymptotic_2016_TrancheIV_v8',
-    dataGT='80X_dataRun2_2016SeptRepro_v7',
 )
 
 fileCleaner = cfg.Analyzer(
@@ -212,7 +219,7 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-#     jetAna,
+    jetAna,
     vertexFitter,
     muIdAna,
     isoAna,
@@ -226,12 +233,18 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = samples[-3]
-    selectedComponents   = [comp]
-    comp.splitFactor     = 1
-    comp.fineSplitFactor = 1
+#     comp                 = samples[-7]
+#     selectedComponents   = [comp]
+    selectedComponents   = [samples[-7], samples[-5]]
+#     comp.splitFactor     = 1
+#     comp.fineSplitFactor = 4
+
+    for comp in selectedComponents:
+        comp.fineSplitFactor = 4
+
 #     comp.files           = comp.files[:1]
-    comp.files = [
+#     comp.files = [
+#          'file:/eos/cms/store/group/phys_tau/WTau3Mu/mvamet2016/mvamet_from_cpp_data/DoubleMuonLowMass_Run2016G_23Sep2016/cmsswPreProcessing.root'
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'
 #        'file:/eos/cms/store/data/Run2016F/DoubleMuonLowMass/MINIAOD/18Apr2017-v1/00000/F0B3AA1B-AA3E-E711-8ED7-008CFA197CD0.root',
 #        'file:/eos/cms/store/data/Run2016F/DoubleMuonLowMass/MINIAOD/18Apr2017-v1/00000/08E24010-983E-E711-808A-0CC47A4D764C.root',
@@ -240,7 +253,7 @@ if not production:
 #         'root://cms-xrd-global.cern.ch//store/data/Run2016E/DoubleMuonLowMass/MINIAOD/23Sep2016-v1/50000/C881EEF5-8590-E611-91F6-0CC47AD98A92.root',
 #         'root://cms-xrd-global.cern.ch//store/data/Run2016E/DoubleMuonLowMass/MINIAOD/23Sep2016-v1/50000/C8AC428A-8190-E611-B72D-003048F5B614.root',
 #         'root://cms-xrd-global.cern.ch//store/data/Run2016E/DoubleMuonLowMass/MINIAOD/23Sep2016-v1/50000/CE53955B-A393-E611-B340-0242AC130002.root',
-    ]
+#     ]
 
 preprocessor = None
 

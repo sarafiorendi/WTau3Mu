@@ -16,7 +16,8 @@ process.GlobalTag.globaltag = cms.string( "92X_upgrade2017_TSG_For83XSamples_V4"
 process.source = cms.Source('PoolSource', 
     fileNames = cms.untracked.vstring(
 #         'file:/afs/cern.ch/work/m/manzoni/public/perLuca/outputFULL.root',
-        'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/Tau3Mu/outputFULL.root',
+#         'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/Tau3Mu/outputFULL.root',
+        'root://cms-xrd-global.cern.ch//store/user/manzoni/WTau3Mu2017EnrichedV2/WToTauNu_TauTo3Mu_MadGraph_13TeV/WTau3Mu2017EnrichedV2/170619_151719/0000/outputFULL_1.root',
     ),
 )
 

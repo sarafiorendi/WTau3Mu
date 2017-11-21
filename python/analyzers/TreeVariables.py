@@ -40,7 +40,7 @@ event_vars = [
     Variable('n_candidates', lambda ev : ev.ncands, type=int),
     Variable('n_vtx', lambda ev : len(ev.goodVertices), type=int),
     Variable('weight', lambda ev : ev.eventWeight, type=float),
-    Variable('puweight', lambda ev : ev.eventWeight, type=float),
+    Variable('puweight', lambda ev : ev.puWeight, type=float),
 ]
 
 # triplet variables
@@ -117,10 +117,12 @@ l1obj_vars = [
 
 # generic lepton
 lepton_vars = [
-    Variable('dxy', lambda lep : lep.dxy()),
-    Variable('dxy_error', lambda lep : lep.edxy() if hasattr(lep, 'edxy') else lep.dxy_error()),
-    Variable('dz', lambda lep : lep.leadChargedHadrCand().dz() if hasattr(lep, 'leadChargedHadrCand') else lep.dz()),
-    Variable('dz_error', lambda lep : lep.edz() if hasattr(lep, 'edz') else -1.),
+    Variable('dxy'          , lambda lep : lep.dxy()),
+    Variable('dxy_error'    , lambda lep : lep.edxy() if hasattr(lep, 'edxy') else lep.dxy_error()),
+    Variable('dz'           , lambda lep : lep.leadChargedHadrCand().dz() if hasattr(lep, 'leadChargedHadrCand') else lep.dz()),
+    Variable('dz_error'     , lambda lep : lep.edz() if hasattr(lep, 'edz') else -1.),
+    Variable('weight_id'    , lambda lep : getattr(lep, 'idweight', 1.)),
+    Variable('weight_id_unc', lambda lep : getattr(lep, 'idweightunc', 1.)),
     Variable('weight'),
 #     Variable('weight_trigger', lambda lep : getattr(lep, 'weight_trigger', 1.)),
 #     Variable('eff_trigger_data', lambda lep : getattr(lep, 'eff_data_trigger', -999.)),

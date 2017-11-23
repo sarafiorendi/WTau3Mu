@@ -64,6 +64,7 @@ class Tau3MuAnalyzer(Analyzer):
         count.register('> 0 tri-muon')
         # count.register('pass resonance veto')
         count.register('m < 3 GeV')
+        count.register('pass (mu, mu, mu) Z cut')
         count.register('trigger matched')
 
     def buildMuons(self, muons, event):
@@ -176,6 +177,18 @@ class Tau3MuAnalyzer(Analyzer):
         if len(seltau3mu) == 0:
             return False
         self.counters.counter('Tau3Mu').inc('m < 3 GeV')
+
+
+        # z vertex compatibility among mu mu pi
+        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 3) # 3 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
+                
+        seltau3mu = [tt for tt in seltau3mu if abs(tt.mu1().dz()-tt.mu2().dz()) < dzsigmacut * math.sqrt(tt.mu1().dzError()**2 + tt.mu2().dzError()**2) and \
+                                               abs(tt.mu1().dz()-tt.mu3().dz()) < dzsigmacut * math.sqrt(tt.mu1().dzError()**2 + tt.mu3().dzError()**2) and \
+                                               abs(tt.mu2().dz()-tt.mu3().dz()) < dzsigmacut * math.sqrt(tt.mu2().dzError()**2 + tt.mu3().dzError()**2)]
+        if len(seltau3mu) == 0:
+            return False
+
+        self.counters.counter('Tau3Mu').inc('pass (mu, mu, mu) Z cut')
 
         # match only if the trigger fired
         event.fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]

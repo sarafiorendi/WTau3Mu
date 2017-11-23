@@ -17,6 +17,19 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
         self.bookDs(self.tree, 'ds')
         self.bookMuon(self.tree, 'mu1')
         self.bookMuon(self.tree, 'mu2')
+        self.bookChargedCandidate(self.tree, 'pi')
+
+        # generator information
+        self.bookGenParticle(self.tree, 'ds_gen')
+        self.bookGenParticle(self.tree, 'ds_phi_gen')
+        self.bookGenParticle(self.tree, 'mu1_gen')
+        self.bookGenParticle(self.tree, 'mu2_gen')
+        self.bookGenParticle(self.tree, 'pi_gen')
+        self.bookParticle(self.tree, 'gen_met')
+        self.bookDs(self.tree, 'gen_ds')
+        self.bookParticle(self.tree, 'gen_ds_mu1')
+        self.bookParticle(self.tree, 'gen_ds_mu2')
+        self.var(self.tree, 'n_gen_ds')
 
         self.var(self.tree, 'hlt_doublemu3_trk_tau3mu')
 
@@ -33,12 +46,32 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
         self.fillDs(self.tree, 'ds', event.ds)        
         self.fillMuon(self.tree, 'mu1', event.ds.mu1())
         self.fillMuon(self.tree, 'mu2', event.ds.mu2())
+        self.fillChargedCandidate(self.tree, 'pi', event.ds.pi())
 
+        if hasattr(event.ds, 'genp'):
+            self.fillGenParticle(self.tree, 'ds_gen'    , event.ds.genp     )
+            self.fillGenParticle(self.tree, 'ds_phi_gen', event.ds.genp.phip)
+        if hasattr(event.ds.mu1(), 'genp'):
+            self.fillGenParticle(self.tree, 'mu1_gen', event.ds.mu1().genp)
+        if hasattr(event.ds.mu2(), 'genp'):
+            self.fillGenParticle(self.tree, 'mu2_gen', event.ds.mu2().genp)
+        if hasattr(event.ds.pi(), 'genp'):
+            self.fillGenParticle(self.tree, 'pi_gen', event.ds.pi().genp)
+        if hasattr(event, 'genmet') and event.genmet is not None: 
+            self.fillParticle(self.tree, 'gen_met', event.genmet)
+        if hasattr(event, 'gends') and event.gends is not None: 
+            self.fillDs(self.tree, 'gen_ds', event.gends)
+            self.fillParticle(self.tree, 'gen_ds_mu1', event.gends.mu1())
+            self.fillParticle(self.tree, 'gen_ds_mu2', event.gends.mu2())
+            self.fill(self.tree, 'n_gen_ds', event.ngends)
+        
         # HLT bits & matches
         # self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in event.ds.hltmatched))
         # matching is broken here, revert back to simple trigger being fired or not
         fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]
         self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in fired_triggers))
 
+#         import pdb ; pdb.set_trace()
+        
         self.fillTree(event)
 

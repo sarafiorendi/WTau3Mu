@@ -52,11 +52,11 @@ ds_vars = [
     Variable('phi_eta'   , lambda ds : ds.phi_resonance().eta() ),
     Variable('phi_phi'   , lambda ds : ds.phi_resonance().phi() ),
     Variable('phi_mass'  , lambda ds : ds.phi_resonance().mass()),
-    Variable('pi_pt'     , lambda ds : ds.pi().p4().pt()        ),
-    Variable('pi_eta'    , lambda ds : ds.pi().p4().eta()       ),
-    Variable('pi_phi'    , lambda ds : ds.pi().p4().phi()       ),
-    Variable('pi_mass'   , lambda ds : ds.pi().p4().mass()      ),
-    Variable('pi_charge' , lambda ds : ds.pi().charge()         ),
+#     Variable('pi_pt'     , lambda ds : ds.pi().p4().pt()        ),
+#     Variable('pi_eta'    , lambda ds : ds.pi().p4().eta()       ),
+#     Variable('pi_phi'    , lambda ds : ds.pi().p4().phi()       ),
+#     Variable('pi_mass'   , lambda ds : ds.pi().p4().mass()      ),
+#     Variable('pi_charge' , lambda ds : ds.pi().charge()         ),
 ]
 
 # generic particle
@@ -75,6 +75,14 @@ l1obj_vars = [
     Variable('type' , lambda p: p.type),
     Variable('bx'   , lambda p: p.bx),
     Variable('index', lambda p: p.index),
+]
+
+# track-vertex vars
+particle_vertex_vars = [
+    Variable('dxy'      , lambda trk : trk.dxy()),
+    Variable('dxy_error', lambda trk : trk.dxyError()),
+    Variable('dz'       , lambda trk : trk.dz()),
+    Variable('dz_error' , lambda trk : trk.dzError()),
 ]
 
 # generic lepton

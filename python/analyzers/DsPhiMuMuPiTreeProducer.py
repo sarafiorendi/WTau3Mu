@@ -29,6 +29,7 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
         self.bookDs(self.tree, 'gen_ds')
         self.bookParticle(self.tree, 'gen_ds_mu1')
         self.bookParticle(self.tree, 'gen_ds_mu2')
+        self.bookParticle(self.tree, 'gen_ds_pi' )
         self.var(self.tree, 'n_gen_ds')
 
         self.var(self.tree, 'hlt_doublemu3_trk_tau3mu')
@@ -63,6 +64,7 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
             self.fillDs(self.tree, 'gen_ds', event.gends)
             self.fillParticle(self.tree, 'gen_ds_mu1', event.gends.mu1())
             self.fillParticle(self.tree, 'gen_ds_mu2', event.gends.mu2())
+            self.fillParticle(self.tree, 'gen_ds_pi' , event.gends.pi())
             self.fill(self.tree, 'n_gen_ds', event.ngends)
         
         # HLT bits & matches

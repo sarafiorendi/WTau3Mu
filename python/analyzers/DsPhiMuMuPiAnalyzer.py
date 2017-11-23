@@ -51,7 +51,7 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         count.register('> 0 opposite sign di-muon')
         count.register('> 0 di-muon pair with mass < 2 GeV')
         count.register('> 0 non degenerate Ds')
-        count.register('1.6 < Ds mass < 2.2 GeV')
+        count.register('1.76 < Ds mass < 2.2 GeV')
         count.register('pass ds (mu, mu, pi) Z cut')
         count.register('trigger matched')
  
@@ -155,18 +155,18 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         self.counters.counter('DsPhiMuMuPi').inc('> 0 non degenerate Ds')
 
         # mass cut on Ds Phi(MuMu) Pi
-        event.dsphipis = [ds for ds in event.dsphipis if ds.p4().mass()>1.6 and ds.p4().mass()<2.2]
+        event.dsphipis = [ds for ds in event.dsphipis if ds.p4().mass()>1.76 and ds.p4().mass()<2.2]
         if len(event.dsphipis) == 0:
             return False
 
-        self.counters.counter('DsPhiMuMuPi').inc('1.6 < Ds mass < 2.2 GeV')
+        self.counters.counter('DsPhiMuMuPi').inc('1.76 < Ds mass < 2.2 GeV')
 
         # z vertex compatibility among mu mu pi
-        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 3) # 3 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
+        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 5) # 5 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
                 
-        event.dsphipis = [ds for ds in event.dsphipis if abs(ds.mu1().dz()-ds.mu2().dz()) < dzsigmacut * math.sqrt(ds.mu1().dzError()**2 + ds.mu2().dzError()**2) and \
-                                                         abs(ds.mu1().dz()-ds.pi() .dz()) < dzsigmacut * math.sqrt(ds.mu1().dzError()**2 + ds.pi ().dzError()**2) and \
-                                                         abs(ds.mu2().dz()-ds.pi() .dz()) < dzsigmacut * math.sqrt(ds.mu2().dzError()**2 + ds.pi ().dzError()**2)]
+        event.dsphipis = [ds for ds in event.dsphipis if abs(ds.mu1().dz()-ds.mu2().dz()) < dzsigmacut * math.sqrt(2. * (ds.mu1().dzError()**2 + ds.mu2().dzError()**2)) and \
+                                                         abs(ds.mu1().dz()-ds.pi() .dz()) < dzsigmacut * math.sqrt(2. * (ds.mu1().dzError()**2 + ds.pi ().dzError()**2)) and \
+                                                         abs(ds.mu2().dz()-ds.pi() .dz()) < dzsigmacut * math.sqrt(2. * (ds.mu2().dzError()**2 + ds.pi ().dzError()**2))]
         if len(event.dsphipis) == 0:
             return False
 

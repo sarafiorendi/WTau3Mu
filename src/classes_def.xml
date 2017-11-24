@@ -2,6 +2,7 @@
 
  <class name="Tau3MuKalmanVertexFitterProducer"/>
  <class name="Tau3MuKinematicVertexFitterProducer"/>
+ <class name="DsPhiMuMuPiKinematicVertexFitterProducer"/>
 
  <class name="std::pair<edm::Ptr<pat::Muon>,TLorentzVector>"/>
  <class name="edm::Wrapper<std::pair<edm::Ptr<pat::Muon>,TLorentzVector> >"/>

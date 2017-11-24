@@ -94,12 +94,12 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         event.vetomuons  = [mu for mu in event.muons if mu.isMediumMuon()] # needed for track-muon cross cleaning
 
         # build tracks
-        event.allpf      = list(self.handles['pfcands'   ].product())
-        event.losttracks = list(self.handles['losttracks'].product())
+        allpf      = list(self.handles['pfcands'   ].product())
+        losttracks = list(self.handles['losttracks'].product())
         # merge the track collections
-        event.alltracks      = sorted([tt for tt in event.allpf + event.losttracks if tt.charge() != 0], key = lambda x : x.pt(), reverse = True)
+        alltracks  = sorted([tt for tt in allpf + losttracks if tt.charge() != 0], key = lambda x : x.pt(), reverse = True)
         # select tracks byt pt, eta
-        event.selectedtracks = [tt for tt in event.alltracks if tt.pt()>1 and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 0.3]
+        event.selectedtracks = [tt for tt in alltracks if tt.pt()>1 and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 0.3 and tt.trackHighPurity()]
         # set pion mass
         for track in event.selectedtracks:
              track.setMass(m_pi)

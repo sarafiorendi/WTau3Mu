@@ -19,6 +19,12 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
         self.bookMuon(self.tree, 'mu2')
         self.bookChargedCandidate(self.tree, 'pi')
 
+        self.bookDs(self.tree, 'ds_refit')
+        self.bookMuon(self.tree, 'mu1_refit')
+        self.bookMuon(self.tree, 'mu2_refit')
+        self.bookChargedCandidate(self.tree, 'pi_refit')
+        self.bookVertex(self.tree, 'sv')
+
         # generator information
         self.bookGenParticle(self.tree, 'ds_gen')
         self.bookGenParticle(self.tree, 'ds_phi_gen')
@@ -44,10 +50,18 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
             return False
 
         self.fillEvent(self.tree, event)
+        
         self.fillDs(self.tree, 'ds', event.ds)        
         self.fillMuon(self.tree, 'mu1', event.ds.mu1())
         self.fillMuon(self.tree, 'mu2', event.ds.mu2())
         self.fillChargedCandidate(self.tree, 'pi', event.ds.pi())
+
+        self.fillDs(self.tree, 'ds_refit', event.dsRefit)        
+        self.fillMuon(self.tree, 'mu1_refit', event.dsRefit.mu1())
+        self.fillMuon(self.tree, 'mu2_refit', event.dsRefit.mu2())
+        self.fillChargedCandidate(self.tree, 'pi_refit', event.dsRefit.pi())
+
+        self.fillVertex(self.tree, 'sv', event.dsRefit.refittedVertex)
 
         if hasattr(event.ds, 'genp'):
             self.fillGenParticle(self.tree, 'ds_gen'    , event.ds.genp     )

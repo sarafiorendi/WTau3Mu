@@ -1,5 +1,6 @@
 import ROOT
 from itertools import product, combinations
+import math
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer   import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle

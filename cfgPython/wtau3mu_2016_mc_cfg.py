@@ -33,6 +33,7 @@ from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMa
 from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
+from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
 from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
 
 # import samples, signal
@@ -198,6 +199,14 @@ recoilAna = cfg.Analyzer(
     pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
 )
 
+weighterAna = cfg.Analyzer(
+    MuonWeighterAnalyzer,
+    sffile = '/afs/cern.ch/user/l/lguzzi/work/CMSSW_8_0_25/src/MuonAnalysis/Mu7p5_Track2_Jpsi/final_results/SF_div/BCDEF_medium2016/pt_abseta/BCDEF_medium2016_pt_abseta_DATA.json',
+    sfname = 'none',
+    multiplyEventWeight = True,
+    getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
+)
+
 # see SM HTT TWiki
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SMTauTau2016#Jet_Energy_Corrections
 jetAna = cfg.Analyzer(
@@ -234,15 +243,16 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-    jetAna,
+#    jetAna,
     genMatchAna,
 #     recoilAna,
     vertexFitter,
+    weighterAna,
     muIdAna,
     isoAna,
 #     level1Ana,
     bdtAna,
-    treeProducer,
+#    treeProducer,
 ])
 
 ###################################################
@@ -255,8 +265,9 @@ if not production:
     comp.fineSplitFactor = 1
 #     comp.files           = comp.files[:1]
     comp.files = [
-       'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
-#        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',
+       '/afs/cern.ch/work/m/manzoni/public/perLuca/newsignal/output.root'
+       #'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
+#       'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',
     ]
 
 preprocessor = None

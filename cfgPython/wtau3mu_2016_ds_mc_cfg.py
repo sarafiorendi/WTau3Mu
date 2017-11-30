@@ -24,11 +24,12 @@ from CMGTools.H2TauTau.proto.analyzers.FileCleaner                  import FileC
 from CMGTools.H2TauTau.proto.analyzers.JetAnalyzer                  import JetAnalyzer
 
 # WTau3Mu analysers
-from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiAnalyzer                 import DsPhiMuMuPiAnalyzer
-from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMatcherAnalyzer
-from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
-from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
-from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTreeProducer             import DsPhiMuMuPiTreeProducer
+from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiAnalyzer                      import DsPhiMuMuPiAnalyzer
+from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiGenMatcherAnalyzer            import DsPhiMuMuPiGenMatcherAnalyzer
+from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                        import L1TriggerAnalyzer
+from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                     import MuonWeighterAnalyzer
+from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTreeProducer                  import DsPhiMuMuPiTreeProducer
+from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiKinematicVertexFitterAnalyzer import DsPhiMuMuPiKinematicVertexFitterAnalyzer
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.ds_mc import DsPhiPiMuFilter
@@ -42,7 +43,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
 production         = getHeppyOption('production'        , False)
-pick_events        = getHeppyOption('pick_events'       , True )
+pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
 extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
 compute_mvamet     = getHeppyOption('compute_mvamet'    , False)
@@ -148,9 +149,14 @@ dsAna = cfg.Analyzer(
 )
 
 genMatchAna = cfg.Analyzer(
-    GenMatcherAnalyzer,
-    name='GenMatcherAnalyzer',
+    DsPhiMuMuPiGenMatcherAnalyzer,
+    name='DsPhiMuMuPiGenMatcherAnalyzer',
     getter = lambda event : event.ds,
+)
+
+kinFitAnalyzer = cfg.Analyzer(
+    DsPhiMuMuPiKinematicVertexFitterAnalyzer,
+    name='DsPhiMuMuPiKinematicVertexFitterAnalyzer',
 )
 
 # see SM HTT TWiki
@@ -203,8 +209,9 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     dsAna,
+    kinFitAnalyzer,
     jetAna,
-#     genMatchAna,
+    genMatchAna,
     muonWeightAna,
     treeProducer,
 ])
@@ -216,8 +223,8 @@ if not production:
     comp                 = DsPhiPiMuFilter
     selectedComponents   = [comp]
     comp.splitFactor     = 1
-    comp.fineSplitFactor = 4
-#     comp.files           = comp.files[:4]
+    comp.fineSplitFactor = 1
+    comp.files           = comp.files[:1]
 #     comp.files = [
 #        'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',

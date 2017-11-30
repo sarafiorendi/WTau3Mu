@@ -65,6 +65,10 @@ class Tau3MuKinematicVertexFitterProducer {
         XParticles_Tau3Mu.push_back(pFactory.particle(getTransientTrack(imu->track()), muon_mass, chi, ndf, muon_sigma));
       }
 
+      // maybe there are other tracks to consider
+      // http://cmslxr.fnal.gov/source/DataFormats/PatCandidates/interface/Muon.h#0070
+
+
       KinematicConstrainedVertexFitter kvFitterTau;
       RefCountedKinematicTree Tau3MuKinVtx = kvFitterTau.fit(XParticles_Tau3Mu); 
       

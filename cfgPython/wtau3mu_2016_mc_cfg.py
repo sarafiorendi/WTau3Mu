@@ -34,6 +34,7 @@ from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1Tri
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
 from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
+from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.mc_2016 import WToTauTo3Mu
@@ -66,12 +67,6 @@ for sample in samples:
     sample.triggers += ['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v%d' %i for i in range(7, 8)]
     sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(4, 5)]
 
-    # specify which muon should match to which filter. 
-#     sample.trigger_filters = [
-#         (lambda triplet : triplet.mu1(), ['hltTau3muTkVertexFilter']),
-#         (lambda triplet : triplet.mu2(), ['hltTau3muTkVertexFilter']),
-#         (lambda triplet : triplet.mu3(), ['hltTau3muTkVertexFilter']),
-#     ]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.puFileData = puFileData
     sample.puFileMC   = puFileMC
@@ -217,6 +212,24 @@ jetAna = cfg.Analyzer(
     #jesCorr = 1., # Shift jet energy scale in terms of uncertainties (1 = +1 sigma)
 )
 
+muonRefitWeightAna = cfg.Analyzer(
+    MuonWeighterAnalyzer,
+    name   = 'MuonWeighterAnalyzer',
+    sffile = '/afs/cern.ch/cms/Physics/muon/ReferenceEfficiencies/Run2015/25ns/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.json',
+    sfname  = 'Mu45_eta2p1',
+    getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
+    multiplyEventWeight = True,
+)
+
+muonWeightAna = cfg.Analyzer(
+    MuonWeighterAnalyzer,
+    name   = 'MuonWeighterAnalyzer',
+    sffile = '/afs/cern.ch/cms/Physics/muon/ReferenceEfficiencies/Run2015/25ns/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.json',
+    sfname  = 'Mu45_eta2p1',
+    getter = lambda event : [event.tau3mu.mu1(), event.tau3mu.mu2(), event.tau3mu.mu3()],
+    multiplyEventWeight = False,
+)
+
 fileCleaner = cfg.Analyzer(
     FileCleaner,
     name='FileCleaner'
@@ -242,6 +255,7 @@ sequence = cfg.Sequence([
     isoAna,
 #     level1Ana,
     bdtAna,
+    muonWeightAna,
     treeProducer,
 ])
 

@@ -7,11 +7,9 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Muon       import Muon
 from PhysicsTools.HeppyCore.utils.deltar          import deltaR, deltaR2
 
-from CMGTools.WTau3Mu.physicsobjects.DsPhiMuMuPi  import DsPhiMuMuPi
-from CMGTools.WTau3Mu.analyzers.resonances        import resonances, sigmas_to_exclude
-from pdb import set_trace
+from CMGTools.WTau3Mu.physicsobjects.DsPhiMuMuPi  import DsPhiMuMuPi, m_k, m_pi, m_ds, m_phi
 
-global m_pi  ; m_pi  = 0.13957061 # GeV
+from pdb import set_trace
 
 class DsPhiMuMuPiAnalyzer(Analyzer):
     '''
@@ -99,7 +97,7 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         # merge the track collections
         alltracks  = sorted([tt for tt in allpf + losttracks if tt.charge() != 0], key = lambda x : x.pt(), reverse = True)
         # select tracks byt pt, eta
-        event.selectedtracks = [tt for tt in alltracks if tt.pt()>1 and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 0.3 and tt.trackHighPurity()]
+        event.selectedtracks = [tt for tt in alltracks if tt.pt()>1. and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 0.5 and tt.trackHighPurity()]
         # set pion mass
         for track in event.selectedtracks:
              track.setMass(m_pi)
@@ -185,9 +183,9 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
                 
                 ds.hltmatched = [] # initialise to no match
                 
-                ds.mu1().trig_objs = [] # initialise to no trigger objct matches
-                ds.mu2().trig_objs = [] # initialise to no trigger objct matches
-                ds.pi ().trig_objs = [] # initialise to no trigger objct matches
+                ds.mu1().trig_objs = [] # initialise to no trigger object matches
+                ds.mu2().trig_objs = [] # initialise to no trigger object matches
+                ds.pi ().trig_objs = [] # initialise to no trigger object matches
     
                 ds.mu1().trig_matched = False # initialise to no match
                 ds.mu2().trig_matched = False # initialise to no match
@@ -225,7 +223,7 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
                         
             event.dsphipismatched = [ds for ds in event.dsphipis if len(ds.hltmatched)>0]
             
-            if not self.cfg_ana.trigger_flag:
+            if not getattr(self.cfg_ana, 'trigger_flag', False):
                 event.dsphipis = event.dsphipismatched
             
             if len(event.dsphipis) == 0:
@@ -239,10 +237,13 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
 
     def bestDs(self, dss):
         '''
-        The best Ds is the one with the higher pT.
+        Sort the Ds candidates:
+           - first those that have a phi mu mu intermediate resonance
+           - then by (mass - mass_pdg)
+        then pick the best one.
         '''
-        dss.sort(key=lambda ds : ds.pt(), reverse=True)    
-        return dss[0]
+        dss.sort(key=lambda ds : ( not ds.has_phi(), abs(m_ds-ds.mass()) ), reverse = True)
+        return dss[-1]
     
     def testVertex(self, lepton):
         '''Tests vertex constraints, for mu'''

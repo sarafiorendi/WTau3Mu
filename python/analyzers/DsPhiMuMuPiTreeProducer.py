@@ -82,10 +82,15 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
             self.fill(self.tree, 'n_gen_ds', event.ngends)
         
         # HLT bits & matches
-        # self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in event.ds.hltmatched))
-        # matching is broken here, revert back to simple trigger being fired or not
-        fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]
-        self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in fired_triggers))
+        
+        # 2016 data can be efficiently trigger matched, 2017 MC has a problem with unpackFilterLabels
+        if event.input.eventAuxiliary().isRealData():
+            self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in event.ds.hltmatched))
+
+        else:
+            # matching is broken here, revert back to simple trigger being fired or not
+            fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]
+            self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in fired_triggers))
 
 #         import pdb ; pdb.set_trace()
         

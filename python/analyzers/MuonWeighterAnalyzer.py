@@ -15,21 +15,37 @@ class MuonWeighterAnalyzer(Analyzer):
 
     def beginLoop(self, setup):
         super(MuonWeighterAnalyzer, self).beginLoop(setup)
-        self.jsonFile = self.cfg_ana.sffile
+        self.jsonFileTIH = self.cfg_ana.sffileTIH
+        self.jsonFileMNT = self.cfg_ana.sffileMNT
+        self.jsonFileLNM = self.cfg_ana.sffileLNM
 
     def process(self, event):
         self.readCollections(event.input)
         
         muons = self.cfg_ana.getter(event)        
 
-        ## init SF getter
-        jsonGetter = ParticleSFgetter(self.jsonFile, "tight2016_muonID", "pt_abseta")
+        ## init SF getters for each ID
+        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileTIH, SFname = "tight2016_muonID"          , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
+        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileMNT, SFname = "mediumNOTtight2016_muonID" , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
+        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileLNM, SFname = "looseNOTmedium_muonID"     , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
         
         for imu in muons:
-            ## get the SF
-            sf = jsonGetter.getSF(imu)
-            imu.idweight    = sf['value']
-            imu.idweightunc = sf['error']
+            ## get the SF based in the ID
+            if imu.muonID('POG_ID_Tight'):
+                sf = jsonGetterTIH.getSF(imu)
+                imu.idweight    = sf['value']
+                imu.idweightunc = sf['error']
+
+            elif imu.muonID('POG_ID_Medium'):
+                sf = jsonGetterMNT.getSF(imu)
+                imu.idweight    = sf['value']
+                imu.idweightunc = sf['error']
+
+            elif imu.muonID('POG_ID_Loose'):
+                sf = jsonGetterLNM.getSF(imu)
+                imu.idweight    = sf['value']
+                imu.idweightunc = sf['error']
+            else: imu.idweight = 1 ; imu.idweightunc = 1
             
             if hasattr(imu, 'weight'):
                 imu.weight *= imu.idweight

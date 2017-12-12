@@ -81,6 +81,9 @@ datasamplesDoubleMuLowMass = [
 
 
 
+##########################################################################################
+##########################################################################################
+##########################################################################################
 DoubleMuon_Run2016Bv1_03Feb2017 = kreator.makeDataComponent("DoubleMuon_Run2016Bv1_03Feb2017"    , "/DoubleMuon/Run2016B-03Feb2017_ver1-v1/MINIAOD" , "CMS", ".*root", json) #, useAAA=True)
 DoubleMuon_Run2016Bv2_03Feb2017 = kreator.makeDataComponent("DoubleMuon_Run2016Bv2_03Feb2017"    , "/DoubleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD" , "CMS", ".*root", json) #, useAAA=True)
 DoubleMuon_Run2016C_03Feb2017   = kreator.makeDataComponent("DoubleMuon_Run2016C_03Feb2017"      , "/DoubleMuon/Run2016C-03Feb2017-v1/MINIAOD"      , "CMS", ".*root", json) #, useAAA=True)
@@ -104,6 +107,9 @@ datasamplesDoubleMu03Feb2017 = [
 ]
 
 
+##########################################################################################
+##########################################################################################
+##########################################################################################
 ZeroBias_Run2016Bv1_03Feb2017 = kreator.makeDataComponent("ZeroBias_Run2016Bv1_03Feb2017"    , "/ZeroBias/Run2016B-03Feb2017_ver1-v1/MINIAOD" , "CMS", ".*root", json, useAAA=True)
 ZeroBias_Run2016Bv2_03Feb2017 = kreator.makeDataComponent("ZeroBias_Run2016Bv2_03Feb2017"    , "/ZeroBias/Run2016B-03Feb2017_ver2-v2/MINIAOD" , "CMS", ".*root", json) #, useAAA=True)
 ZeroBias_Run2016C_03Feb2017   = kreator.makeDataComponent("ZeroBias_Run2016C_03Feb2017"      , "/ZeroBias/Run2016C-03Feb2017-v1/MINIAOD"      , "CMS", ".*root", json) #, useAAA=True)
@@ -125,4 +131,43 @@ datasamplesZeroBias03Feb2017 = [
     ZeroBias_Run2016Hv2_03Feb2017,
     ZeroBias_Run2016Hv3_03Feb2017,
 ]
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+MuOnia_Run2016Bv1_03Feb2017 = kreator.makeDataComponent("MuOnia_Run2016Bv1_03Feb2017"    , '/MuOnia/Run2016B-03Feb2017_ver1-v1/MINIAOD' , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016Bv2_03Feb2017 = kreator.makeDataComponent("MuOnia_Run2016Bv2_03Feb2017"    , '/MuOnia/Run2016B-03Feb2017_ver2-v2/MINIAOD' , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016C_03Feb2017   = kreator.makeDataComponent("MuOnia_Run2016C_03Feb2017"      , '/MuOnia/Run2016C-03Feb2017-v1/MINIAOD'      , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016D_03Feb2017   = kreator.makeDataComponent("MuOnia_Run2016D_03Feb2017"      , '/MuOnia/Run2016D-03Feb2017-v1/MINIAOD'      , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016E_03Feb2017   = kreator.makeDataComponent("MuOnia_Run2016E_03Feb2017"      , '/MuOnia/Run2016E-03Feb2017-v1/MINIAOD'      , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016F_03Feb2017   = kreator.makeDataComponent("MuOnia_Run2016F_03Feb2017"      , '/MuOnia/Run2016F-03Feb2017-v1/MINIAOD'      , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016G_03Feb2017   = kreator.makeDataComponent("MuOnia_Run2016G_03Feb2017"      , '/MuOnia/Run2016G-03Feb2017-v1/MINIAOD'      , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016Hv2_03Feb2017 = kreator.makeDataComponent("MuOnia_Run2016Hv2_03Feb2017"    , '/MuOnia/Run2016H-03Feb2017_ver2-v1/MINIAOD' , "CMS", ".*root", json, useAAA=True)
+MuOnia_Run2016Hv3_03Feb2017 = kreator.makeDataComponent("MuOnia_Run2016Hv3_03Feb2017"    , '/MuOnia/Run2016H-03Feb2017_ver3-v1/MINIAOD' , "CMS", ".*root", json, useAAA=True)
+
+datasamplesMuOnia03Feb2017 = [
+    MuOnia_Run2016Bv1_03Feb2017,
+    MuOnia_Run2016Bv2_03Feb2017,
+    MuOnia_Run2016C_03Feb2017  ,
+    MuOnia_Run2016D_03Feb2017  ,
+    MuOnia_Run2016E_03Feb2017  ,
+    MuOnia_Run2016F_03Feb2017  ,
+    MuOnia_Run2016G_03Feb2017  ,
+    MuOnia_Run2016Hv2_03Feb2017,
+    MuOnia_Run2016Hv3_03Feb2017,
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

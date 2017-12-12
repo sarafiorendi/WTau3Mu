@@ -1,7 +1,7 @@
 import json
 
 class ParticleSFgetter():
-    def __init__(self, jsonFile, SFname = "medium2016_GH", SFbins = 'Pt_Eta'):
+    def __init__(self, jsonFile, SFname, SFbins):
         self.jsonFile = jsonFile
         self.particle = None
 

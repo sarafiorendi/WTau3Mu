@@ -23,14 +23,14 @@ class MuonWeighterAnalyzer(Analyzer):
         muons = self.cfg_ana.getter(event)        
 
         ## init SF getter
-        jsonGetter = ParticleSFgetter(self.jsonFile)
+        jsonGetter = ParticleSFgetter(self.jsonFile, "tight2016_muonID", "pt_abseta")
         
         for imu in muons:
             ## get the SF
             sf = jsonGetter.getSF(imu)
             imu.idweight    = sf['value']
             imu.idweightunc = sf['error']
-            import pdb ; pdb.set_trace()
+            
             if hasattr(imu, 'weight'):
                 imu.weight *= imu.idweight
             else:

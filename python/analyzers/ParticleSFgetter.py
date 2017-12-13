@@ -29,7 +29,6 @@ class ParticleSFgetter():
         kpt = self.sf[self.sfname][self.sfbins][keta].keys()[ipt]
         
         sf = self.sf[self.sfname][self.sfbins][keta][kpt]
-
         
         return sf
 

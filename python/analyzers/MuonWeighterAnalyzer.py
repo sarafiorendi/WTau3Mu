@@ -25,9 +25,9 @@ class MuonWeighterAnalyzer(Analyzer):
         muons = self.cfg_ana.getter(event)        
 
         ## init SF getters for each ID
-        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileTIH, SFname = "tight2016_muonID"          , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
-        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileMNT, SFname = "mediumNOTtight2016_muonID" , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
-        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileLNM, SFname = "looseNOTmedium_muonID"     , SFbins = "pt", usePtOnly = self.cfg_ana.usePtOnly)
+        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileTIH[0], SFname = "tight2016_muonID"          , SFbins = "pt", usePtOnly = self.self.jsonFileTIH[1])
+        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileMNT[0], SFname = "mediumNOTtight2016_muonID" , SFbins = "pt", usePtOnly = self.self.jsonFileMNT[1])
+        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileLNM[0], SFname = "looseNOTmedium_muonID"     , SFbins = "pt", usePtOnly = self.self.jsonFileLNM[1])
         
         for imu in muons:
             ## get the SF based in the ID

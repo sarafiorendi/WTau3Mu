@@ -1,9 +1,11 @@
 import json
 
 class ParticleSFgetter():
-    def __init__(self, jsonFile, SFname = "medium2016_GH", SFbins = 'Pt_Eta'):
+    def __init__(self, jsonFile, SFname, SFbins, usePtOnly):
         self.jsonFile = jsonFile
         self.particle = None
+
+        self.usePtOnly = usePtOnly
 
         self.sffile = open(self.jsonFile, 'r')
         self.sf     = json.load(self.sffile)
@@ -14,10 +16,14 @@ class ParticleSFgetter():
         self.particle = particle
 
         pt  = self.particle.pt()
-        eta = self.particle.eta()
 
-        ieta = self.getEtaBin(eta)
-        keta = self.sf[self.sfname][self.sfbins].keys()[ieta]
+        ## if using 2D SFs (ptVSabseta)
+        if not self.usePtOnly:
+            eta  = self.particle.eta() 
+            ieta = self.getEtaBin(eta)
+            keta = self.sf[self.sfname][self.sfbins].keys()[ieta]
+        ## else use first key as eta key (that should be '0.0, 2.4' and contain all the pt bins keys)
+        else: keta = str(self.sf[self.sfname][self.sfbins].keys()[0])
 
         ipt = self.getPtBin(keta, pt)
         kpt = self.sf[self.sfname][self.sfbins][keta].keys()[ipt]
@@ -32,7 +38,7 @@ class ParticleSFgetter():
         '''
         etabins = self.sf[self.sfname][self.sfbins].keys()
         etabins = [ [float(str(i.split(':')[-1]).split(',')[0].replace('[','')),
-                          float(str(i.split(':')[-1]).split(',')[1].replace(']',''))] for i in etabins]
+                     float(str(i.split(':')[-1]).split(',')[1].replace(']',''))] for i in etabins]
 
         eta = abs(eta)
         for i, ibin in enumerate(etabins):

@@ -1,3 +1,4 @@
+import os
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 from collections import OrderedDict
 
@@ -196,8 +197,10 @@ recoilAna = cfg.Analyzer(
 
 weighterAna = cfg.Analyzer(
     MuonWeighterAnalyzer,
-    sffile = '/afs/cern.ch/user/l/lguzzi/work/CMSSW_8_0_25/src/MuonAnalysis/Mu7p5_Track2_Jpsi/final_results/SF_div/BCDEF_medium2016/pt_abseta/BCDEF_medium2016_pt_abseta_DATA.json',
-    sfname = 'none',
+    sffileTIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt.json'           % os.path.expandvars('$CMSSW_BASE'), False),
+    sffileMNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json'  % os.path.expandvars('$CMSSW_BASE'), True) ,
+    sffileLNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'      % os.path.expandvars('$CMSSW_BASE'), True) ,
+    sffileSNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'    % os.path.expandvars('$CMSSW_BASE'), True) ,
     multiplyEventWeight = True,
     getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
 )

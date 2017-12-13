@@ -200,6 +200,7 @@ weighterAna = cfg.Analyzer(
     sffileTIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt.json'           % os.path.expandvars('$CMSSW_BASE'), False),
     sffileMNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json'  % os.path.expandvars('$CMSSW_BASE'), True) ,
     sffileLNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'      % os.path.expandvars('$CMSSW_BASE'), True) ,
+    sffileSNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'    % os.path.expandvars('$CMSSW_BASE'), True) ,
     multiplyEventWeight = True,
     getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
 )

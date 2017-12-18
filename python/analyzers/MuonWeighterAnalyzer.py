@@ -38,8 +38,8 @@ class MuonWeighterAnalyzer(Analyzer):
             elif imu.muonID('POG_ID_Loose') :   sf = jsonGetterLNM.getSF(imu)
             else:                               sf = jsonGetterSNL.getSF(imu)
 
-            imu.idweight    =  sf['value']
-            imu.idweightunc =  sf['error']
+            imu.idweight    =  sf['value'] if sf['value'] is not None else 1
+            imu.idweightunc =  sf['error'] if sf['error'] is not None else 1
             
             if hasattr(imu, 'weight'):
                 imu.weight *= imu.idweight

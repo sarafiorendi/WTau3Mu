@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 class ParticleSFgetter():
     def __init__(self, jsonFile, SFname, SFbins, usePtOnly):
@@ -8,7 +9,7 @@ class ParticleSFgetter():
         self.usePtOnly = usePtOnly
 
         self.sffile = open(self.jsonFile, 'r')
-        self.sf     = json.load(self.sffile)
+        self.sf     = json.load(self.sffile, object_pairs_hook=OrderedDict)
         self.sfname = SFname
         self.sfbins = SFbins
 

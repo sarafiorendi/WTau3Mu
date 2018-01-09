@@ -1,5 +1,6 @@
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 from collections import OrderedDict
+import os
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
@@ -30,6 +31,7 @@ from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                        import 
 from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                     import MuonWeighterAnalyzer
 from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTreeProducer                  import DsPhiMuMuPiTreeProducer
 from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiKinematicVertexFitterAnalyzer import DsPhiMuMuPiKinematicVertexFitterAnalyzer
+from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTriggerWeighter               import DsPhiMuMuPiTriggerWeighter
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.ds_mc import DsPhiPiMuFilter
@@ -187,6 +189,12 @@ muonWeightAna = cfg.Analyzer(
     multiplyEventWeight = True,
 )
 
+dsTriggerWeighter = cfg.Analyzer(
+    DsPhiMuMuPiTriggerWeighter,
+    sffile = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE'), True),
+    multiplyEventWeight = True,
+)
+
 treeProducer = cfg.Analyzer(
     DsPhiMuMuPiTreeProducer,
     name = 'DsPhiMuMuPiTreeProducer'
@@ -212,6 +220,7 @@ sequence = cfg.Sequence([
     kinFitAnalyzer,
     jetAna,
     genMatchAna,
+    dsTriggerWeighter,
     muonWeightAna,
     treeProducer,
 ])

@@ -1,6 +1,8 @@
 import ROOT
 from itertools import product, combinations
 import math
+import numpy as np
+from collections import OrderedDict
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer   import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
@@ -179,13 +181,25 @@ class Tau3MuAnalyzer(Analyzer):
             return False
         self.counters.counter('Tau3Mu').inc('m < 3 GeV')
 
-
         # z vertex compatibility among mu mu pi
-        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 3) # 3 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
-                
-        seltau3mu = [tt for tt in seltau3mu if abs(tt.mu1().dz()-tt.mu2().dz()) < dzsigmacut * math.sqrt(tt.mu1().dzError()**2 + tt.mu2().dzError()**2) and \
-                                               abs(tt.mu1().dz()-tt.mu3().dz()) < dzsigmacut * math.sqrt(tt.mu1().dzError()**2 + tt.mu3().dzError()**2) and \
-                                               abs(tt.mu2().dz()-tt.mu3().dz()) < dzsigmacut * math.sqrt(tt.mu2().dzError()**2 + tt.mu3().dzError()**2)]
+        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 5) # 5 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
+        
+        seltau3mu_tmp = []
+        
+        for tt in seltau3mu:
+        
+            tt.dzcompatibility12 = np.float64(abs(tt.mu1().dz()-tt.mu2().dz())) / math.sqrt(tt.mu1().dzError()**2 + tt.mu2().dzError()**2)
+            tt.dzcompatibility13 = np.float64(abs(tt.mu1().dz()-tt.mu3().dz())) / math.sqrt(tt.mu1().dzError()**2 + tt.mu3().dzError()**2)
+            tt.dzcompatibility23 = np.float64(abs(tt.mu2().dz()-tt.mu3().dz())) / math.sqrt(tt.mu2().dzError()**2 + tt.mu3().dzError()**2)
+            
+            if tt.dzcompatibility12 < dzsigmacut and \
+               tt.dzcompatibility13 < dzsigmacut and \
+               tt.dzcompatibility23 < dzsigmacut :
+
+                seltau3mu_tmp.append(tt)            
+
+        seltau3mu = seltau3mu_tmp                       
+                                            
         if len(seltau3mu) == 0:
             return False
 
@@ -208,12 +222,27 @@ class Tau3MuAnalyzer(Analyzer):
                 triplet.mu1().trig_matched = False # initialise to no match
                 triplet.mu2().trig_matched = False # initialise to no match
                 triplet.mu3().trig_matched = False # initialise to no match
+
+                triplet.mu1().best_trig_match = OrderedDict()
+                triplet.mu2().best_trig_match = OrderedDict()
+                triplet.mu3().best_trig_match = OrderedDict()
     
                 # add all matched objects to each muon
                 for info in event.trigger_infos:
-                    triplet.mu1().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.3]
-                    triplet.mu2().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.3]
-                    triplet.mu3().trig_objs += [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.3]
+                
+                    these_objects1 = [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.2]
+                    these_objects2 = [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.2]
+                    these_objects3 = [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.2]
+                    
+                    triplet.mu1().trig_objs += these_objects1
+                    triplet.mu2().trig_objs += these_objects2
+                    triplet.mu3().trig_objs += these_objects3
+
+                    mykey = '_'.join(info.name.split('_')[:-1])
+                    # find the three best matches, avoid double matches!
+                    triplet.mu1().best_trig_match[mykey] = sorted(these_objects1, key = lambda x : deltaR(x, triplet.mu1()))[0] if len(these_objects1) else None ; these_objects2 = [obj for obj in these_objects2 if obj!=triplet.mu1().best_trig_match[mykey]] # exclude the first best match
+                    triplet.mu2().best_trig_match[mykey] = sorted(these_objects2, key = lambda x : deltaR(x, triplet.mu2()))[0] if len(these_objects2) else None ; these_objects3 = [obj for obj in these_objects3 if obj!=triplet.mu1().best_trig_match[mykey] and obj!=triplet.mu2().best_trig_match[mykey]] # exclude the first and the second best match
+                    triplet.mu3().best_trig_match[mykey] = sorted(these_objects3, key = lambda x : deltaR(x, triplet.mu3()))[0] if len(these_objects3) else None
                 
                 # iterate over the path:filters dictionary
                 #     the filters MUST be sorted correctly: i.e. first filter in the dictionary 
@@ -228,17 +257,27 @@ class Tau3MuAnalyzer(Analyzer):
                     if len(v)>0: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu1')(), [v[0]]) )
                     if len(v)>1: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu2')(), [v[1]]) )
                     if len(v)>2: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu3')(), [v[2]]) )
-                
+                                
                     for getter, filters in trigger_filters:
-                        for obj in getter(triplet).trig_objs:
-                            if set(filters) & set(obj.filterLabels()):
-                                getter(triplet).trig_matched = True
-
+                        if not getter(triplet).best_trig_match[k]:
+                            continue
+                        if set(filters) & set(getter(triplet).best_trig_match[k].filterLabels()):
+                            getter(triplet).trig_matched = True
+                                                    
                     ismatched = sum([int(jj.trig_matched) for jj in [triplet.mu1(), triplet.mu2(), triplet.mu3()]])            
+            
+                    if len(v)>1 and triplet.mu1().best_trig_match[k] and triplet.mu2().best_trig_match[k]:
+                        if triplet.mu1().best_trig_match[k] == triplet.mu2().best_trig_match[k]: 
+                            import pdb ; pdb.set_trace()
+                    if len(v)>2 and triplet.mu1().best_trig_match[k] and triplet.mu2().best_trig_match[k] and triplet.mu3().best_trig_match[k]:
+                        if triplet.mu1().best_trig_match[k] == triplet.mu2().best_trig_match[k] or \
+                           triplet.mu1().best_trig_match[k] == triplet.mu3().best_trig_match[k] or \
+                           triplet.mu2().best_trig_match[k] == triplet.mu3().best_trig_match[k]:
+                            import pdb ; pdb.set_trace()
             
                     if len(trigger_filters) == ismatched:
                         triplet.hltmatched.append(k)
-            
+                                
             seltau3mu = [triplet for triplet in seltau3mu if len(triplet.hltmatched)>0]
             
             if len(seltau3mu) == 0:

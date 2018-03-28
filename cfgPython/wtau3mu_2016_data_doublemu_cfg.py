@@ -1,6 +1,7 @@
+# heppy_batch.py -o /eos/cms/store/group/phys_tau/WTau3Mu/mvamet2016/prod_v5 wtau3mu_2016_data_doublemu_cfg.py -b 'bsub -u hjkagsdjhga -q 8nh < ./batchScript.sh'
+
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 from collections import OrderedDict
-
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -33,12 +34,10 @@ from CMGTools.WTau3Mu.analyzers.GenMatcherAnalyzer                  import GenMa
 from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1TriggerAnalyzer
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
-from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
 from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
-from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
 
-# import samples, signal
-from CMGTools.WTau3Mu.samples.mc_2016 import WToTauTo3Mu, all_wtau3mu
+# import samples
+from CMGTools.WTau3Mu.samples.data_2016                             import datasamplesDoubleMu03Feb2017 as samples
 
 puFileMC   = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
@@ -48,29 +47,25 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 ###################################################
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
-production         = getHeppyOption('production'        , False)
+production         = getHeppyOption('production'        , True )
 pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
 extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
-compute_mvamet     = getHeppyOption('compute_mvamet'    , False)
+compute_mvamet     = getHeppyOption('compute_mvamet'    , True )
+use_mvamet         = getHeppyOption('use_mvamet'        , True )
 ###################################################
 ###               HANDLE SAMPLES                ###
 ###################################################
-samples = all_wtau3mu
-
 for sample in samples:
-    sample.triggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(4, 5)]
-    sample.triggers += ['HLT_IsoMu24_v%d'                                   %i for i in range(4, 5)]
-    sample.triggers += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(4, 5)]
-    sample.triggers += ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'           %i for i in range(7, 8)]
-    sample.triggers += ['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'         %i for i in range(6, 7)]
-    sample.triggers += ['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'       %i for i in range(3, 4)]
-    sample.triggers += ['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v%d' %i for i in range(7, 8)]
-    sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(4, 5)]
+    # triggers you want in DoubleMuon
+    sample.triggers      = ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'    %i for i in range(1, 12)]
+    sample.triggers     += ['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'  %i for i in range(1, 12)]
+    sample.triggers     += ['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'%i for i in range(1, 12)]
+    # triggers you don't, suppose you run on two different datasets
+    sample.vetoTriggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'               %i for i in range(1, 12)]
 
-    sample.splitFactor = splitFactor(sample, 2e3)
-    sample.puFileData = puFileData
-    sample.puFileMC   = puFileMC
+    sample.splitFactor = splitFactor(sample, 1e5)
+    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
 selectedComponents = samples
 
@@ -80,7 +75,9 @@ selectedComponents = samples
 eventSelector = cfg.Analyzer(
     EventSelector,
     name='EventSelector',
-    toSelect=[1006, 1016, 10062, 10303]
+    toSelect=[
+        588661057,
+    ]
 )
 
 lheWeightAna = cfg.Analyzer(
@@ -120,9 +117,6 @@ pileUpAna = cfg.Analyzer(
     true=True
 )
 
-genAna = GeneratorAnalyzer.defaultConfig
-genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether hadronic / leptonic decay
-
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
@@ -139,14 +133,27 @@ tau3MuAna = cfg.Analyzer(
     name='Tau3MuAnalyzer',
 #     trigger_match=True,
     trigger_match=triggers_and_filters,
-    useMVAmet=True,
-    dz_sigma_cut=999, # 5 sigma dz compatibility
+    useMVAmet=use_mvamet,
 )
 
 treeProducer = cfg.Analyzer(
     WTau3MuTreeProducer,
     name='WTau3MuTreeProducer',
     fillL1=False,
+)
+
+metFilter = cfg.Analyzer(
+    METFilter,
+    name='METFilter',
+    processName='RECO',
+    triggers=[
+        'Flag_HBHENoiseFilter', 
+        'Flag_HBHENoiseIsoFilter', 
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_goodVertices',
+        'Flag_eeBadScFilter',
+        'Flag_globalTightHalo2016Filter'
+    ]
 )
 
 if kin_vtx_fitter:
@@ -166,13 +173,8 @@ isoAna = cfg.Analyzer(
     name='Tau3MuIsolationAnalyzer',
 )
 
-genMatchAna = cfg.Analyzer(
-    GenMatcherAnalyzer,
-    name='GenMatcherAnalyzer',
-    getter = lambda event : event.tau3mu,
-)
-
 level1Ana = L1TriggerAnalyzer.defaultConfig
+level1Ana.process = 'RECO'
 
 bdtAna = cfg.Analyzer(
     BDTAnalyzer,
@@ -193,14 +195,6 @@ recoilAna = cfg.Analyzer(
     RecoilCorrector,
     name='RecoilCorrector',
     pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
-)
-
-muonWeighterAna = cfg.Analyzer(
-    MuonWeighterAnalyzer,
-    sffile = '/afs/cern.ch/user/l/lguzzi/public/exampleJson/BCDEF_medium2016_pt_abseta_DATA.json',
-    sfname = 'none',
-    multiplyEventWeight = True,
-    getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
 )
 
 # see SM HTT TWiki
@@ -231,24 +225,20 @@ fileCleaner = cfg.Analyzer(
 ###                  SEQUENCE                   ###
 ###################################################
 sequence = cfg.Sequence([
-    eventSelector,
     lheWeightAna,
     jsonAna,
     skimAna,
-    genAna,
     triggerAna, # First analyser that applies selections
     vertexAna,
     pileUpAna,
     tau3MuAna,
     jetAna,
-    genMatchAna,
-#     recoilAna,
     vertexFitter,
-    muonWeighterAna,
     muIdAna,
     isoAna,
 #     level1Ana,
     bdtAna,
+    metFilter,
     treeProducer,
 ])
 
@@ -256,16 +246,19 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = WToTauTo3Mu
+    comp                 = samples[-2]
     selectedComponents   = [comp]
-    comp.splitFactor     = 1
-    comp.fineSplitFactor = 1
+#     selectedComponents   = [samples[-7], samples[-5]]
+#     comp.splitFactor     = 1
+#     comp.fineSplitFactor = 4
+
+#     for comp in selectedComponents:
+#         comp.fineSplitFactor = 4
+
 #     comp.files           = comp.files[:1]
-#     comp.files = [
-#        '/afs/cern.ch/work/m/manzoni/public/perLuca/newsignal/output.root'
-       #'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
-#       'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',
-#     ]
+    comp.files = [
+         'file:/eos/cms//store/data/Run2016H/DoubleMuon/MINIAOD/03Feb2017_ver2-v1/110000/08ADA6AA-D3EC-E611-AF17-B083FED42488.root'
+    ]
 
 preprocessor = None
 
@@ -275,7 +268,7 @@ if extrap_muons_to_L1:
     preprocessor = CmsswPreprocessor(fname, addOrigAsSecondary=False)
 
 if compute_mvamet:
-    fname = '$CMSSW_BASE/src/CMGTools/WTau3Mu/prod/compute_mva_met_mc_cfg.py'
+    fname = '$CMSSW_BASE/src/CMGTools/WTau3Mu/prod/compute_mva_met_data_cfg.py'
     sequence.append(fileCleaner)
     preprocessor = CmsswPreprocessor(fname, addOrigAsSecondary=False)
 

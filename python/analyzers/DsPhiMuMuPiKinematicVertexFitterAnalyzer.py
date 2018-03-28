@@ -25,6 +25,7 @@ class DsPhiMuMuPiKinematicVertexFitterAnalyzer(Analyzer):
         self.counters.addCounter('KinematicVertexFitter')
         count = self.counters.counter('KinematicVertexFitter')
         count.register('all events')
+        count.register('has refitted vertex')
         count.register('valid refitted vertex')
         count.register('valid refitted muon 1')
         count.register('valid refitted muon 2')
@@ -56,6 +57,9 @@ class DsPhiMuMuPiKinematicVertexFitterAnalyzer(Analyzer):
         ds.svtree = svtree
         svtree.movePointerToTheTop()
         sv = svtree.currentDecayVertex().get()
+
+        if not sv.vertexIsValid(): 
+            return False
         
         recoSv = self.RecoVertex(sv, kinVtxTrkSize=3)
         
@@ -81,20 +85,36 @@ class DsPhiMuMuPiKinematicVertexFitterAnalyzer(Analyzer):
         ndof = 0.
         bsvtx = ROOT.reco.Vertex(point, error, chi2, ndof, 3) # size? say 3? does it matter?
 
-        # select the best triplet candidate, according to:
+        # loop over all Ds candidates
+        cands = []
+        for ids in event.dsphipis:
 
-        #   - the candidate must have a good refitted vertex
-        hasvtx = self.checkTripletVertex(event.ds)
+            # select the best triplet candidate, according to:
+    
+            #   - the candidate must have a good refitted vertex
+            hasvtx = self.checkTripletVertex(ids)
+            
+            if not hasvtx:
+                continue
+            
+            cands.append(ids)
         
-        if not hasvtx:
+        # sort candidates by vertex prob and pick the first
+        cands.sort(key=lambda ds : ( ds.has_phi(), ds.svtree.prob ), reverse = True)
+
+        if not len(cands):
             return False
+            
+        event.ds = cands[0]
         
+        self.counters.counter('KinematicVertexFitter').inc('has refitted vertex')
+ 
         # now investigate the one good candidate
         svtree = event.ds.svtree
-
+    
         # accessing the tree components
         svtree.movePointerToTheTop()
-
+    
         # We are now at the top of the decay tree getting
         # the Tau reconstructed KinematicPartlcle
         dsref = svtree.currentParticle()
@@ -105,37 +125,37 @@ class DsPhiMuMuPiKinematicVertexFitterAnalyzer(Analyzer):
         
         if not sv.vertexIsValid(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted vertex')
-       
+        
         # let's work it around
         dsvtx = self.RecoVertex(sv, kinVtxTrkSize=3)
-
+    
         # Now navigating down the tree, mu1
         if not svtree.movePointerToTheFirstChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted muon 1')
         mu1ref = svtree.currentParticle()
         refitMu1 = self.buildP4(mu1ref)[0]
-
+    
         # mu2
         if not svtree.movePointerToTheNextChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted muon 2')
         mu2ref = svtree.currentParticle()
         refitMu2 = self.buildP4(mu2ref)[0]
-
+    
         # pion
         if not svtree.movePointerToTheNextChild(): return False
         self.counters.counter('KinematicVertexFitter').inc('valid refitted pion')
         piref = svtree.currentParticle()
         refitPi = self.buildP4(piref)[0]
-
+    
         # create a new ds object using the original pat muons and pi
         # after their p4 is updated to the refitted p4        
         pirefit = ROOT.pat.PackedCandidate(event.ds.pi()) # clone PAT PackedCandidate        
         pirefit.setP4(refitPi) # update p4
-
+    
         # instantiate heppy muons from PAT muons
         mu1refit = dc(Muon(event.ds.mu1().physObj))
         mu2refit = dc(Muon(event.ds.mu2().physObj))
-
+    
         mu1refit.setP4(refitMu1) # update p4
         mu2refit.setP4(refitMu2) # update p4
         
@@ -143,23 +163,21 @@ class DsPhiMuMuPiKinematicVertexFitterAnalyzer(Analyzer):
             mu1refit, 
             mu2refit, 
         ]
-
+    
         # associate the primary vertex to the muons
         for mu in refitMuons:
             mu.associatedVertex = event.vertices[0]
-
-#         import pdb ; pdb.set_trace()
-
+        
         # create a new tau3mu object
         event.dsRefit = DsPhiMuMuPi(refitMuons, pirefit)
-
+    
         # append the refitted vertex to it
         event.dsRefit.refittedVertex = dsvtx
-
+    
         # calculate 2D displacement significance
         distanceDsBS = self.vertTool.distance(dsvtx, bsvtx)
         event.dsRefit.refittedVertex.ls = distanceDsBS.significance()
-
+    
         # calculate decay length significance w.r.t. the beamspot
         dsperp = ROOT.math.XYZVector(event.ds.dsref.px(),
                                      event.ds.dsref.py(),

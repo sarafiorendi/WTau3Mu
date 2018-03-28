@@ -16,6 +16,7 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/ParametrizedEngine"/>
 <use name="PhysicsTools/FWLite"/>
+<use name="PhysicsTools/PatAlgos"/>
 <use name="RecoVertex/KalmanVertexFit"/>
 <use name="RecoVertex/KinematicFit"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>

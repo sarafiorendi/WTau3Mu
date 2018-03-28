@@ -32,7 +32,7 @@ from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTreeProducer                  import 
 from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiKinematicVertexFitterAnalyzer import DsPhiMuMuPiKinematicVertexFitterAnalyzer
 
 # import samples, signal
-from CMGTools.WTau3Mu.samples.ds_mc import DsPhiPiMuFilter
+from CMGTools.WTau3Mu.samples.ds_mc import DsPhiMuMuPi
 
 puFileMC   = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
@@ -42,7 +42,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 ###################################################
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
-production         = getHeppyOption('production'        , False)
+production         = getHeppyOption('production'        , True )
 pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
 extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
@@ -50,11 +50,12 @@ compute_mvamet     = getHeppyOption('compute_mvamet'    , False)
 ###################################################
 ###               HANDLE SAMPLES                ###
 ###################################################
-samples = [DsPhiPiMuFilter]
+samples = [DsPhiMuMuPi]
 
 for sample in samples:
-    sample.triggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(3, 12)]
-    sample.splitFactor = splitFactor(sample, 1e5)
+    sample.triggers  = ['HLT_Dimuon0_Phi_Barrel_v%d'   %i for i in range(1,  8)]
+    sample.triggers += ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 12)]
+    sample.splitFactor = splitFactor(sample, 2e5)
     sample.puFileData = puFileData
     sample.puFileMC   = puFileMC
 
@@ -66,33 +67,7 @@ selectedComponents = samples
 eventSelector = cfg.Analyzer(
     EventSelector,
     name='EventSelector',
-    toSelect=[
-        2913020,
-       38970860,
-       39011046,
-       39098942,
-       39106796,
-       39131759,
-       39144681,
-       39451552,
-       39540877,
-       39566280,
-       57310209,
-       57313389,
-       14598680,
-       37817448,
-       37828119,
-       65787956,
-       65812661,
-       47566781,
-       47627368,
-       47716444,
-       58487049,
-       17223801,
-       17280079,
-       17339609,
-       17382414
-    ]
+    toSelect=[]
 )
 
 lheWeightAna = cfg.Analyzer(
@@ -115,9 +90,9 @@ triggerAna = cfg.Analyzer(
     name='TriggerAnalyzer',
     addTriggerObjects=True,
     requireTrigger=False,
-    usePrescaled=False,
+    usePrescaled=True,
     triggerResultsHandle=('TriggerResults', '', 'HLT'),
-    triggerObjectsHandle=('slimmedPatTrigger', '', 'PAT'),
+    triggerObjectsHandle=('selectedPatTrigger', '', 'PAT'),
 )
 
 vertexAna = cfg.Analyzer(
@@ -139,13 +114,14 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
+triggers_and_filters['HLT_Dimuon0_Phi_Barrel'  ] = ['hltDisplacedmumuFilterDimuon0PhiBarrel', 'hltDisplacedmumuFilterDimuon0PhiBarrel']
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'] = ['hltTau3muTkVertexFilter', 'hltTau3muTkVertexFilter', 'hltTau3muTkVertexFilter']
 
 dsAna = cfg.Analyzer(
     DsPhiMuMuPiAnalyzer,
     name='DsPhiMuMuPiAnalyzer',
-#     trigger_match=triggers_and_filters,
-#     trigger_flag=True, # save all events, even those that don't pass the trigger but save also a flag as to whether the trigger was fired
+    trigger_match=triggers_and_filters,
+    trigger_flag=True, # save all events, even those that don't pass the trigger but save also a flag as to whether the trigger was fired
 )
 
 genMatchAna = cfg.Analyzer(
@@ -211,8 +187,8 @@ sequence = cfg.Sequence([
     dsAna,
     kinFitAnalyzer,
     jetAna,
-    genMatchAna,
-    muonWeightAna,
+#     genMatchAna,
+#     muonWeightAna,
     treeProducer,
 ])
 
@@ -220,7 +196,7 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = DsPhiPiMuFilter
+    comp                 = DsPhiMuMuPi
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1

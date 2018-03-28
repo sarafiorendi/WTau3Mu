@@ -217,6 +217,11 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
         mu2refit.setP4(refitMu2) # update p4
         mu3refit.setP4(refitMu3) # update p4
         
+        # and their vertex is set to the refitted, secondary one
+        mu1refit.setVertex(ROOT.math.XYZPoint(tauvtx.x(), tauvtx.y(), tauvtx.z()))
+        mu2refit.setVertex(ROOT.math.XYZPoint(tauvtx.x(), tauvtx.y(), tauvtx.z()))
+        mu3refit.setVertex(ROOT.math.XYZPoint(tauvtx.x(), tauvtx.y(), tauvtx.z()))
+        
         # instantiate heppy muons from PAT muons
         refitMuons = [
              Muon(mu1refit), 
@@ -243,7 +248,7 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
                 
         # create a new tau3mu object
         event.tau3muRefit = Tau3MuMET(refitMuons, newmet)
-
+        
         # append the refitted vertex to it
         event.tau3muRefit.refittedVertex = tauvtx
 

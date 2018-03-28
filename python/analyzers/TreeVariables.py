@@ -95,6 +95,9 @@ triplet_vars = [
     Variable('tau_absChargedFromPV'              , lambda cand : cand.absChargedFromPV                  ),
     Variable('tau_absChargedFromPU'              , lambda cand : cand.absChargedFromPU                  ),
     Variable('tau_absPhotonRaw'                  , lambda cand : cand.absPhotonRaw                      ),
+    Variable('dz12_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility12', default())),
+    Variable('dz13_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility13', default())),
+    Variable('dz23_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility23', default())),
 ]
 
 # generic particle

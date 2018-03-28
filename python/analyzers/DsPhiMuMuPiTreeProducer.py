@@ -39,7 +39,9 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
         self.var(self.tree, 'n_gen_ds')
 
         self.var(self.tree, 'hlt_doublemu3_trk_tau3mu')
+        self.var(self.tree, 'hlt_doublemu3_trk_tau3mu_ps')
         self.var(self.tree, 'hlt_dimuon0_phi_barrel')
+        self.var(self.tree, 'hlt_dimuon0_phi_barrel_ps')
 
     def process(self, event):
         '''
@@ -94,8 +96,16 @@ class DsPhiMuMuPiTreeProducer(DsPhiMuMuPiTreeProducerBase):
             fired_triggers = [info.name for info in getattr(event, 'trigger_infos', []) if info.fired]
             self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu', any('HLT_DoubleMu3_Trk_Tau3mu' in name for name in fired_triggers))
             self.fill(self.tree, 'hlt_dimuon0_phi_barrel'  , any('HLT_Dimuon0_Phi_Barrel' in name for name in fired_triggers))
-
-#         import pdb ; pdb.set_trace()
+        
+        infos_hlt_doublemu3_trk_tau3mu = [info for info in event.trigger_infos if 'HLT_DoubleMu3_Trk_Tau3mu' in info.name]
+        if len(infos_hlt_doublemu3_trk_tau3mu):
+            info_hlt_doublemu3_trk_tau3mu = infos_hlt_doublemu3_trk_tau3mu[0]    
+            self.fill(self.tree, 'hlt_doublemu3_trk_tau3mu_ps', info_hlt_doublemu3_trk_tau3mu.prescale)
+    
+        infos_hlt_dimuon0_phi_barrel = [info for info in event.trigger_infos if 'HLT_Dimuon0_Phi_Barrel' in info.name]
+        if len(infos_hlt_dimuon0_phi_barrel):
+            info_hlt_dimuon0_phi_barrel = infos_hlt_dimuon0_phi_barrel[0]    
+            self.fill(self.tree, 'hlt_dimuon0_phi_barrel_ps', info_hlt_dimuon0_phi_barrel.prescale)
         
         self.fillTree(event)
 

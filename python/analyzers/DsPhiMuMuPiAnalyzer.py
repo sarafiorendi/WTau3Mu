@@ -47,9 +47,9 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         count.register('> 0 vertex')
         count.register('> 0 di-muon')
         count.register('> 0 opposite sign di-muon')
-        count.register('> 0 di-muon pair with mass < 2 GeV')
+        count.register('> 0 di-muon pair with mass 0.9 < mass < 1.1 GeV')
         count.register('> 0 non degenerate Ds')
-        count.register('1.76 < Ds mass < 2.2 GeV')
+        count.register('1.65 < Ds mass < 2.2 GeV')
         count.register('pass ds (mu, mu, pi) Z cut')
         count.register('trigger matched')
  
@@ -97,7 +97,7 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         # merge the track collections
         alltracks  = sorted([tt for tt in allpf + losttracks if tt.charge() != 0], key = lambda x : x.pt(), reverse = True)
         # select tracks byt pt, eta
-        event.selectedtracks = [tt for tt in alltracks if tt.pt()>1. and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 0.5 and tt.trackHighPurity()]
+        event.selectedtracks = [tt for tt in alltracks if tt.pt()>1. and abs(tt.eta())<2.5 and abs(tt.vz() - event.vertices[0].z()) < 2.5 and tt.trackHighPurity()]
         # set pion mass
         for track in event.selectedtracks:
              track.setMass(m_pi)
@@ -136,16 +136,17 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         self.counters.counter('DsPhiMuMuPi').inc('> 0 opposite sign di-muon')
 
         # muon pair mass not too far from that of the phi
-        osmupairs = [[mu1, mu2] for mu1, mu2 in osmupairs if (mu1.p4() + mu2.p4()).mass() < 2]
+        osmupairs = [[mu1, mu2] for mu1, mu2 in osmupairs if (mu1.p4() + mu2.p4()).mass() > 0.9 and \
+                                                             (mu1.p4() + mu2.p4()).mass() < 1.1]
         if len(osmupairs) < 1:
             return False
 
-        self.counters.counter('DsPhiMuMuPi').inc('> 0 di-muon pair with mass < 2 GeV')
+        self.counters.counter('DsPhiMuMuPi').inc('> 0 di-muon pair with mass 0.9 < mass < 1.1 GeV')
 
         # create all Ds Phi(MuMu) Pi candidates, make sure the same object is not
         # picked up twice as track and as muon
         event.dsphipis = [DsPhiMuMuPi(dimuon, pi) for dimuon, pi in product(osmupairs, event.selectedtracks) if \
-                            (deltaR(dimuon[0], pi)>0.01 and deltaR(dimuon[1], pi)>0.01)]
+                            (deltaR(dimuon[0], pi)>0.005 and deltaR(dimuon[1], pi)>0.005)]
 
         if len(event.dsphipis) == 0:
             return False
@@ -153,11 +154,11 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
         self.counters.counter('DsPhiMuMuPi').inc('> 0 non degenerate Ds')
 
         # mass cut on Ds Phi(MuMu) Pi
-        event.dsphipis = [ds for ds in event.dsphipis if ds.p4().mass()>1.76 and ds.p4().mass()<2.2]
+        event.dsphipis = [ds for ds in event.dsphipis if ds.p4().mass()>1.65 and ds.p4().mass()<2.2]
         if len(event.dsphipis) == 0:
             return False
 
-        self.counters.counter('DsPhiMuMuPi').inc('1.76 < Ds mass < 2.2 GeV')
+        self.counters.counter('DsPhiMuMuPi').inc('1.65 < Ds mass < 2.2 GeV')
 
         # z vertex compatibility among mu mu pi
         dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 5) # 5 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
@@ -242,8 +243,8 @@ class DsPhiMuMuPiAnalyzer(Analyzer):
            - then by (mass - mass_pdg)
         then pick the best one.
         '''
-        dss.sort(key=lambda ds : ( not ds.has_phi(), abs(m_ds-ds.mass()) ), reverse = True)
-        return dss[-1]
+        dss.sort(key=lambda ds : ( not ds.has_phi(), abs(m_ds-ds.mass()) ), reverse = False)
+        return dss[0]
     
     def testVertex(self, lepton):
         '''Tests vertex constraints, for mu'''

@@ -32,7 +32,7 @@ from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiTreeProducer                  import 
 from CMGTools.WTau3Mu.analyzers.DsPhiMuMuPiKinematicVertexFitterAnalyzer import DsPhiMuMuPiKinematicVertexFitterAnalyzer
 
 # import samples, 
-from CMGTools.WTau3Mu.samples.data_2016 import datasamplesMuOnia03Feb2017 as samples
+from CMGTools.WTau3Mu.samples.data_2016 import datasamplesZeroBias03Feb2017 as samples
 
 puFileMC   = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
@@ -51,8 +51,7 @@ compute_mvamet     = getHeppyOption('compute_mvamet'    , False)
 ###               HANDLE SAMPLES                ###
 ###################################################
 for sample in samples:
-    sample.triggers  = ['HLT_Dimuon0_Phi_Barrel_v%d'   %i for i in range(1,  8)]
-    sample.triggers += ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(1, 12)]
+    sample.triggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d' %i for i in range(3, 12)]
     sample.splitFactor = splitFactor(sample, 1e5)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
@@ -89,7 +88,7 @@ triggerAna = cfg.Analyzer(
     name='TriggerAnalyzer',
     addTriggerObjects=True,
     requireTrigger=False,
-    usePrescaled=True,
+    usePrescaled=False,
     triggerResultsHandle=('TriggerResults', '', 'HLT'),
     triggerObjectsHandle=('selectedPatTrigger', '', 'PAT'),
 )
@@ -113,7 +112,6 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
-triggers_and_filters['HLT_Dimuon0_Phi_Barrel'  ] = ['hltDisplacedmumuFilterDimuon0PhiBarrel', 'hltDisplacedmumuFilterDimuon0PhiBarrel']
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'] = ['hltTau3muTkVertexFilter', 'hltTau3muTkVertexFilter', 'hltTau3muTkVertexFilter']
 
 dsAna = cfg.Analyzer(
@@ -187,7 +185,7 @@ sequence = cfg.Sequence([
     kinFitAnalyzer,
     jetAna,
     genMatchAna,
-#     muonWeightAna,
+    muonWeightAna,
     treeProducer,
 ])
 
@@ -195,16 +193,15 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp                 = samples[2]
+    comp                 = samples[-2]
     selectedComponents   = [comp]
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
-#     comp.files           = comp.files[:3]
-    comp.files = [
-        'root://cms-xrd-global.cern.ch//store/data/Run2016B/MuOnia/MINIAOD/03Feb2017_ver2-v2/80000/00054004-96EC-E611-AC22-008CFA0079C4.root',
+    comp.files           = comp.files[:1]
+#     comp.files = [
 #        'file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/RecoMET/METPUSubtraction/test/output.root',
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root',
-    ]
+#     ]
 
 preprocessor = None
 

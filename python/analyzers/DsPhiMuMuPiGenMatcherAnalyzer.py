@@ -1,30 +1,84 @@
 from copy import deepcopy as dc
 import ROOT
 
-from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.utils.deltar        import deltaR, bestMatch
+from PhysicsTools.Heppy.analyzers.core.Analyzer   import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.HeppyCore.utils.deltar          import deltaR, bestMatch
 
 from CMGTools.WTau3Mu.physicsobjects.DsPhiMuMuPi  import DsPhiMuMuPi
 
 class DsPhiMuMuPiGenMatcherAnalyzer(Analyzer):
     '''
     '''
+
+
+    def declareHandles(self):
+        super(DsPhiMuMuPiGenMatcherAnalyzer, self).declareHandles()
+        
+        self.mchandles['packedGenParticles'] = AutoHandle(
+            'packedGenParticles',
+            'std::vector<pat::PackedGenParticle>'
+        )
+
     def process(self, event):
         if event.input.eventAuxiliary().isRealData():
             return True
-        
+
+        self.readCollections(event.input)
+   
+        # packed gen particles
+        packed_gen_particles = self.mchandles['packedGenParticles'].product()
+     
         # match the ds to gen ds
         dsphimumupi = self.cfg_ana.getter(event)
         
         # get all Ds in the event
         gends = [pp for pp in event.genParticles if abs(pp.pdgId())==431]
+
+        if len(gends)>1:
+            print 'more than one Ds!'
+            import pdb ; pdb.set_trace()
         
+        
+        for ip in gends:            
+            ip.final_daus = []
+            for ipp in packed_gen_particles:
+                mother = ipp.mother(0)
+                if mother and self.isAncestor(gends, mother):
+                    ip.final_daus.append(ipp)                 
+
+            ids = [ipp.pdgId() for ipp in ip.final_daus if ipp.pdgId()!=22]
+        
+            if len(ids) != 3:
+                if len(gends)==1:
+                    print 'not a three body decay'
+                    import pdb ; pdb.set_trace()
+                continue
+            
+            if set(ids) & set([13, -13]) != set([13, -13]):
+                if len(gends)==1:
+                    print 'I wanted a muon pair'
+                    import pdb ; pdb.set_trace()
+                continue
+        
+            if 211 not in set(ids) and -211 not in set(ids):
+                if len(gends)==1:
+                    print 'missing my pion'
+                    import pdb ; pdb.set_trace()
+                continue
+            
+            mygends = ip
+
+        '''
         # restrict to only those that decay into phi pi
         gends = [pp for pp in gends if pp.numberOfDaughters()==2 and (len(set([333, 211]) & set([abs(pp.daughter(0).pdgId()), abs(pp.daughter(1).pdgId())]))==2)]
         
         # append to the event the gen level Ds Phi Mu Mu Phi with the highest momentum
         gends.sort(key = lambda x : x.pt(), reverse=True)
-        mygends = gends[0]  
+        try:
+            mygends = gends[0]  
+        except:
+            import pdb ; pdb.set_trace()
         mygends.phip = [dau for dau in [mygends.daughter(ii)      for ii in range(mygends.numberOfDaughters())     ] if abs(dau.pdgId())==333][0]  
         mygends.pi   = [dau for dau in [mygends.daughter(ii)      for ii in range(mygends.numberOfDaughters())     ] if abs(dau.pdgId())==211][0]  
         mygends.mum  = [mu  for mu  in [mygends.phip.daughter(ii) for ii in range(mygends.phip.numberOfDaughters())] if     mu .pdgId() == 13][0]  
@@ -66,7 +120,7 @@ class DsPhiMuMuPiGenMatcherAnalyzer(Analyzer):
                 event.genmet = nn.p4()
             else:
                 event.genmet += nn.p4()
-        
+        '''
         return True
     
     @staticmethod
@@ -82,4 +136,12 @@ class DsPhiMuMuPiGenMatcherAnalyzer(Analyzer):
         return daughters
 
 
+    @staticmethod
+    def isAncestor(a, p):
+        if a == p :
+            return True
+        for i in xrange(0,p.numberOfMothers()):
+            if DsPhiMuMuPiGenMatcherAnalyzer.isAncestor(a,p.mother(i)):
+                return True
+        return False
 

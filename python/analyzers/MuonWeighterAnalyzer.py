@@ -30,7 +30,6 @@ class MuonWeighterAnalyzer(Analyzer):
             sf = jsonGetter.getSF(imu)
             imu.idweight    = sf['value']
             imu.idweightunc = sf['error']
-            import pdb ; pdb.set_trace()
             if hasattr(imu, 'weight'):
                 imu.weight *= imu.idweight
             else:
@@ -44,9 +43,10 @@ class MuonWeighterAnalyzer(Analyzer):
 
         return True        
         
-    def endLoop(self, setup):
-        super(MuonWeighterAnalyzer, self).endLoop(setup)
-        self.sffile.close()
+#     def endLoop(self, setup):
+#         super(MuonWeighterAnalyzer, self).endLoop(setup)
+#         import pdb ; pdb.set_trace()
+#         self.sffile.close()
 
 
 setattr(MuonWeighterAnalyzer, 'defaultConfig', 

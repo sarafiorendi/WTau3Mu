@@ -1,5 +1,6 @@
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
 from collections import OrderedDict
+import os
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
@@ -34,8 +35,8 @@ from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1Tri
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
 from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
+from CMGTools.WTau3Mu.analyzers.HLTWeighterAnalyzer                 import HLTWeighterAnalyzer
 from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
-from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
 
 # import samples, signal
 from CMGTools.WTau3Mu.samples.mc_2016 import WToTauTo3Mu, all_wtau3mu
@@ -117,7 +118,7 @@ vertexAna = cfg.Analyzer(
 pileUpAna = cfg.Analyzer(
     PileUpAnalyzer,
     name='PileUpAnalyzer',
-    true=True
+    true=False
 )
 
 genAna = GeneratorAnalyzer.defaultConfig
@@ -126,13 +127,13 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
-triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
-triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = ['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = ['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = ['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = ['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ]
-triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = ['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105']
+#triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
+#triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]
+#triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = ['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+#triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = ['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+#triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = ['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
+#triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = ['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ]
+#triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = ['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105']
 
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
@@ -197,12 +198,22 @@ recoilAna = cfg.Analyzer(
 
 muonWeighterAna = cfg.Analyzer(
     MuonWeighterAnalyzer,
-    sffile = '/afs/cern.ch/user/l/lguzzi/public/exampleJson/BCDEF_medium2016_pt_abseta_DATA.json',
-    sfname = 'none',
+    ## see below: (json file name, binning variable, UsePtOnly)
+    ## True = use only pT binning, False use 2D ptVSeta binning
+    ## NOTE: make sure the second entry is consistent (e.g. (//.json, 'pt', True)    OR    (//.json) 'pt_eta', False))
+    ## NOTE: see  the variable name inside the json file
+    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt.json'          % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT.json'                  % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     multiplyEventWeight = True,
-    getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
+    useMuIdSFs = True,
+    useHLTSFs  = True,
+    #getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
+    getter = lambda event : [event.tau3mu.mu1(), event.tau3mu.mu2(), event.tau3mu.mu3()],
 )
-
 # see SM HTT TWiki
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SMTauTau2016#Jet_Energy_Corrections
 jetAna = cfg.Analyzer(
@@ -231,7 +242,7 @@ fileCleaner = cfg.Analyzer(
 ###                  SEQUENCE                   ###
 ###################################################
 sequence = cfg.Sequence([
-    eventSelector,
+    #eventSelector,
     lheWeightAna,
     jsonAna,
     skimAna,
@@ -240,16 +251,15 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-    jetAna,
+    #jetAna,
     genMatchAna,
 #     recoilAna,
     vertexFitter,
     muonWeighterAna,
-    muIdAna,
     isoAna,
 #     level1Ana,
     bdtAna,
-    treeProducer,
+    #treeProducer,
 ])
 
 ###################################################

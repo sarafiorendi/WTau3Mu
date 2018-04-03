@@ -15,42 +15,81 @@ class MuonWeighterAnalyzer(Analyzer):
 
     def beginLoop(self, setup):
         super(MuonWeighterAnalyzer, self).beginLoop(setup)
-        self.jsonFileTIH = self.cfg_ana.sffileTIH
-        self.jsonFileMNT = self.cfg_ana.sffileMNT
-        self.jsonFileLNM = self.cfg_ana.sffileLNM
-        self.jsonFileSNL = self.cfg_ana.sffileSNL
+        ## muonID jsons
+        self.jsonFileID_TIH = self.cfg_ana.jsonFileID_TIH
+        self.jsonFileID_MNT = self.cfg_ana.jsonFileID_MNT
+        self.jsonFileID_LNM = self.cfg_ana.jsonFileID_LNM
+        self.jsonFileID_SNL = self.cfg_ana.jsonFileID_SNL
+        ## HLT jsons
+        self.jsonFileHLT_MU = self.cfg_ana.jsonFileHLT_MU
+        self.jsonFileHLT_TK = self.cfg_ana.jsonFileHLT_TK
 
     def process(self, event):
         self.readCollections(event.input)
         
         muons = self.cfg_ana.getter(event)        
 
-        ## init SF getters for each ID
-        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileTIH[0], SFname = "tight2016_muonID"          , SFbins = "pt", usePtOnly = self.jsonFileTIH[1])
-        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileMNT[0], SFname = "mediumNOTtight2016_muonID" , SFbins = "pt", usePtOnly = self.jsonFileMNT[1])
-        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileLNM[0], SFname = "looseNOTmedium_muonID"     , SFbins = "pt", usePtOnly = self.jsonFileLNM[1])
-        jsonGetterSNL = ParticleSFgetter(jsonFile = self.jsonFileSNL[0], SFname = "soft2016NOTloose_muonID"   , SFbins = "pt", usePtOnly = self.jsonFileSNL[1])
+        if self.cfg_ana.useMuIdSFs:
+            ## init SF getters for each ID
+            jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileID_TIH[0], SFname = "tight2016_muonID"          , SFbins = self.jsonFileID_TIH[1], usePtOnly = self.jsonFileID_TIH[2])
+            jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileID_MNT[0], SFname = "mediumNOTtight2016_muonID" , SFbins = self.jsonFileID_MNT[1], usePtOnly = self.jsonFileID_MNT[2])
+            jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileID_LNM[0], SFname = "looseNOTmedium_muonID"     , SFbins = self.jsonFileID_LNM[1], usePtOnly = self.jsonFileID_LNM[2])
+            jsonGetterSNL = ParticleSFgetter(jsonFile = self.jsonFileID_SNL[0], SFname = "soft2016NOTloose_muonID"   , SFbins = self.jsonFileID_SNL[1], usePtOnly = self.jsonFileID_SNL[2])
         
-        for imu in muons:
-            ## get the SF based in the ID
-            if   imu.muonID('POG_ID_Tight') :   sf = jsonGetterTIH.getSF(imu)
-            elif imu.muonID('POG_ID_Medium'):   sf = jsonGetterMNT.getSF(imu)
-            elif imu.muonID('POG_ID_Loose') :   sf = jsonGetterLNM.getSF(imu)
-            else:                               sf = jsonGetterSNL.getSF(imu)
+            for mu in muons:
+            ## get the SF for the ID (maybe add elif soft: // else:)
+                if   mu.muonID('POG_ID_Tight') :   sf = jsonGetterTIH.getSF(mu)
+                elif mu.muonID('POG_ID_Medium'):   sf = jsonGetterMNT.getSF(mu)
+                elif mu.muonID('POG_ID_Loose') :   sf = jsonGetterLNM.getSF(mu)
+                elif mu.muonID('POG_ID_Soft')  :   sf = jsonGetterSNL.getSF(mu)
+                else                           :   sf = jsonGetterSNL.getDummy()
 
-            imu.idweight    =  sf['value'] if sf['value'] is not None else 1
-            imu.idweightunc =  sf['error'] if sf['error'] is not None else 1
-            
-            if hasattr(imu, 'weight'):
-                imu.weight *= imu.idweight
-            else:
-                imu.weight  = imu.idweight
+                mu.idweight    =  sf['value'] if sf['value'] is not None else 1
+                mu.idweightunc =  sf['error'] if sf['error'] is not None else 1
+           
+                mu.weight = mu.weight * mu.idweight if hasattr(mu, 'weight') else mu.idweight
 
-            if getattr(self.cfg_ana, 'multiplyEventWeight', True):
-                if hasattr(event, 'eventWeight'):
-                    event.eventWeight *= imu.idweight
-                else:
-                    event.eventWeight  = imu.idweight
+        ## get the SF for the HLT
+        if self.cfg_ana.useHLTSFs:
+             ## init SF getter for HLT SFs (muons and tracks)
+            jsonGetterMU = ParticleSFgetter(jsonFile = self.jsonFileHLT_MU[0], SFname = 'RunBH_muonID'  , SFbins = self.jsonFileHLT_MU[1], usePtOnly = self.jsonFileHLT_MU[2])
+            jsonGetterTK = ParticleSFgetter(jsonFile = self.jsonFileHLT_TK[0], SFname = 'HLT_track'     , SFbins = self.jsonFileHLT_TK[1], usePtOnly = self.jsonFileHLT_TK[2])
+        
+            ## identify the muons and the track
+            HLTmuons = [ mu for mu in muons if mu.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'] is not None and mu.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].triggerObjectTypes()[0] == 83]
+            HLTtrack = [ tk for tk in muons if tk.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'] is not None and tk.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].triggerObjectTypes()[0] == 91]
+
+            ## debug check
+            #if len(HLTmuons) > 2 or len(HLTmuons) < 2: import pdb ; pdb.set_trace()
+            #if len(HLTtrack) > 1 or len(HLTtrack) < 1: import pdb ; pdb.set_trace()
+
+            ## consistency check (is it python-correct?)
+            #for mu in HLTmuons:
+            #    if mu in HLTtrack: 
+            #        print 'ERROR muon is both HLT muon and HLT track'
+            #        import pdb ; pdb.set_trace()
+
+            ## assign the weights for the muon id
+            stop = False
+            for mu in HLTmuons: 
+                sf = jsonGetterMU.getSF(mu)
+                mu.HLTWeightMU    = sf['value'] if sf['value'] is not None else 1
+                mu.HLTWeightUncMU = sf['error'] if sf['error'] is not None else 1
+
+                mu.weight = mu.weight * mu.HLTWeightMU if hasattr(mu, 'weight') else mu.HLTWeightMU
+ 
+            ## assign the weights for the trk id
+            for tk in HLTtrack:
+                sf = jsonGetterTK.getSF(tk)
+                tk.HLTWeightTK    = sf['value'] if sf['value'] is not None else 1
+                tk.HLTWeightUncTK = sf['error'] if sf['error'] is not None else 1
+
+                tk.weight = tk.weight * tk.HLTWeightTK if hasattr(tk, 'weight') else tk.HLTWeightTK
+
+        ## define the final event weight
+        if not getattr(self.cfg_ana, 'multiplyEventWeight'): event.eventWeight = 1      
+        for mu in muons:
+            event.eventWeight = event.eventWeight * mu.weight if hasattr(event, 'eventWeight') else mu.weight
 
         return True        
         

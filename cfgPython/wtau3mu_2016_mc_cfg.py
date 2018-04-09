@@ -188,16 +188,15 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
-<<<<<<< HEAD
-triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
-#triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
-#triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]
-#triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = ['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-#triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = ['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-#triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = ['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-#triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = ['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ]
-#triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = ['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105']
-
+triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = (['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ], Counter({83:2, 91:1})) 
+#triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      })) 
+#triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      })) 
+#triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+#triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+#triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+#triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1})) 
+#triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      })) 
+  
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',

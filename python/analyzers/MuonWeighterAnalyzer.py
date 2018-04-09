@@ -67,21 +67,7 @@ class MuonWeighterAnalyzer(Analyzer):
             HLTtrack = [ tk for tk in muons if tk.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'] is not None and tk.best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].triggerObjectTypes()[0] == 91]
 
             ## debug check
-            self.counters.counter('MuonWeighterAna').inc('all events')
-            event.HLTmismatch = 0
-            if len(HLTmuons) < 2 or len(HLTtrack) < 1 : 
-                self.eventList.write('%s\t\t%s\t\t%s\n' % (event.run, event.lumi, event.eventId))
-                event.HLTmismatch = 1
-                self.counters.counter('MuonWeighterAna').inc('bad HLT match')
-                #import pdb ; pdb.set_trace()
-            event.dpT1 = abs( muons[0].pt() - muons[0].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].pt())
-            event.dpT2 = abs( muons[1].pt() - muons[1].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].pt())
-            event.dpT3 = abs( muons[2].pt() - muons[2].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'].pt())
-
-            #event.dR1 = deltaR( muons[0], muons[0].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'])
-            #event.dR2 = deltaR( muons[1], muons[1].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'])
-            #event.dR3 = deltaR( muons[2], muons[2].best_trig_match['HLT_DoubleMu3_Trk_Tau3mu'])
-
+            if len(HLTmuons) < 2 or len(HLTtrack) < 1 : import pdb ; pdb.set_trace()
 
             ## assign the weights for the muon id
             for mu in HLTmuons: 

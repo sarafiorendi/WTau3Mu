@@ -2,7 +2,7 @@ import ROOT
 from itertools import product, combinations
 import math
 import numpy as np
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer   import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
@@ -210,7 +210,7 @@ class Tau3MuAnalyzer(Analyzer):
 
         # trigger matching
         if hasattr(self.cfg_ana, 'trigger_match') and len(self.cfg_ana.trigger_match.keys())>0:
-                        
+                                   
             for triplet in seltau3mu:
                 
                 triplet.hltmatched = [] # initialise to no match
@@ -230,27 +230,73 @@ class Tau3MuAnalyzer(Analyzer):
                 # add all matched objects to each muon
                 for info in event.trigger_infos:
                 
-                    these_objects1 = [obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.2]
-                    these_objects2 = [obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.2]
-                    these_objects3 = [obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.2]
+                    mykey = '_'.join(info.name.split('_')[:-1])
+
+                    # start with simple matching
+                    these_objects1 = sorted([obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu1()))
+                    these_objects2 = sorted([obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu2()))
+                    these_objects3 = sorted([obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu3()))
                     
                     triplet.mu1().trig_objs += these_objects1
                     triplet.mu2().trig_objs += these_objects2
                     triplet.mu3().trig_objs += these_objects3
 
-                    mykey = '_'.join(info.name.split('_')[:-1])
-                    # find the three best matches, avoid double matches!
-                    triplet.mu1().best_trig_match[mykey] = sorted(these_objects1, key = lambda x : deltaR(x, triplet.mu1()))[0] if len(these_objects1) else None ; these_objects2 = [obj for obj in these_objects2 if obj!=triplet.mu1().best_trig_match[mykey]] # exclude the first best match
-                    triplet.mu2().best_trig_match[mykey] = sorted(these_objects2, key = lambda x : deltaR(x, triplet.mu2()))[0] if len(these_objects2) else None ; these_objects3 = [obj for obj in these_objects3 if obj!=triplet.mu1().best_trig_match[mykey] and obj!=triplet.mu2().best_trig_match[mykey]] # exclude the first and the second best match
-                    triplet.mu3().best_trig_match[mykey] = sorted(these_objects3, key = lambda x : deltaR(x, triplet.mu3()))[0] if len(these_objects3) else None
-                
+                    # get the set of trigger types from the cfg 
+                    trigger_types_to_match = self.cfg_ana.trigger_match[mykey][1]
+                    
+                    # list of tuples of matched objects
+                    good_matches = []
+
+                    # initialise the matching to None
+                    triplet.mu1().best_trig_match[mykey] = None
+                    triplet.mu2().best_trig_match[mykey] = None
+                    triplet.mu3().best_trig_match[mykey] = None
+                    
+                    # investigate all the possible matches (triplets, pairs or singlets)
+                    for to1, to2, to3 in product(these_objects1, these_objects2, these_objects3):
+                        # avoid double matches!
+                        if to1==to2 or to1==to3 or to2==to3:
+                            continue
+
+                        # intersect found trigger types to desired trigger types
+                        itypes = Counter()
+                        for ikey in trigger_types_to_match.keys():
+                            itypes[ikey] = sum([1 for iobj in [to1, to2, to3] if iobj.triggerObjectTypes()[0]==ikey])
+                                            
+                        # all the types to match are matched then assign the 
+                        # corresponding trigger object to each muon
+                        if itypes & trigger_types_to_match == trigger_types_to_match:
+                            good_matches.append((to1, to2, to3))
+                    
+                    if len(good_matches):
+                        good_matches.sort(key = lambda x : deltaR(x[0], triplet.mu1()) + deltaR(x[1], triplet.mu2()) + deltaR(x[2], triplet.mu3()))        
+                        triplet.mu1().best_trig_match[mykey] = good_matches[0][0] if len(good_matches[0])>0 else None
+                        triplet.mu2().best_trig_match[mykey] = good_matches[0][1] if len(good_matches[0])>1 else None
+                        triplet.mu3().best_trig_match[mykey] = good_matches[0][2] if len(good_matches[0])>2 else None
+
+                #
+                ##################
+                ## DEBUG
+                ##################
+                #try:
+                #    ids = [jj.triggerObjectTypes()[0] for jj in [triplet.mu1().best_trig_match[mykey],
+                #                                                 triplet.mu2().best_trig_match[mykey],
+                #                                                 triplet.mu3().best_trig_match[mykey]]]
+                #    print ids
+                #except:
+                #    import pdb ; pdb.set_trace()
+                ##################
+                #                
+
                 # iterate over the path:filters dictionary
                 #     the filters MUST be sorted correctly: i.e. first filter in the dictionary 
                 #     goes with the first muons and so on
-                for k, v in self.cfg_ana.trigger_match.iteritems():
+                for k, vv in self.cfg_ana.trigger_match.iteritems():
 
                     if not any(k in name for name in event.fired_triggers):
                          continue
+                    
+                    v = vv[0]
                          
                     trigger_filters = []
 
@@ -265,25 +311,16 @@ class Tau3MuAnalyzer(Analyzer):
                             getter(triplet).trig_matched = True
                                                     
                     ismatched = sum([int(jj.trig_matched) for jj in [triplet.mu1(), triplet.mu2(), triplet.mu3()]])            
-            
-                    if len(v)>1 and triplet.mu1().best_trig_match[k] and triplet.mu2().best_trig_match[k]:
-                        if triplet.mu1().best_trig_match[k] == triplet.mu2().best_trig_match[k]: 
-                            import pdb ; pdb.set_trace()
-                    if len(v)>2 and triplet.mu1().best_trig_match[k] and triplet.mu2().best_trig_match[k] and triplet.mu3().best_trig_match[k]:
-                        if triplet.mu1().best_trig_match[k] == triplet.mu2().best_trig_match[k] or \
-                           triplet.mu1().best_trig_match[k] == triplet.mu3().best_trig_match[k] or \
-                           triplet.mu2().best_trig_match[k] == triplet.mu3().best_trig_match[k]:
-                            import pdb ; pdb.set_trace()
-            
+                        
                     if len(trigger_filters) == ismatched:
                         triplet.hltmatched.append(k)
-                                
+                    
             seltau3mu = [triplet for triplet in seltau3mu if len(triplet.hltmatched)>0]
             
             if len(seltau3mu) == 0:
                 return False
             self.counters.counter('Tau3Mu').inc('trigger matched')
-        
+                
         event.seltau3mu = seltau3mu
 
         event.tau3mu = self.bestTriplet(seltau3mu)

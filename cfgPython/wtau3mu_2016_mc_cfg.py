@@ -1,5 +1,5 @@
 # import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import os
 
 import PhysicsTools.HeppyCore.framework.config as cfg
@@ -81,7 +81,69 @@ selectedComponents = samples
 eventSelector = cfg.Analyzer(
     EventSelector,
     name='EventSelector',
-    toSelect=[1006, 1016, 10062, 10303]
+    toSelect=[
+        19,
+        24,
+        45,
+        46,
+        71,
+        81,
+        87,
+        130,
+        161,
+        171,
+        1014,
+        1084,
+        10003,
+        10007,
+        10009,
+        10012,
+        10016,
+        10044,
+        10072,
+        10089,
+        10092,
+        10096,
+        10098,
+        10103,
+        10106,
+        10114,
+        10136,
+        10138,
+        10195,
+        10209,
+        10214,
+        10246,
+        10292,
+        10307,
+        10309,
+        10317,
+        10335,
+        10343,
+        10377,
+        10415,
+        10427,
+        10429,
+        10448,
+        10462,
+        10463,
+        10473,
+        10506,
+        10511,
+        10516,
+        10522,
+        10542,
+        10549,
+        10580,
+        10587,
+        10611,
+        10613,
+        10615,
+        10620,
+        10662,
+        10663,
+        10695,
+    ]
 )
 
 lheWeightAna = cfg.Analyzer(
@@ -126,6 +188,7 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
+<<<<<<< HEAD
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
 #triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
 #triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]

@@ -215,31 +215,34 @@ class Tau3MuAnalyzer(Analyzer):
                 
                 triplet.hltmatched = [] # initialise to no match
                 
-                triplet.mu1().trig_objs = [] # initialise to no trigger objct matches
-                triplet.mu2().trig_objs = [] # initialise to no trigger objct matches
-                triplet.mu3().trig_objs = [] # initialise to no trigger objct matches
+                triplet.trig_objs = OrderedDict()
+                triplet.trig_objs[1] = [] # initialise to no trigger objct matches
+                triplet.trig_objs[2] = [] # initialise to no trigger objct matches
+                triplet.trig_objs[3] = [] # initialise to no trigger objct matches
     
-                triplet.mu1().trig_matched = False # initialise to no match
-                triplet.mu2().trig_matched = False # initialise to no match
-                triplet.mu3().trig_matched = False # initialise to no match
+                triplet.trig_matched = OrderedDict()
+                triplet.trig_matched[1] = False # initialise to no match
+                triplet.trig_matched[2] = False # initialise to no match
+                triplet.trig_matched[3] = False # initialise to no match
 
-                triplet.mu1().best_trig_match = OrderedDict()
-                triplet.mu2().best_trig_match = OrderedDict()
-                triplet.mu3().best_trig_match = OrderedDict()
-    
+                triplet.best_trig_match = OrderedDict()
+                triplet.best_trig_match[1] = OrderedDict()
+                triplet.best_trig_match[2] = OrderedDict()
+                triplet.best_trig_match[3] = OrderedDict()
+
                 # add all matched objects to each muon
                 for info in event.trigger_infos:
-                
+                                    
                     mykey = '_'.join(info.name.split('_')[:-1])
 
                     # start with simple matching
                     these_objects1 = sorted([obj for obj in info.objects if deltaR(triplet.mu1(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu1()))
                     these_objects2 = sorted([obj for obj in info.objects if deltaR(triplet.mu2(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu2()))
                     these_objects3 = sorted([obj for obj in info.objects if deltaR(triplet.mu3(), obj)<0.15], key = lambda x : deltaR(x, triplet.mu3()))
-                    
-                    triplet.mu1().trig_objs += these_objects1
-                    triplet.mu2().trig_objs += these_objects2
-                    triplet.mu3().trig_objs += these_objects3
+
+                    triplet.trig_objs[1] += these_objects1
+                    triplet.trig_objs[2] += these_objects2
+                    triplet.trig_objs[3] += these_objects3
 
                     # get the set of trigger types from the cfg 
                     trigger_types_to_match = self.cfg_ana.trigger_match[mykey][1]
@@ -248,10 +251,10 @@ class Tau3MuAnalyzer(Analyzer):
                     good_matches = []
 
                     # initialise the matching to None
-                    triplet.mu1().best_trig_match[mykey] = None
-                    triplet.mu2().best_trig_match[mykey] = None
-                    triplet.mu3().best_trig_match[mykey] = None
-                    
+                    triplet.best_trig_match[1][mykey] = None
+                    triplet.best_trig_match[2][mykey] = None
+                    triplet.best_trig_match[3][mykey] = None
+
                     # investigate all the possible matches (triplets, pairs or singlets)
                     for to1, to2, to3 in product(these_objects1, these_objects2, these_objects3):
                         # avoid double matches!
@@ -270,24 +273,10 @@ class Tau3MuAnalyzer(Analyzer):
                     
                     if len(good_matches):
                         good_matches.sort(key = lambda x : deltaR(x[0], triplet.mu1()) + deltaR(x[1], triplet.mu2()) + deltaR(x[2], triplet.mu3()))        
-                        triplet.mu1().best_trig_match[mykey] = good_matches[0][0] if len(good_matches[0])>0 else None
-                        triplet.mu2().best_trig_match[mykey] = good_matches[0][1] if len(good_matches[0])>1 else None
-                        triplet.mu3().best_trig_match[mykey] = good_matches[0][2] if len(good_matches[0])>2 else None
-
-                #
-                ##################
-                ## DEBUG
-                ##################
-                #try:
-                #    ids = [jj.triggerObjectTypes()[0] for jj in [triplet.mu1().best_trig_match[mykey],
-                #                                                 triplet.mu2().best_trig_match[mykey],
-                #                                                 triplet.mu3().best_trig_match[mykey]]]
-                #    print ids
-                #except:
-                #    import pdb ; pdb.set_trace()
-                ##################
-                #                
-
+                        triplet.best_trig_match[1][mykey] = good_matches[0][0] if len(good_matches[0])>0 else None
+                        triplet.best_trig_match[2][mykey] = good_matches[0][1] if len(good_matches[0])>1 else None
+                        triplet.best_trig_match[3][mykey] = good_matches[0][2] if len(good_matches[0])>2 else None
+                
                 # iterate over the path:filters dictionary
                 #     the filters MUST be sorted correctly: i.e. first filter in the dictionary 
                 #     goes with the first muons and so on
@@ -297,34 +286,27 @@ class Tau3MuAnalyzer(Analyzer):
                          continue
                     
                     v = vv[0]
-                         
-                    trigger_filters = []
-
-                    if len(v)>0: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu1')(), [v[0]]) )
-                    if len(v)>1: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu2')(), [v[1]]) )
-                    if len(v)>2: trigger_filters.append( (lambda triplet : getattr(triplet, 'mu3')(), [v[2]]) )
-                                
-                    for getter, filters in trigger_filters:
-                        if not getter(triplet).best_trig_match[k]:
+                                                                 
+                    for ii, filters in enumerate(v):
+                        if not triplet.best_trig_match[ii+1][k]:
                             continue
-                        if set(filters) & set(getter(triplet).best_trig_match[k].filterLabels()):
-                            getter(triplet).trig_matched = True
-                                                    
-                    ismatched = sum([int(jj.trig_matched) for jj in [triplet.mu1(), triplet.mu2(), triplet.mu3()]])            
-                        
-                    if len(trigger_filters) == ismatched:
-                        triplet.hltmatched.append(k)
+                        if set([filters]) & set(triplet.best_trig_match[ii+1][k].filterLabels()):
+                            triplet.trig_matched[ii+1] = True                 
                     
+                    ismatched = sum(triplet.trig_matched.values())            
+                                
+                    if len(v) == ismatched:
+                        triplet.hltmatched.append(k)
+
             seltau3mu = [triplet for triplet in seltau3mu if len(triplet.hltmatched)>0]
             
             if len(seltau3mu) == 0:
                 return False
             self.counters.counter('Tau3Mu').inc('trigger matched')
-                
+            
         event.seltau3mu = seltau3mu
 
-        event.tau3mu = self.bestTriplet(seltau3mu)
-
+        event.tau3mu = self.bestTriplet(event.seltau3mu)
 
         return True
 

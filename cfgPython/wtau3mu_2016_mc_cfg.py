@@ -202,7 +202,7 @@ muonWeighterAna = cfg.Analyzer(
     ## True = use only pT binning, False use 2D ptVSeta binning
     ## NOTE: make sure the second entry is consistent (e.g. (//.json, 'pt', True)    OR    (//.json) 'pt_eta', False))
     ## NOTE: see  the variable name inside the json file
-    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt.json'          % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
+    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt_withZ.json'    % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
@@ -259,7 +259,7 @@ sequence = cfg.Sequence([
     isoAna,
 #     level1Ana,
     bdtAna,
-    #treeProducer,
+    treeProducer,
 ])
 
 ###################################################

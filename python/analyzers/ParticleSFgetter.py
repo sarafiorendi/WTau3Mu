@@ -67,10 +67,10 @@ class ParticleSFgetter():
             return i
 
     ## return a dummy value (1 \pm 1) for muons out of the analysis categories ("even-not-soft muons")
-    def getDummy(self):
+    def getNone(self):
         dmy = OrderedDict()
-        dmy['value'] = 1
-        dmy['error'] = 1
+        dmy['value'] = None
+        dmy['error'] = None
         
         return  dmy
 

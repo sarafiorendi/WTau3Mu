@@ -1,0 +1,9 @@
+wget https://cernbox.cern.ch/index.php/s/rSwLdDbYrKDQnPv/download -O HLT_track_SFs.json 
+wget https://cernbox.cern.ch/index.php/s/qAHyZHi534FVfDd/download -O SF_from_Z_ordered.json
+wget https://cernbox.cern.ch/index.php/s/zFx2BR8sAtM5Aqd/download -O ScaleFactors_RunBH_muonHLT.json
+wget https://cernbox.cern.ch/index.php/s/BpmzdJPMIhv0ic1/download -O ScaleFactors_mediumNOTtight2016_muonID_updt.json
+wget https://cernbox.cern.ch/index.php/s/L1b5dpAFJexqYXf/download -O ScaleFactors_soft2016NOTloose_muonID_updt.json
+wget https://cernbox.cern.ch/index.php/s/Oa4UmNFCxZTJtKc/downlaod -O ScaleFactors_tight2016_muonID_updt.json
+wget https://cernbox.cern.ch/index.php/s/35FRDkee244g1X6/downlaod -O ScaleFactors_tight2016_muonID_updt_withZ.json
+wget https://cernbox.cern.ch/index.php/s/35FRDkee244g1X6/download -O ScaleFactors_looseNOTmedium_muonID_updt.json
+

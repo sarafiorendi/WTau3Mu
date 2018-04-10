@@ -190,13 +190,13 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = (['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ], Counter({83:2, 91:1})) 
-#triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      })) 
-#triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      })) 
-#triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
-#triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
-#triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
-#triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1})) 
-#triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      })) 
+triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      })) 
+triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      })) 
+triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
+triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1})) 
+triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      })) 
   
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
@@ -259,12 +259,12 @@ recoilAna = cfg.Analyzer(
     pfMetRCFile='CMGTools/WTau3Mu/data/recoilCorrections/TypeI-PFMet_Run2016BtoH.root',
 )
 
+## ABOUT muon weighter
+##  jsonFile = (jsonFilepath.json, binningVariable, UsePtOnly)
+##  True = use only pT binning, False use 2D ptVSeta binning
+##  NOTE: make sure the second entry is consistent (e.g. (//.json, 'pt', True)    OR    (//.json) 'pt_eta', False))
 muonWeighterAna = cfg.Analyzer(
     MuonWeighterAnalyzer,
-    ## see below: (json file name, binning variable, UsePtOnly)
-    ## True = use only pT binning, False use 2D ptVSeta binning
-    ## NOTE: make sure the second entry is consistent (e.g. (//.json, 'pt', True)    OR    (//.json) 'pt_eta', False))
-    ## NOTE: see  the variable name inside the json file
     jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt_withZ.json'    % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
@@ -272,8 +272,6 @@ muonWeighterAna = cfg.Analyzer(
     jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT.json'                  % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
     multiplyEventWeight = True,
-    useMuIdSFs = True,
-    useHLTSFs  = True,
     #getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
     getter = lambda event : [event.tau3mu.mu1(), event.tau3mu.mu2(), event.tau3mu.mu3()],
 )
@@ -314,7 +312,7 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-    #jetAna,
+    jetAna,
     genMatchAna,
 #     recoilAna,
     vertexFitter,

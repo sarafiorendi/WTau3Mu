@@ -35,7 +35,6 @@ from CMGTools.WTau3Mu.analyzers.L1TriggerAnalyzer                   import L1Tri
 from CMGTools.WTau3Mu.analyzers.BDTAnalyzer                         import BDTAnalyzer
 from CMGTools.WTau3Mu.analyzers.MVAMuonIDAnalyzer                   import MVAMuonIDAnalyzer
 from CMGTools.WTau3Mu.analyzers.MuonWeighterAnalyzer                import MuonWeighterAnalyzer
-from CMGTools.WTau3Mu.analyzers.HLTWeighterAnalyzer                 import HLTWeighterAnalyzer
 from CMGTools.WTau3Mu.analyzers.RecoilCorrector                     import RecoilCorrector
 
 # import samples, signal
@@ -181,7 +180,7 @@ vertexAna = cfg.Analyzer(
 pileUpAna = cfg.Analyzer(
     PileUpAnalyzer,
     name='PileUpAnalyzer',
-    true=False
+    true=True
 )
 
 genAna = GeneratorAnalyzer.defaultConfig
@@ -197,7 +196,7 @@ triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDi
 triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      })) 
 triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1})) 
 triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      })) 
-  
+
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
     name='Tau3MuAnalyzer',
@@ -303,7 +302,7 @@ fileCleaner = cfg.Analyzer(
 ###                  SEQUENCE                   ###
 ###################################################
 sequence = cfg.Sequence([
-    #eventSelector,
+#    eventSelector,
     lheWeightAna,
     jsonAna,
     skimAna,

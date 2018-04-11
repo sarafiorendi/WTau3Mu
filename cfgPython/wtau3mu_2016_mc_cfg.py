@@ -60,13 +60,13 @@ samples = all_wtau3mu
 
 for sample in samples:
     sample.triggers  = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(4, 5)]
-    sample.triggers += ['HLT_IsoMu24_v%d'                                   %i for i in range(4, 5)]
-    sample.triggers += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(4, 5)]
-    sample.triggers += ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'           %i for i in range(7, 8)]
-    sample.triggers += ['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'         %i for i in range(6, 7)]
-    sample.triggers += ['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'       %i for i in range(3, 4)]
-    sample.triggers += ['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v%d' %i for i in range(7, 8)]
-    sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(4, 5)]
+#     sample.triggers += ['HLT_IsoMu24_v%d'                                   %i for i in range(4, 5)]
+#     sample.triggers += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(4, 5)]
+#     sample.triggers += ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'           %i for i in range(7, 8)]
+#     sample.triggers += ['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'         %i for i in range(6, 7)]
+#     sample.triggers += ['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d'       %i for i in range(3, 4)]
+#     sample.triggers += ['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v%d' %i for i in range(7, 8)]
+#     sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(4, 5)]
 
     sample.splitFactor = splitFactor(sample, 2e3)
     sample.puFileData = puFileData
@@ -189,13 +189,13 @@ genAna.allGenTaus = True # save in event.gentaus *ALL* taus, regardless whether 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
 triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = (['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ], Counter({83:2, 91:1}))
-triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      }))
-triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      }))
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
-triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
-triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1}))
-triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      }))
+# triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      }))
+# triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      }))
+# triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1}))
+# triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      }))
 
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
@@ -203,7 +203,7 @@ tau3MuAna = cfg.Analyzer(
 #     trigger_match=True,
     trigger_match=triggers_and_filters,
     useMVAmet=True,
-    dz_sigma_cut=999, # 5 sigma dz compatibility
+    dz_cut=1, # 1 cm
 )
 
 treeProducer = cfg.Analyzer(

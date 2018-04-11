@@ -2,11 +2,9 @@ import json
 from collections import OrderedDict
 
 class ParticleSFgetter():
-    def __init__(self, jsonFile, SFname, SFbins, usePtOnly):
+    def __init__(self, jsonFile, SFname, SFbins):
         self.jsonFile = jsonFile
         self.particle = None
-
-        self.usePtOnly = usePtOnly
 
         self.sffile = open(self.jsonFile, 'r')
         self.sf     = json.load(self.sffile, object_pairs_hook=OrderedDict)
@@ -17,14 +15,10 @@ class ParticleSFgetter():
         self.particle = particle
 
         pt  = self.particle.pt()
-
-        ## if using 2D SFs (ptVSabseta)
-        if not self.usePtOnly:
-            eta  = self.particle.eta() 
-            ieta = self.getEtaBin(eta)
-            keta = self.sf[self.sfname][self.sfbins].keys()[ieta]
-        ## else use first key as eta key (that should be '0.0, 2.4' and contain all the pt bins keys)
-        else: keta = str(self.sf[self.sfname][self.sfbins].keys()[0])
+        eta  = self.particle.eta() 
+        
+        ieta = self.getEtaBin(eta)
+        keta = self.sf[self.sfname][self.sfbins].keys()[ieta]
 
         ipt = self.getPtBin(keta, pt)
         kpt = self.sf[self.sfname][self.sfbins][keta].keys()[ipt]
@@ -65,3 +59,12 @@ class ParticleSFgetter():
                 if i < (len(ptbins)-1):
                     continue
             return i
+
+    ## return a dummy value (1 \pm 1) for muons out of the analysis categories ("even-not-soft muons")
+    def getNone(self):
+        dmy = OrderedDict()
+        dmy['value'] = None
+        dmy['error'] = None
+        
+        return  dmy
+

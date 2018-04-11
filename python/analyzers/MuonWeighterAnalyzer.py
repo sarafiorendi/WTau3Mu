@@ -1,10 +1,10 @@
 import json
-import ROOT
-from itertools import product
 
-from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from CMGTools.WTau3Mu.analyzers.ParticleSFgetter import ParticleSFgetter
+from itertools      import product
+
+from PhysicsTools.Heppy.analyzers.core.Analyzer         import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle       import AutoHandle
+from CMGTools.WTau3Mu.analyzers.ParticleSFgetter        import ParticleSFgetter
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -15,52 +15,82 @@ class MuonWeighterAnalyzer(Analyzer):
 
     def beginLoop(self, setup):
         super(MuonWeighterAnalyzer, self).beginLoop(setup)
-        self.jsonFileTIH = self.cfg_ana.sffileTIH
-        self.jsonFileMNT = self.cfg_ana.sffileMNT
-        self.jsonFileLNM = self.cfg_ana.sffileLNM
-        self.jsonFileSNL = self.cfg_ana.sffileSNL
+        ## muonID jsons
+        self.jsonFileID_TIH = self.cfg_ana.jsonFileID_TIH
+        self.jsonFileID_MNT = self.cfg_ana.jsonFileID_MNT
+        self.jsonFileID_LNM = self.cfg_ana.jsonFileID_LNM
+        self.jsonFileID_SNL = self.cfg_ana.jsonFileID_SNL
+        ## HLT jsons
+        self.jsonFileHLT_MU = self.cfg_ana.jsonFileHLT_MU
+        self.jsonFileHLT_TK = self.cfg_ana.jsonFileHLT_TK
 
     def process(self, event):
         self.readCollections(event.input)
         
-        muons = self.cfg_ana.getter(event)        
+        muons = self.cfg_ana.getter(event)    
 
         ## init SF getters for each ID
-        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileTIH[0], SFname = "tight2016_muonID"          , SFbins = "pt", usePtOnly = self.jsonFileTIH[1])
-        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileMNT[0], SFname = "mediumNOTtight2016_muonID" , SFbins = "pt", usePtOnly = self.jsonFileMNT[1])
-        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileLNM[0], SFname = "looseNOTmedium_muonID"     , SFbins = "pt", usePtOnly = self.jsonFileLNM[1])
-        jsonGetterSNL = ParticleSFgetter(jsonFile = self.jsonFileSNL[0], SFname = "soft2016NOTloose_muonID"   , SFbins = "pt", usePtOnly = self.jsonFileSNL[1])
+        jsonGetterTIH = ParticleSFgetter(jsonFile = self.jsonFileID_TIH[0], SFname = "tight2016_muonID"          , SFbins = self.jsonFileID_TIH[1])
+        jsonGetterMNT = ParticleSFgetter(jsonFile = self.jsonFileID_MNT[0], SFname = "mediumNOTtight2016_muonID" , SFbins = self.jsonFileID_MNT[1])
+        jsonGetterLNM = ParticleSFgetter(jsonFile = self.jsonFileID_LNM[0], SFname = "looseNOTmedium_muonID"     , SFbins = self.jsonFileID_LNM[1])
+        jsonGetterSNL = ParticleSFgetter(jsonFile = self.jsonFileID_SNL[0], SFname = "soft2016NOTloose_muonID"   , SFbins = self.jsonFileID_SNL[1])
+        jsonGetterMU = ParticleSFgetter(jsonFile = self.jsonFileHLT_MU[0], SFname = 'RunBH_muonID'  , SFbins = self.jsonFileHLT_MU[1])
+        jsonGetterTK = ParticleSFgetter(jsonFile = self.jsonFileHLT_TK[0], SFname = 'HLT_track'     , SFbins = self.jsonFileHLT_TK[1])
         
-        for imu in muons:
-            ## get the SF based in the ID
-            if   imu.muonID('POG_ID_Tight') :   sf = jsonGetterTIH.getSF(imu)
-            elif imu.muonID('POG_ID_Medium'):   sf = jsonGetterMNT.getSF(imu)
-            elif imu.muonID('POG_ID_Loose') :   sf = jsonGetterLNM.getSF(imu)
-            else:                               sf = jsonGetterSNL.getSF(imu)
+        ## get the SF for the HLT
+        HLTmuons = [ mu for ii, mu in enumerate(muons) if event.tau3mu.best_trig_match[ii+1]['HLT_DoubleMu3_Trk_Tau3mu'] is not None and event.tau3mu.best_trig_match[ii+1]['HLT_DoubleMu3_Trk_Tau3mu'].triggerObjectTypes()[0] == 83]
+        HLTtrack = [ tk for ii, tk in enumerate(muons) if event.tau3mu.best_trig_match[ii+1]['HLT_DoubleMu3_Trk_Tau3mu'] is not None and event.tau3mu.best_trig_match[ii+1]['HLT_DoubleMu3_Trk_Tau3mu'].triggerObjectTypes()[0] == 91]
 
-            imu.idweight    =  sf['value'] if sf['value'] is not None else 1
-            imu.idweightunc =  sf['error'] if sf['error'] is not None else 1
-            
-            if hasattr(imu, 'weight'):
-                imu.weight *= imu.idweight
-            else:
-                imu.weight  = imu.idweight
+        ## Offline muon ID weight
+        for mu in muons:
+        ## get the SF for the ID
+            if   mu.muonID('POG_ID_Tight') :   sf = jsonGetterTIH.getSF(mu)
+            elif mu.muonID('POG_ID_Medium'):   sf = jsonGetterMNT.getSF(mu)
+            elif mu.muonID('POG_ID_Loose') :   sf = jsonGetterLNM.getSF(mu)
+            elif mu.muonID('POG_ID_Soft')  :   sf = jsonGetterSNL.getSF(mu)
+            else                           :   sf = jsonGetterSNL.getNone()
 
-            if getattr(self.cfg_ana, 'multiplyEventWeight', True):
-                if hasattr(event, 'eventWeight'):
-                    event.eventWeight *= imu.idweight
-                else:
-                    event.eventWeight  = imu.idweight
+            mu.idweight    =  sf['value'] if sf['value'] is not None else 1
+            mu.idweightunc =  sf['error'] if sf['error'] is not None else 1
+       
+            mu.weight = mu.weight * mu.idweight if hasattr(mu, 'weight') else mu.idweight
 
+        ## HLT muon ID weight
+        for mu in HLTmuons: 
+            sf = jsonGetterMU.getSF(mu)
+            mu.HLTWeightMU    = sf['value'] if sf['value'] is not None else 1
+            mu.HLTWeightUncMU = sf['error'] if sf['error'] is not None else 1
+
+            mu.weight = mu.weight * mu.HLTWeightMU if hasattr(mu, 'weight') else mu.HLTWeightMU
+
+        ## HLT track ID weight (assigned on tau)
+        tauObject = muons[0].p4() + muons[1].p4() + muons[2].p4()
+
+        sf = jsonGetterTK.getSF(tauObject)
+
+        event.tau3mu.HLTWeightTK    = sf['value'] if sf['value'] is not None else 1
+        event.tau3mu.HLTWeightUncTK = sf['error'] if sf['error'] is not None else 1
+
+        event.tau3mu.weight = event.tau3mu.weight * event.tau3mu.HLTWeightTK if hasattr(event.tau3mu, 'weight') else event.tau3mu.HLTWeightTK
+
+        ## define the final event weight
+        if not getattr(self.cfg_ana, 'multiplyEventWeight'): event.eventWeight = 1      
+
+        for mu in muons:
+            if not hasattr(mu, 'weight'): mu.weight = 1
+            event.eventWeight = event.eventWeight * mu.weight if hasattr(event, 'eventWeight') else mu.weight
+
+        event.eventWeight = event.eventWeight * event.tau3mu.weight if hasattr(event, 'eventWeight') else event.tau3mu.weight
+        
         return True        
         
     def endLoop(self, setup):
+        self.eventList.close()
         super(MuonWeighterAnalyzer, self).endLoop(setup)
 
 
 setattr(MuonWeighterAnalyzer, 'defaultConfig', 
     cfg.Analyzer(
         class_object=MuonWeighterAnalyzer,
-        getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
     )
 )

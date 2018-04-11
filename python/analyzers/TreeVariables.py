@@ -185,7 +185,7 @@ muon_vars = [
     Variable('muonid_tight'     , lambda muon : muon.muonID('POG_ID_Tight')                       ),
     Variable('muonid_tightnovtx', lambda muon : muon.muonID('POG_ID_TightNoVtx')                  ),
     Variable('muonid_highpt'    , lambda muon : muon.muonID('POG_ID_HighPt')                      ),
-    Variable('muonid_BDT'       , lambda muon : muon.BDTvalue                                     ),
+    #Variable('muonid_BDT'       , lambda muon : muon.BDTvalue                                     ),
 ]
 
 muon_extra_vars = [

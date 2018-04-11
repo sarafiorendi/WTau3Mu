@@ -95,9 +95,6 @@ triplet_vars = [
     Variable('tau_absChargedFromPV'              , lambda cand : cand.absChargedFromPV                  ),
     Variable('tau_absChargedFromPU'              , lambda cand : cand.absChargedFromPU                  ),
     Variable('tau_absPhotonRaw'                  , lambda cand : cand.absPhotonRaw                      ),
-    Variable('dz12_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility12', default())),
-    Variable('dz13_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility13', default())),
-    Variable('dz23_nsigma'                       , lambda cand : getattr(cand, 'dzcompatibility23', default())),
 ]
 
 # generic particle
@@ -122,6 +119,7 @@ l1obj_vars = [
 lepton_vars = [
     Variable('dxy'          , lambda lep : lep.dxy()),
     Variable('dxy_error'    , lambda lep : lep.edxy() if hasattr(lep, 'edxy') else lep.dxy_error()),
+    Variable('z'            , lambda lep : lep.vz()),
     Variable('dz'           , lambda lep : lep.leadChargedHadrCand().dz() if hasattr(lep, 'leadChargedHadrCand') else lep.dz()),
     Variable('dz_error'     , lambda lep : lep.edz() if hasattr(lep, 'edz') else -1.),
     Variable('weight_id'    , lambda lep : getattr(lep, 'idweight', 1.)),

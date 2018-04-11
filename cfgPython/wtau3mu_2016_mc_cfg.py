@@ -260,16 +260,14 @@ recoilAna = cfg.Analyzer(
 
 ## ABOUT muon weighter
 ##  jsonFile = (jsonFilepath.json, binningVariable, UsePtOnly)
-##  True = use only pT binning, False use 2D ptVSeta binning
-##  NOTE: make sure the second entry is consistent (e.g. (//.json, 'pt', True)    OR    (//.json) 'pt_eta', False))
 muonWeighterAna = cfg.Analyzer(
     MuonWeighterAnalyzer,
-    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt_withZ.json'    % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
-    jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
-    jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
-    jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
-    jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT.json'                  % os.path.expandvars('$CMSSW_BASE')  , 'pt', True),
-    jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'ds_pt', True),
+    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt_withZ.json'    % os.path.expandvars('$CMSSW_BASE')  , 'pt'),
+    jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt'),
+    jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt'),
+    jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt'),
+    jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT.json'                  % os.path.expandvars('$CMSSW_BASE')  , 'pt'),
+    jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'ds_pt'),
     multiplyEventWeight = True,
     #getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
     getter = lambda event : [event.tau3mu.mu1(), event.tau3mu.mu2(), event.tau3mu.mu3()],
@@ -311,7 +309,7 @@ sequence = cfg.Sequence([
     vertexAna,
     pileUpAna,
     tau3MuAna,
-    #jetAna,
+    jetAna,
     genMatchAna,
 #     recoilAna,
     vertexFitter,
@@ -319,7 +317,7 @@ sequence = cfg.Sequence([
     isoAna,
 #     level1Ana,
     bdtAna,
-    #treeProducer,
+    treeProducer,
 ])
 
 ###################################################

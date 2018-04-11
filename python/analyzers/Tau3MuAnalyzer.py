@@ -181,21 +181,18 @@ class Tau3MuAnalyzer(Analyzer):
             return False
         self.counters.counter('Tau3Mu').inc('m < 3 GeV')
 
-        # z vertex compatibility among mu mu pi
-        dzsigmacut = getattr(self.cfg_ana, 'dz_sigma_cut', 5) # 5 sigma compatibility, pretty loose, but fwd tracks back pointing is pretty loose, innit?
+        # max longitudinal distance among the three muons
+        dzcut = getattr(self.cfg_ana, 'dz_cut', 1) # 1 cm
         
         seltau3mu_tmp = []
         
         for tt in seltau3mu:
         
-            tt.dzcompatibility12 = np.float64(abs(tt.mu1().dz()-tt.mu2().dz())) / math.sqrt(tt.mu1().dzError()**2 + tt.mu2().dzError()**2)
-            tt.dzcompatibility13 = np.float64(abs(tt.mu1().dz()-tt.mu3().dz())) / math.sqrt(tt.mu1().dzError()**2 + tt.mu3().dzError()**2)
-            tt.dzcompatibility23 = np.float64(abs(tt.mu2().dz()-tt.mu3().dz())) / math.sqrt(tt.mu2().dzError()**2 + tt.mu3().dzError()**2)
-            
-            if tt.dzcompatibility12 < dzsigmacut and \
-               tt.dzcompatibility13 < dzsigmacut and \
-               tt.dzcompatibility23 < dzsigmacut :
-
+            max_distance = max([ abs(tt.mu1().vz()-tt.mu2().vz()),
+                                 abs(tt.mu1().vz()-tt.mu3().vz()),
+                                 abs(tt.mu2().vz()-tt.mu3().vz()) ])
+        
+            if max_distance < dzcut:
                 seltau3mu_tmp.append(tt)            
 
         seltau3mu = seltau3mu_tmp                       

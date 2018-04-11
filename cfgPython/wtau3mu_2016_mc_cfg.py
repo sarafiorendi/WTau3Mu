@@ -203,7 +203,7 @@ tau3MuAna = cfg.Analyzer(
 #     trigger_match=True,
     trigger_match=triggers_and_filters,
     useMVAmet=True,
-    dz_sigma_cut=999, # 5 sigma dz compatibility
+    dz_cut=1, # 1 cm
 )
 
 treeProducer = cfg.Analyzer(

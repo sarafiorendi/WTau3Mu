@@ -1,7 +1,6 @@
 # heppy_batch.py -o /eos/cms/store/group/phys_tau/WTau3Mu/mvamet2016/prod_v5 wtau3mu_2016_data_doublemu_cfg.py -b 'bsub -u hjkagsdjhga -q 8nh < ./batchScript.sh'
+from collections import OrderedDict, Counter
 
-# import dill # needed in order to serialise lambda functions, need to be installed by the user. See http://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions
-from collections import OrderedDict
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config     import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -59,16 +58,16 @@ for sample in samples:
     # triggers you want in DoubleMuonLowMass
     sample.triggers     = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(1, 12)]
 
-    # triggers you want in SingleMuon
-    sample.triggers     = ['HLT_IsoMu24_v%d'                                   %i for i in range(1, 12)]
-    sample.triggers    += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(1, 12)]
-
-    # triggers you want in DoubleMuon
-    sample.triggers     = ['HLT_IsoMu24_v%d'                                   %i for i in range(1, 12)]
-    sample.triggers    += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(1, 12)]
-
-    # triggers you don't, suppose you run on two different datasets
-    sample.vetoTriggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(1, 12)]
+#     # triggers you want in SingleMuon
+#     sample.triggers     = ['HLT_IsoMu24_v%d'                                   %i for i in range(1, 12)]
+#     sample.triggers    += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(1, 12)]
+# 
+#     # triggers you want in DoubleMuon
+#     sample.triggers     = ['HLT_IsoMu24_v%d'                                   %i for i in range(1, 12)]
+#     sample.triggers    += ['HLT_IsoTkMu24_v%d'                                 %i for i in range(1, 12)]
+# 
+#     # triggers you don't, suppose you run on two different datasets
+#     sample.vetoTriggers = ['HLT_DoubleMu3_Trk_Tau3mu_v%d'                      %i for i in range(1, 12)]
 
 
 #     sample.triggers += ['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d'           %i for i in range(1, 12)]
@@ -78,7 +77,7 @@ for sample in samples:
 #     sample.triggers += ['HLT_TripleMu_12_10_5_v%d'                          %i for i in range(1, 12)]
 
 
-    sample.splitFactor = splitFactor(sample, 1e5)
+    sample.splitFactor = splitFactor(sample, 5e4)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt'
 
 selectedComponents = samples
@@ -133,14 +132,14 @@ pileUpAna = cfg.Analyzer(
 
 # for each path specify which filters you want the muons to match to
 triggers_and_filters = OrderedDict()
-triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = ['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ]
-triggers_and_filters['HLT_IsoMu24'                                  ] = ['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ]
-triggers_and_filters['HLT_IsoTkMu24'                                ] = ['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ]
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = ['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = ['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = ['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ]
-triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = ['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ]
-triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = ['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105']
+triggers_and_filters['HLT_DoubleMu3_Trk_Tau3mu'                     ] = (['hltTau3muTkVertexFilter'                              , 'hltTau3muTkVertexFilter'                             , 'hltTau3muTkVertexFilter'                             ], Counter({83:2, 91:1}))
+# triggers_and_filters['HLT_IsoMu24'                                  ] = (['hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09'                                                                                                                ], Counter({83:1      }))
+# triggers_and_filters['HLT_IsoTkMu24'                                ] = (['hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09'                                                                                                                          ], Counter({83:1      }))
+# triggers_and_filters['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'          ] = (['hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'        ] = (['hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'      ] = (['hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'  , 'hltDiMuonTrk17Trk8RelTrkIsoFiltered0p4DzFiltered0p2'                                                         ], Counter({83:2      }))
+# triggers_and_filters['HLT_DoubleMu4_LowMassNonResonantTrk_Displaced'] = (['hltLowMassNonResonantTkVertexFilter'                  , 'hltLowMassNonResonantTkVertexFilter'                 , 'hltLowMassNonResonantTkVertexFilter'                 ], Counter({83:2, 91:1}))
+# triggers_and_filters['HLT_TripleMu_12_10_5'                         ] = (['hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105' , 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105', 'hltL1TripleMu553L2TriMuFiltered3L3TriMuFiltered12105'], Counter({83:3      }))
 
 tau3MuAna = cfg.Analyzer(
     Tau3MuAnalyzer,
@@ -148,6 +147,7 @@ tau3MuAna = cfg.Analyzer(
 #     trigger_match=True,
     trigger_match=triggers_and_filters,
     useMVAmet=True,
+    dz_cut=1, # 1 cm
 )
 
 treeProducer = cfg.Analyzer(
@@ -260,16 +260,16 @@ sequence = cfg.Sequence([
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-#     comp                 = samples[-7]
-#     selectedComponents   = [comp]
-    selectedComponents   = [samples[-7], samples[-5]]
-#     comp.splitFactor     = 1
+    comp                 = samples[-7]
+    selectedComponents   = [comp]
+#     selectedComponents   = [samples[-7], samples[-5]]
+    comp.splitFactor     = 1
 #     comp.fineSplitFactor = 4
 
-    for comp in selectedComponents:
-        comp.fineSplitFactor = 4
+#     for comp in selectedComponents:
+#         comp.fineSplitFactor = 4
 
-#     comp.files           = comp.files[:1]
+    comp.files           = comp.files[:1]
 #     comp.files = [
 #          'file:/eos/cms/store/group/phys_tau/WTau3Mu/mvamet2016/mvamet_from_cpp_data/DoubleMuonLowMass_Run2016G_23Sep2016/cmsswPreProcessing.root'
 #        'root://xrootd.unl.edu//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v1/000/272/760/00000/68B88794-7015-E611-8A92-02163E01366C.root'

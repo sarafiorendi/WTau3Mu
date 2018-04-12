@@ -268,11 +268,36 @@ class Tau3MuAnalyzer(Analyzer):
                         if itypes & trigger_types_to_match == trigger_types_to_match:
                             good_matches.append((to1, to2, to3))
                     
+                    
                     if len(good_matches):
                         good_matches.sort(key = lambda x : deltaR(x[0], triplet.mu1()) + deltaR(x[1], triplet.mu2()) + deltaR(x[2], triplet.mu3()))        
-                        triplet.best_trig_match[1][mykey] = good_matches[0][0] if len(good_matches[0])>0 else None
-                        triplet.best_trig_match[2][mykey] = good_matches[0][1] if len(good_matches[0])>1 else None
-                        triplet.best_trig_match[3][mykey] = good_matches[0][2] if len(good_matches[0])>2 else None
+
+                        # ONLY for HLT_DoubleMu3_Trk_Tau3mu
+                        # it might happen that more than one combination of trk mu mu is found,
+                        # make sure that the online 3-body mass cut is satisfied by the matched objects
+                        if mykey == 'HLT_DoubleMu3_Trk_Tau3mu':
+                            
+                            good_matches_tmp = []
+                            
+                            for im in good_matches:
+                                p4_1 = ROOT.TLorentzVector()
+                                p4_2 = ROOT.TLorentzVector()
+                                p4_3 = ROOT.TLorentzVector()
+
+                                p4_1.SetPtEtaPhiM(im[0].pt(), im[0].eta(), im[0].phi(), 0.10565999895334244)                        
+                                p4_2.SetPtEtaPhiM(im[1].pt(), im[1].eta(), im[1].phi(), 0.10565999895334244)
+                                p4_3.SetPtEtaPhiM(im[2].pt(), im[2].eta(), im[2].phi(), 0.10565999895334244)
+                                        
+                                totp4 = p4_1 + p4_2 + p4_3
+                                
+                                if totp4.M()>1.6 and totp4.M()<2.02:
+                                    good_matches_tmp.append(im)
+                            
+                            good_matches = good_matches_tmp
+                            
+                        triplet.best_trig_match[1][mykey] = good_matches[0][0] if len(good_matches) and len(good_matches[0])>0 else None
+                        triplet.best_trig_match[2][mykey] = good_matches[0][1] if len(good_matches) and len(good_matches[0])>1 else None
+                        triplet.best_trig_match[3][mykey] = good_matches[0][2] if len(good_matches) and len(good_matches[0])>2 else None
                 
                 # iterate over the path:filters dictionary
                 #     the filters MUST be sorted correctly: i.e. first filter in the dictionary 
@@ -300,7 +325,7 @@ class Tau3MuAnalyzer(Analyzer):
             if len(seltau3mu) == 0:
                 return False
             self.counters.counter('Tau3Mu').inc('trigger matched')
-            
+                        
         event.seltau3mu = seltau3mu
 
         event.tau3mu = self.bestTriplet(event.seltau3mu)

@@ -84,11 +84,6 @@ class MuonWeighterAnalyzer(Analyzer):
         
         return True        
         
-    def endLoop(self, setup):
-        self.eventList.close()
-        super(MuonWeighterAnalyzer, self).endLoop(setup)
-
-
 setattr(MuonWeighterAnalyzer, 'defaultConfig', 
     cfg.Analyzer(
         class_object=MuonWeighterAnalyzer,

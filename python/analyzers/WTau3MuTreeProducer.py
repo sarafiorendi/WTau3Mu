@@ -73,6 +73,17 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.var(self.tree, 'bdt_proba')
         self.var(self.tree, 'bdt_decision')
         
+        # more on weights
+        self.var(self.tree, 'mu1_id_sf')
+        self.var(self.tree, 'mu2_id_sf')
+        self.var(self.tree, 'mu3_id_sf')
+
+        self.var(self.tree, 'mu1_hlt_sf')
+        self.var(self.tree, 'mu2_hlt_sf')
+        self.var(self.tree, 'mu3_hlt_sf')
+
+        self.var(self.tree, 'trk_hlt_sf')
+        
     def process(self, event):
         '''
         '''
@@ -218,7 +229,6 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         if hasattr(event, 'bdt_decision'):
             self.fill(self.tree, 'bdt_decision', event.bdt_decision)
  
-
         # jet variables
         if len(event.cleanJets)>0:
             self.fillJet(self.tree, 'jet1', event.cleanJets[0], fill_extra=False)
@@ -233,6 +243,17 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.fill(self.tree, 'HTbjets', event.HT_bJets       )
         self.fill(self.tree, 'njets'  , len(event.cleanJets) )
         self.fill(self.tree, 'nbjets' , len(event.cleanBJets))
+
+        # weights
+        self.fill(self.tree, 'mu1_id_sf' , getattr(event.tau3mu.mu1(), 'idweight'   , 1.))
+        self.fill(self.tree, 'mu2_id_sf' , getattr(event.tau3mu.mu2(), 'idweight'   , 1.))
+        self.fill(self.tree, 'mu3_id_sf' , getattr(event.tau3mu.mu3(), 'idweight'   , 1.))
+
+        self.fill(self.tree, 'mu1_hlt_sf', getattr(event.tau3mu.mu1(), 'HLTWeightMU', 1.))
+        self.fill(self.tree, 'mu2_hlt_sf', getattr(event.tau3mu.mu2(), 'HLTWeightMU', 1.))
+        self.fill(self.tree, 'mu3_hlt_sf', getattr(event.tau3mu.mu3(), 'HLTWeightMU', 1.))
+
+        self.fill(self.tree, 'trk_hlt_sf', getattr(event.tau3mu      , 'HLTWeightTK', 1.))
 
         self.fillTree(event)
 

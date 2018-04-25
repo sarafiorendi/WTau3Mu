@@ -5,7 +5,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--basedir'   , dest='basedir'   , default='../cfgPython')
 parser.add_argument('--jobid'     , dest='jobid'     , default='')
 parser.add_argument('--selection' , dest='selection' , default='bdt_proba>0.5')
-parser.add_argument('--signalnorm', dest='signalnorm', default=35900./20000.*21490.9*2.1E-8) # normalize to Belle's BR
+parser.add_argument('--signalnorm', dest='signalnorm', default=33183./20000.*21490.9*1E-7) # normalize to BR = 1E-7. In this formula: lumi / ngen events * pp->W, BR W->taunu * BR tau->3mu
 parser.add_argument('--category'  , dest='category'  , default='')
 parser.add_argument('--datafile'  , dest='datafile'  , default=None)
 parser.add_argument('--sigfile'   , dest='sigfile'   , default=None)
@@ -123,6 +123,7 @@ data =  ROOT.RooDataSet(
     ROOT.RooArgSet(w.var('mass'))
 )
 
+# import pdb ; pdb.set_trace()
 
 getattr(w,'import')(data)
 w.Write()
@@ -158,3 +159,4 @@ a1{cat}       flatParam
          bkg    = data.numEntries()
          )
 )
+

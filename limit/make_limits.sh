@@ -1,7 +1,6 @@
 #! /bin/bash
 
-
-wps='0.65 0.70 0.75 0.80 0.85 0.90 0.92'
+wps='0.65 0.70 0.75 0.80 0.82 0.84 0.86 0.88 0.89 0.90 0.91 0.92 0.94'
 for wp in $wps
     do
     echo "WP "$wp
@@ -16,7 +15,7 @@ for wp in $wps
     text2workspace.py $datacard -o $model 
     
 #     echo 'computing the 95% limit'
-#     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5 &> central_0.95_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5 &> central_0.95_WP$wp.txt
 #     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.16 &> plus_one_sigma_0.95_WP$wp.txt
 #     combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.84 &> minus_one_sigma_0.95_WP$wp.txt
     

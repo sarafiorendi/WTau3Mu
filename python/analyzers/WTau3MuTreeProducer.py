@@ -74,15 +74,24 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.var(self.tree, 'bdt_decision')
         
         # more on weights
-        self.var(self.tree, 'mu1_id_sf')
-        self.var(self.tree, 'mu2_id_sf')
-        self.var(self.tree, 'mu3_id_sf')
+        self.var(self.tree, 'mu1_id_sf'   )
+        self.var(self.tree, 'mu2_id_sf'   )
+        self.var(self.tree, 'mu3_id_sf'   )
 
-        self.var(self.tree, 'mu1_hlt_sf')
-        self.var(self.tree, 'mu2_hlt_sf')
-        self.var(self.tree, 'mu3_hlt_sf')
+        self.var(self.tree, 'mu1_id_sf_e' )
+        self.var(self.tree, 'mu2_id_sf_e' )
+        self.var(self.tree, 'mu3_id_sf_e' )
 
-        self.var(self.tree, 'trk_hlt_sf')
+        self.var(self.tree, 'mu1_hlt_sf'  )
+        self.var(self.tree, 'mu2_hlt_sf'  )
+        self.var(self.tree, 'mu3_hlt_sf'  )
+
+        self.var(self.tree, 'mu1_hlt_sf_e')
+        self.var(self.tree, 'mu2_hlt_sf_e')
+        self.var(self.tree, 'mu3_hlt_sf_e')
+
+        self.var(self.tree, 'trk_hlt_sf'  )
+        self.var(self.tree, 'trk_hlt_sf_e')
         
     def process(self, event):
         '''
@@ -245,15 +254,24 @@ class WTau3MuTreeProducer(WTau3MuTreeProducerBase):
         self.fill(self.tree, 'nbjets' , len(event.cleanBJets))
 
         # weights
-        self.fill(self.tree, 'mu1_id_sf' , getattr(event.tau3mu.mu1(), 'idweight'   , 1.))
-        self.fill(self.tree, 'mu2_id_sf' , getattr(event.tau3mu.mu2(), 'idweight'   , 1.))
-        self.fill(self.tree, 'mu3_id_sf' , getattr(event.tau3mu.mu3(), 'idweight'   , 1.))
+        self.fill(self.tree, 'mu1_id_sf'   , getattr(event.tau3mu.mu1(), 'idweight'      , 1.))
+        self.fill(self.tree, 'mu2_id_sf'   , getattr(event.tau3mu.mu2(), 'idweight'      , 1.))
+        self.fill(self.tree, 'mu3_id_sf'   , getattr(event.tau3mu.mu3(), 'idweight'      , 1.))
 
-        self.fill(self.tree, 'mu1_hlt_sf', getattr(event.tau3mu.mu1(), 'HLTWeightMU', 1.))
-        self.fill(self.tree, 'mu2_hlt_sf', getattr(event.tau3mu.mu2(), 'HLTWeightMU', 1.))
-        self.fill(self.tree, 'mu3_hlt_sf', getattr(event.tau3mu.mu3(), 'HLTWeightMU', 1.))
+        self.fill(self.tree, 'mu1_id_sf_e' , getattr(event.tau3mu.mu1(), 'idweightunc'   , 0.))
+        self.fill(self.tree, 'mu2_id_sf_e' , getattr(event.tau3mu.mu2(), 'idweightunc'   , 0.))
+        self.fill(self.tree, 'mu3_id_sf_e' , getattr(event.tau3mu.mu3(), 'idweightunc'   , 0.))
 
-        self.fill(self.tree, 'trk_hlt_sf', getattr(event.tau3mu      , 'HLTWeightTK', 1.))
+        self.fill(self.tree, 'mu1_hlt_sf'  , getattr(event.tau3mu.mu1(), 'HLTWeightMU'   , 1.))
+        self.fill(self.tree, 'mu2_hlt_sf'  , getattr(event.tau3mu.mu2(), 'HLTWeightMU'   , 1.))
+        self.fill(self.tree, 'mu3_hlt_sf'  , getattr(event.tau3mu.mu3(), 'HLTWeightMU'   , 1.))
+
+        self.fill(self.tree, 'mu1_hlt_sf_e', getattr(event.tau3mu.mu1(), 'HLTWeightUncMU', 0.))
+        self.fill(self.tree, 'mu2_hlt_sf_e', getattr(event.tau3mu.mu2(), 'HLTWeightUncMU', 0.))
+        self.fill(self.tree, 'mu3_hlt_sf_e', getattr(event.tau3mu.mu3(), 'HLTWeightUncMU', 0.))
+
+        self.fill(self.tree, 'trk_hlt_sf'  , getattr(event.tau3mu      , 'HLTWeightTK'   , 1.))
+        self.fill(self.tree, 'trk_hlt_sf_e', getattr(event.tau3mu      , 'HLTWeightUncTK', 0.))
 
         self.fillTree(event)
 

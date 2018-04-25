@@ -94,10 +94,17 @@ w = ROOT.RooWorkspace('t3m_shapes')
 # dump linear parametrization of bkg
 # peek at the factory syntax
 # https://agenda.infn.it/getFile.py/access?contribId=15&resId=0&materialId=slides&confId=5719
+
+# first order poly
 w.factory('mass[%f, %f]' % (1.61, 1.99))
-w.factory('a0%s[3]' %(args.category))
-w.factory('a1%s[0]' %(args.category))
-w.factory('RooPolynomial::bkg(mass,{a0%s, a1%s})' %(args.category, args.category))
+w.factory('a0%s[0]' %(args.category))
+w.factory('RooPolynomial::bkg(mass,{a0%s})' %args.category)
+
+# second order poly
+# w.factory('mass[%f, %f]' % (1.61, 1.99))
+# w.factory('a0%s[3]' %(args.category))
+# w.factory('a1%s[0]' %(args.category))
+# w.factory('RooPolynomial::bkg(mass,{a0%s, a1%s})' %(args.category, args.category))
 
 # dump signal with fixed shape (the final fit will only vary the normalisation
 w.factory('mean[%f]'  % mean)
@@ -129,6 +136,7 @@ getattr(w,'import')(data)
 w.Write()
 output.Close()
 
+
 # dump the datacard
 with open('datacard%s.txt' %args.category, 'w') as card:
    card.write(
@@ -151,12 +159,72 @@ rate                                    {signal:.4f}            {bkg:.4f}
 --------------------------------------------------------------------------------
 bkgNorm{cat}  lnU                       -                   4.00
 a0{cat}       flatParam
-a1{cat}       flatParam
+lumi          lnN                       1.025               -   
+xs_W          lnN                       1.05                -   
+br_Wtaunu     lnN                       1.0021              -   
+mc_stat       lnN                       {mcstat:.4f}        -   
+mu_id{cat}    lnN                       {mu_id:.4f}         -   
+mu_hlt{cat}   lnN                       {mu_hlt:.4f}        -   
+trk_hlt{cat}  lnN                       {trk_hlt:.4f}       -   
+hlt_extrap    lnN                       1.05                -   
 --------------------------------------------------------------------------------
 '''.format(
          cat    = args.category,
          signal = sqrt(2.*pi) * sigma * amplitude / 0.01, # area under the normal divided by the bin width (10 MeV)
-         bkg    = data.numEntries()
+         bkg    = data.numEntries(),
+         mcstat = 1. + sqrt(mass_histo_mc.Integral()/args.signalnorm)/mass_histo_mc.Integral()*args.signalnorm,
+         mu_id  = 0.044  if 'barrel' in args.category else 0.078,
+         mu_hlt = 0.012  if 'barrel' in args.category else 0.040,
+         trk_hlt= 0.0086 if 'barrel' in args.category else 0.0086,
          )
 )
 
+
+# import pdb ; pdb.set_trace()
+
+# 
+# 
+# 
+# # dump the datacard
+# with open('datacard%s.txt' %args.category, 'w') as card:
+#    card.write(
+# '''
+# imax 1 number of bins
+# jmax * number of processes minus 1
+# kmax * number of nuisance parameters
+# --------------------------------------------------------------------------------
+# shapes background    Wtau3mu{cat}       datacard{cat}.root t3m_shapes:bkg
+# shapes signal        Wtau3mu{cat}       datacard{cat}.root t3m_shapes:sig
+# shapes data_obs      Wtau3mu{cat}       datacard{cat}.root t3m_shapes:data_obs
+# --------------------------------------------------------------------------------
+# bin               Wtau3mu{cat}
+# observation       -1
+# --------------------------------------------------------------------------------
+# bin                                     Wtau3mu{cat}        Wtau3mu{cat}
+# process                                 signal              background
+# process                                 0                   1
+# rate                                    {signal:.4f}            {bkg:.4f}
+# --------------------------------------------------------------------------------
+# bkgNorm{cat}  lnU                       -                   4.00
+# a0{cat}       flatParam
+# a1{cat}       flatParam
+# lumi          lnN                       1.025               -   
+# xs_W          lnN                       1.01                -   
+# br_Wtaunu     lnN                       1.0021              -   
+# mc_stat       lnN                       {mcstat:.4f}        -   
+# mu_id{cat}    lnN                       {mu_id:.4f}         -   
+# mu_hlt{cat}   lnN                       {mu_hlt:.4f}        -   
+# trk_hlt{cat}  lnN                       {trk_hlt:.4f}       -   
+# hlt_extrap    lnN                       1.05                -   
+# --------------------------------------------------------------------------------
+# '''.format(
+#          cat    = args.category,
+#          signal = sqrt(2.*pi) * sigma * amplitude / 0.01, # area under the normal divided by the bin width (10 MeV)
+#          bkg    = data.numEntries(),
+#          mcstat = 1. + sqrt(mass_histo_mc.Integral()/args.signalnorm)/mass_histo_mc.Integral()*args.signalnorm,
+#          mu_id  = 0.044  if args.category=='barrel' else 0.078,
+#          mu_hlt = 0.012  if args.category=='barrel' else 0.040,
+#          trk_hlt= 0.0086 if args.category=='barrel' else 0.0086,
+#          )
+# )
+# 

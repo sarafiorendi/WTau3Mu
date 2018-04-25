@@ -2,8 +2,8 @@
 
 data="/eos/user/m/manzoni/WTau3Mu/ntuples_16_4_2018/data_enriched_16apr2018v16.root"
 mc="/eos/user/m/manzoni/WTau3Mu/ntuples_16_4_2018/signal_enriched_16apr2018v16.root"
-# wps='0.65 0.70 0.75 0.80 0.85 0.90 0.92'
-wps='0.65 0.70 0.75 0.80 0.82 0.84 0.86 0.88 0.89 0.90 0.91 0.92 0.94'
+# wps='0.65 0.70 0.75 0.80 0.82 0.84 0.86 0.88 0.89 0.90 0.91 0.92 0.94'
+wps='0.89'
 
 for wp in $wps
     do

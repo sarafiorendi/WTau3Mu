@@ -51,7 +51,7 @@ class MuonWeighterAnalyzer(Analyzer):
             else                           :   sf = jsonGetterSNL.getNone()
 
             mu.idweight    =  sf['value'] if sf['value'] is not None else 1
-            mu.idweightunc =  sf['error'] if sf['error'] is not None else 1
+            mu.idweightunc =  sf['error'] if sf['error'] is not None else 0
        
             mu.weight = mu.weight * mu.idweight if hasattr(mu, 'weight') else mu.idweight
 
@@ -59,7 +59,7 @@ class MuonWeighterAnalyzer(Analyzer):
         for mu in HLTmuons: 
             sf = jsonGetterMU.getSF(mu)
             mu.HLTWeightMU    = sf['value'] if sf['value'] is not None else 1
-            mu.HLTWeightUncMU = sf['error'] if sf['error'] is not None else 1
+            mu.HLTWeightUncMU = sf['error'] if sf['error'] is not None else 0
 
             mu.weight = mu.weight * mu.HLTWeightMU if hasattr(mu, 'weight') else mu.HLTWeightMU
 
@@ -69,7 +69,7 @@ class MuonWeighterAnalyzer(Analyzer):
         sf = jsonGetterTK.getSF(tauObject)
 
         event.tau3mu.HLTWeightTK    = sf['value'] if sf['value'] is not None else 1
-        event.tau3mu.HLTWeightUncTK = sf['error'] if sf['error'] is not None else 1
+        event.tau3mu.HLTWeightUncTK = sf['error'] if sf['error'] is not None else 0
 
         event.tau3mu.weight = event.tau3mu.weight * event.tau3mu.HLTWeightTK if hasattr(event.tau3mu, 'weight') else event.tau3mu.HLTWeightTK
 

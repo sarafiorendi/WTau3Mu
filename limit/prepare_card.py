@@ -196,7 +196,8 @@ w = ROOT.RooWorkspace('t3m_shapes')
 
 # first order poly
 w.factory('mass[%f, %f]' % (1.61, 1.99))
-w.factory('a0%s[%.3f]' %(args.category, max(slope, 0.)))
+# w.factory('a0%s[%.3f]' %(args.category, max(slope, 0.)))
+w.factory('a0%s[%.3f,-10,10]' %(args.category, max(slope, 0.)))
 w.factory('RooPolynomial::bkg(mass,{a0%s})' %args.category)
 
 # dump signal with fixed shape (the final fit will only vary the normalisation

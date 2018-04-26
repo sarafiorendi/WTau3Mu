@@ -5,11 +5,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--basedir'   , dest='basedir'   , default='../cfgPython')
 parser.add_argument('--jobid'     , dest='jobid'     , default='')
 parser.add_argument('--selection' , dest='selection' , default='bdt_proba>0.5')
-parser.add_argument('--signalnorm', dest='signalnorm', default=33183./20000.*21490.9*1E-7) # normalize to BR = 1E-7. In this formula: lumi / ngen events * pp->W, BR W->taunu * BR tau->3mu
+# parser.add_argument('--signalnorm', dest='signalnorm', default=33183./20000.*21490.9*1E-7) # normalize to BR = 1E-7. In this formula: lumi / ngen events * pp->W, BR W->taunu * BR tau->3mu
+
+# http://inspirehep.net/record/1404393/files/SMP-15-004-pas.pdf
+# measured cross section multiplied by BR(W->taunu) / BR(W->munu)
+parser.add_argument('--signalnorm', dest='signalnorm', default=33183./20000.*(8580+11370)*0.1138/0.1063*1E-7)
 parser.add_argument('--category'  , dest='category'  , default='')
 parser.add_argument('--datafile'  , dest='datafile'  , default=None)
 parser.add_argument('--sigfile'   , dest='sigfile'   , default=None)
 args = parser.parse_args() 
+
+
 
 import ROOT
 import os
@@ -240,8 +246,9 @@ rate                                    {signal:.4f}        {bkg:.4f}
 bkgNorm{cat}  lnU                       -                   4.00
 a0{cat}       flatParam
 lumi          lnN                       1.025               -   
-xs_W          lnN                       1.05                -   
+xs_W          lnN                       1.037               -   
 br_Wtaunu     lnN                       1.0021              -   
+br_Wtaunu     lnN                       1.0015              -   
 mc_stat{cat}  lnN                       {mcstat:.4f}        -   
 mu_id{cat}    lnN                       {mu_id:.4f}         -   
 mu_hlt{cat}   lnN                       {mu_hlt:.4f}        -   

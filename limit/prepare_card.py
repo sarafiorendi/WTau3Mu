@@ -23,6 +23,7 @@ from math import pi, sqrt
 from glob import glob
 from pdb import set_trace
 from array import array 
+import math
 
 # ROOT.gROOT.SetBatch()
 ROOT.gStyle.SetOptStat(True)
@@ -115,34 +116,35 @@ def fline(x, par):
     if reject and x[0] > 1.72 and x[0] < 1.84:
         ROOT.TF1.RejectPoint()
         return 0
-    return par[0] + par[1]*x[0];
+    return par[0] + math.exp(par[1]*x[0])
 
-retta = ROOT.TF1('retta', fline, 1.61, 1.99, 2)
-retta.SetParameters(0,0)
-retta.SetLineColor(ROOT.kBlue)
+expo = ROOT.TF1('expo', fline, 1.61, 1.99, 2)
+expo.SetParameters(0,0)
+expo.SetLineColor(ROOT.kBlue)
 reject = True
-fit_result_data = getattr(mass_histo_data.Fit(retta, 'RSIQL'), 'Get()', mass_histo_data.Fit(retta, 'RSIQL')) # we want a likelihood fit because we want to count empty bins too
-retta.Draw('SAMEL')
-slope = fit_result_data.Parameter(1)
+fit_result_data = getattr(mass_histo_data.Fit(expo, 'RSIQL'), 'Get()', mass_histo_data.Fit(expo, 'RSIQL')) # we want a likelihood fit because we want to count empty bins too
+expo.Draw('SAMEL')
+# slope = fit_result_data.Parameter(1)
 ROOT.gPad.Update()
 
 sara.SaveAs('bkg%s.pdf'%(args.category))
 
 # final histo
-
 ROOT.gStyle.SetOptStat(0)
 mycanvas = ROOT.TCanvas('mycanvas', '', 700, 700)
 mycanvas.cd()
-retta_tot = ROOT.TF1('fl', 'pol1', 1.61, 1.99, 2)
-retta_tot.SetParameters(retta.GetParameters())
+expo_tot = ROOT.TF1('fl', 'expo', 1.61, 1.99, 2)
+expo_tot.SetParameters(expo.GetParameters())
 
-# trapezoid area under the pol1
-def integ(mm, qq, xmin, xmax, binwidth=0.01):
-    return (0.5 * mm * (xmax**2 - xmin**2) + qq*(xmax -xmin))/binwidth
-
-qq = retta.GetParameter(0)
-mm = retta.GetParameter(1)
-total_bkg = integ(mm, qq, 1.61, 1.99)
+# area under the expo
+def integ(p0, p1, xmin, xmax, binwidth=0.01):
+    primitive = lambda x : 1./p1 * math.exp(p0 + p1 * x)
+    result = primitive(xmax) - primitive(xmin) 
+    return result/binwidth
+    
+p0 = expo.GetParameter(0)
+p1 = expo.GetParameter(1)
+total_bkg = integ(p0, p1, 1.61, 1.99)
 
 # import pdb ; pdb.set_trace()
 
@@ -162,15 +164,15 @@ mass_histo_mc  .SetFillStyle(3004)
 
 mass_histo_data.Draw('EP')
 mass_histo_mc  .Draw('HISTSAME')
-retta_tot.SetLineColor(ROOT.kBlack)
-retta_tot.Draw('SAMEL')
+expo_tot.SetLineColor(ROOT.kBlack)
+expo_tot.Draw('SAMEL')
 gaus.Draw('SAMEL')
 
-combo = ROOT.TF1('combo', 'pol1(0) + gaus(2)', 1.61, 1.99)
+combo = ROOT.TF1('combo', 'expo(0) + gaus(2)', 1.61, 1.99)
 combo.SetLineColor(ROOT.kGray+1)
 combo.SetLineStyle(2)
-combo.SetParameter(0, retta.GetParameter(0))
-combo.SetParameter(1, retta.GetParameter(1))
+combo.SetParameter(0, expo.GetParameter(0))
+combo.SetParameter(1, expo.GetParameter(1))
 combo.SetParameter(2, gaus.GetParameter(0))
 combo.SetParameter(3, gaus.GetParameter(1))
 combo.SetParameter(4, gaus.GetParameter(2))
@@ -202,9 +204,12 @@ w = ROOT.RooWorkspace('t3m_shapes')
 
 # first order poly
 w.factory('mass[%f, %f]' % (1.61, 1.99))
-# w.factory('a0%s[%.3f]' %(args.category, max(slope, 0.)))
-w.factory('a0%s[%.3f,-10,10]' %(args.category, max(slope, 0.)))
-w.factory('RooPolynomial::bkg(mass,{a0%s})' %args.category)
+# w.factory('a0%s[%.3f,-10,0.001]' %(args.category, max(slope, 0.)))
+# w.factory('a0%s[%.3f,-10,0.001]' %(args.category, slope))
+# w.factory('a0%s[%.3f,-10,0.001]' %(args.category, 1))
+# w.factory('RooPolynomial::bkg(mass,{a0%s})' %args.category)
+w.factory("Exponential::bkg(mass, a0%s[-0.2,-100,100])" %(args.category) )  
+# w.var('a0%s' %(args.category)).setError(0.01)
 
 # dump signal with fixed shape (the final fit will only vary the normalisation
 w.factory('mean[%f]'  % mean)
@@ -248,7 +253,7 @@ a0{cat}       flatParam
 lumi          lnN                       1.025               -   
 xs_W          lnN                       1.037               -   
 br_Wtaunu     lnN                       1.0021              -   
-br_Wtaunu     lnN                       1.0015              -   
+br_Wmunu      lnN                       1.0015              -   
 mc_stat{cat}  lnN                       {mcstat:.4f}        -   
 mu_id{cat}    lnN                       {mu_id:.4f}         -   
 mu_hlt{cat}   lnN                       {mu_hlt:.4f}        -   

@@ -15,16 +15,16 @@ for wp in $wps
     echo "creating model"
     text2workspace.py $datacard -o $model 
     
-    echo 'computing the 95% limit'
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5  --plot=limit_scan_central_0.95_WP$wp.png --rMin 1 --rMax 3 &> central_0.95_WP$wp.txt
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.16 --plot=limit_scan_minus_0.95_WP$wp.png   --rMin 1 --rMax 3 &> plus_one_sigma_0.95_WP$wp.txt
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.84 --plot=limit_scan_plus_0.95_WP$wp.png    --rMin 1 --rMax 3 &> minus_one_sigma_0.95_WP$wp.txt
-    
     echo 'computing the 90% limit'
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.5  -C 0.9 --plot=limit_scan_central_0.90_WP$wp.png --rMin 1 --rMax 3 &> central_0.90_WP$wp.txt
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.16 -C 0.9 --plot=limit_scan_minus_0.90_WP$wp.png   --rMin 1 --rMax 3 &> minus_one_sigma_0.90_WP$wp.txt
-    combine -M HybridNew --testStat=LHC --frequentist $model -T 2000 --expectedFromGrid 0.84 -C 0.9 --plot=limit_scan_plus_0.90_WP$wp.png    --rMin 1 --rMax 3 &> plus_one_sigma_0.90_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.5  -C 0.9 --plot=limit_scan_central_0.90_WP$wp.png --rMin 1 --rMax 8 > central_0.90_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.16 -C 0.9 --plot=limit_scan_minus_0.90_WP$wp.png   --rMin 1 --rMax 8 > minus_one_sigma_0.90_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.84 -C 0.9 --plot=limit_scan_plus_0.90_WP$wp.png    --rMin 1 --rMax 8 > plus_one_sigma_0.90_WP$wp.txt
 
+    echo 'computing the 95% limit'
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.5  --plot=limit_scan_central_0.95_WP$wp.png --rMin 1 --rMax 8 > central_0.95_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.16 --plot=limit_scan_minus_0.95_WP$wp.png   --rMin 1 --rMax 8 > plus_one_sigma_0.95_WP$wp.txt
+    combine -M HybridNew --testStat=LHC --frequentist $model -T 3000 --expectedFromGrid 0.84 --plot=limit_scan_plus_0.95_WP$wp.png    --rMin 1 --rMax 8 > minus_one_sigma_0.95_WP$wp.txt
+    
     done
 
 

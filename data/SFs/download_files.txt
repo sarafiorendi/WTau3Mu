@@ -1,9 +1,8 @@
-wget https://cernbox.cern.ch/index.php/s/rSwLdDbYrKDQnPv/download -O HLT_track_SFs.json 
-wget https://cernbox.cern.ch/index.php/s/ErBDufMqsp1b7ip/download -O SF_from_Z_ordered.json
-wget https://cernbox.cern.ch/index.php/s/zFx2BR8sAtM5Aqd/download -O ScaleFactors_RunBH_muonHLT.json
-wget https://cernbox.cern.ch/index.php/s/BpmzdJPMIhv0ic1/download -O ScaleFactors_mediumNOTtight2016_muonID_updt.json
-wget https://cernbox.cern.ch/index.php/s/L1b5dpAFJexqYXf/download -O ScaleFactors_soft2016NOTloose_muonID_updt.json
-wget https://cernbox.cern.ch/index.php/s/Oa4UmNFCxZTJtKc/download -O ScaleFactors_tight2016_muonID_updt.json
-wget https://cernbox.cern.ch/index.php/s/35FRDkee244g1X6/download -O ScaleFactors_tight2016_muonID_updt_withZ.json
-wget https://cernbox.cern.ch/index.php/s/LJQxw1uh4rNiwjt/download -O ScaleFactors_looseNOTmedium_muonID_updt.json
-
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/HLT_track_SFs.json                                       HLT_track_SFs.json 
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/SF_from_Z_ordered.json                                   SF_from_Z_ordered.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_RunBH_muonHLT_June2018.json                 ScaleFactors_RunBH_muonHLT_June2018.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_mediumNOTtight2016_muonID_updt.json         ScaleFactors_mediumNOTtight2016_muonID_updt.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_soft2016NOTloose_muonID_updt.json           ScaleFactors_soft2016NOTloose_muonID_updt.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_tight2016_muonID.json                       ScaleFactors_tight2016_muonID_updt.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_tight2016_muonID_withZ.json                 ScaleFactors_tight2016_muonID_withZ.json
+cp /afs/cern.ch/user/l/lguzzi/public/Tau3Mu/jsonFiles_SF/ScaleFactors_looseNOTmedium_muonID_updt.json             ScaleFactors_looseNOTmedium_muonID_updt.json

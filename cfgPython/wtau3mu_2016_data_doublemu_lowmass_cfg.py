@@ -46,7 +46,7 @@ puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044
 ###################################################
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
-production         = getHeppyOption('production'        , False)
+production         = getHeppyOption('production'        , True )
 pick_events        = getHeppyOption('pick_events'       , False)
 kin_vtx_fitter     = getHeppyOption('kin_vtx_fitter'    , True )
 extrap_muons_to_L1 = getHeppyOption('extrap_muons_to_L1', False)
@@ -89,7 +89,8 @@ eventSelector = cfg.Analyzer(
     EventSelector,
     name='EventSelector',
     toSelect=[
-        588661057,
+        119409188,
+        118275827,
     ]
 )
 
@@ -239,6 +240,7 @@ fileCleaner = cfg.Analyzer(
 ###                  SEQUENCE                   ###
 ###################################################
 sequence = cfg.Sequence([
+#     eventSelector,
     lheWeightAna,
     jsonAna,
     skimAna,
@@ -268,7 +270,7 @@ if not production:
 
 #     for comp in selectedComponents:
 #         comp.fineSplitFactor = 4
-
+#     comp.files = ['file:/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_9_2_2_minimal_recipe/src/CMGTools/WTau3Mu/cfgPython/data.root']
     comp.files           = comp.files[:1]
 #     comp.files = [
 #          'file:/eos/cms/store/group/phys_tau/WTau3Mu/mvamet2016/mvamet_from_cpp_data/DoubleMuonLowMass_Run2016G_23Sep2016/cmsswPreProcessing.root'

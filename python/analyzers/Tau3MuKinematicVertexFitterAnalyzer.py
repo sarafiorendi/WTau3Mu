@@ -151,9 +151,15 @@ class Tau3MuKinematicVertexFitterAnalyzer(Analyzer):
             return False
         self.counters.counter('KinematicVertexFitter').inc('>0 triplets without resonances with other muons')
 
-        #   - if there's still more than one candidate, pick the one with the best vertex probability.
+        #   - if there's still more than one candidate, pick the one with the largest mT.
         #     Give precedence to candidates with the correct charge        
         candidates.sort(key=lambda cand : (abs(cand.charge())==1, cand.mttau()), reverse=True)
+
+#         import pdb ; pdb.set_trace()
+        #   - if there's still more than one candidate, pick the one with the best vertex probability.
+        #     Give precedence to candidates with the correct charge        
+#         candidates.sort(key=lambda cand : (abs(cand.charge())==1, cand.svtree.prob), reverse=True)
+
         candidate = candidates[0]
 #         if len(candidates)>1:
 #             print '\n###############################################################'

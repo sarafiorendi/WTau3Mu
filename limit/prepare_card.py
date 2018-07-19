@@ -116,7 +116,7 @@ def fline(x, par):
     if reject and x[0] > 1.72 and x[0] < 1.84:
         ROOT.TF1.RejectPoint()
         return 0
-    return par[0] + math.exp(par[1]*x[0])
+    return math.exp(par[0] + par[1]*x[0])
 
 expo = ROOT.TF1('expo', fline, 1.61, 1.99, 2)
 expo.SetParameters(0,0)

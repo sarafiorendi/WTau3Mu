@@ -246,15 +246,12 @@ recoilAna = cfg.Analyzer(
 ##  jsonFile = (jsonFilepath.json, binningVariable, UsePtOnly)
 muonWeighterAna = cfg.Analyzer(
     MuonWeighterAnalyzer,
-    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_updt_withZ.json'    % os.path.expandvars('$CMSSW_BASE')  , 'pt_abseta'        ),
-#     jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt_abseta'        ),
-#     jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt_abseta'        ),
-#     jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt_abseta'        ),
-    jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt'               ),
-    jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt'               ),
-    jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt'               ),
-    jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT.json'                  % os.path.expandvars('$CMSSW_BASE')  , 'pt_eta'           ),
-    jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'ds_pt'            ),
+    jsonFileID_TIH = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_tight2016_muonID_withZ.json'         % os.path.expandvars('$CMSSW_BASE')  , 'pt_abseta' ),
+    jsonFileID_MNT = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_mediumNOTtight2016_muonID_updt.json' % os.path.expandvars('$CMSSW_BASE')  , 'pt'        ),
+    jsonFileID_LNM = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_looseNOTmedium_muonID_updt.json'     % os.path.expandvars('$CMSSW_BASE')  , 'pt'        ),
+    jsonFileID_SNL = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_soft2016NOTloose_muonID_updt.json'   % os.path.expandvars('$CMSSW_BASE')  , 'pt'        ),
+    jsonFileHLT_MU = ('%s/src/CMGTools/WTau3Mu/data/SFs/ScaleFactors_RunBH_muonHLT_June2018.json'         % os.path.expandvars('$CMSSW_BASE')  , 'pt_eta'    ),
+    jsonFileHLT_TK = ('%s/src/CMGTools/WTau3Mu/data/SFs/HLT_track_SFs.json'                               % os.path.expandvars('$CMSSW_BASE')  , 'ds_pt'     ),
     multiplyEventWeight = True,
     #getter = lambda event : [event.tau3muRefit.mu1(), event.tau3muRefit.mu2(), event.tau3muRefit.mu3()],
     getter = lambda event : [event.tau3mu.mu1(), event.tau3mu.mu2(), event.tau3mu.mu3()],
@@ -314,7 +311,7 @@ if not production:
     comp                 = WToTauTo3Mu
     selectedComponents   = [comp]
     comp.splitFactor     = 1
-    comp.fineSplitFactor = 1
+    comp.fineSplitFactor = 4
 #     comp.files           = comp.files[:1]
 #     comp.files = [
 #        '/afs/cern.ch/work/m/manzoni/public/perLuca/newsignal/output.root'
